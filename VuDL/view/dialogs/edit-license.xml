@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xxforms:dialog id="edit-license-dialog"
+                appearance="full"
+                xmlns:xforms="http://www.w3.org/2002/xforms"
+                xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+                xmlns:xhtml="http://www.w3.org/1999/xhtml"
+                xmlns:ev="http://www.w3.org/2001/xml-events"
+                xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+                xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+                xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+                xmlns:access="http://www.fedora.info/definitions/1/0/access/"
+                xmlns:METS="http://www.loc.gov/METS/"
+                xmlns:fedora-model="info:fedora/fedora-system:def/model#" 
+                xmlns:xi="http://www.w3.org/2001/XInclude"
+                xmlns:fits="http://hul.harvard.edu/ois/xml/ns/fits/fits_output"
+                xmlns:management="http://www.fedora.info/definitions/1/0/management/"
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                >
+
+    <xforms:action ev:event="xxforms-dialog-open">
+
+
+        <!-- LICENSE already exists -->
+        <xforms:action if=".[xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('edit-license-parameters')/PID]/access:objectDatastreams/access:datastream[@dsid = 'LICENSE']]">
+            <!-- Get LICENSE -->
+            <!-- ~~~~~~~~~~~~~~~~ -->
+            <!-- LICENSE: getDatastream -->
+            <!-- xxforms:instance('LICENSE-dialog-datastream-instance') -->
+            <xforms:dispatch name="performAPIRequest" 
+                             target="FedoraAPI-helper"
+                             xxforms:show-progress="true">
+                <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('edit-license-parameters')/PID, '/datastreams/', string('LICENSE'), '?format=', string('xml'), '&amp;asOfDateTime=', now(),'&amp;validateChecksum=', string('false'))"/>
+                <xxforms:context name="dsID" value="string('LICENSE')"/>
+                <xxforms:context name="apiMethod" value="string('getDatastream')"/>
+                <xxforms:context name="httpMethod" value="string('get')"/>
+                <xxforms:context name="mode" value="string('synchronous')"/>
+                <xxforms:context name="destination-instance" value="string('LICENSE-dialog-datastream-instance')"/>
+                <xxforms:context name="clear-destination-instance" value="string('true')"/>
+            </xforms:dispatch>
+            <!-- LICENSE: getDatastreamDissemination -->
+            <!-- xxforms:instance('LICENSE-dialog-instance') -->
+            <xforms:dispatch name="performAPIRequest" 
+                             target="FedoraAPI-helper"
+                             xxforms:show-progress="true">
+                <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('edit-license-parameters')/PID, '/datastreams/', string('LICENSE'), '/content?format=', string('xml'), '&amp;asOfDateTime=', now(),'&amp;validateChecksum=', string('false'))"/>
+                <xxforms:context name="dsID" value="string('LICENSE')"/>
+                <xxforms:context name="apiMethod" value="string('getDatastreamDissemination')"/>
+                <xxforms:context name="httpMethod" value="string('get')"/>
+                <xxforms:context name="mode" value="string('synchronous')"/>
+                <xxforms:context name="destination-instance" value="string('LICENSE-dialog-instance')"/>
+                <xxforms:context name="clear-destination-instance" value="string('true')"/>
+            </xforms:dispatch>
+            <!-- ~~~~~~~~~~~~~~~~ -->
+
+            <!-- -->
+            <xforms:setvalue ref="xxforms:instance('LICENSE-url')" value="xxforms:instance('LICENSE-dialog-instance')/METS:rightsMD/METS:mdRef/@xlink:href"/>
+
+        </xforms:action>
+        
+        <!-- LICENSE does not already exist -->
+        <xforms:action if=".[not(xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('edit-license-parameters')/PID]/access:objectDatastreams/access:datastream[@dsid = 'LICENSE'])]">
+            <xforms:insert context="xxforms:instance('LICENSE-dialog-instance')/root()/instance"
+                           origin="xxforms:instance('LICENSE-template')"
+                           at="last()"
+                           position="after"
+                           />
+            <xforms:setvalue ref="xxforms:instance('LICENSE-url')" value="xxforms:instance('LICENSE-dialog-instance')/METS:rightsMD/METS:mdRef/@xlink:href"/>
+        </xforms:action>
+    </xforms:action>
+    
+    <xforms:label>Edit License</xforms:label>
+
+    <xforms:select1 appearance="full" ref="xxforms:instance('LICENSE-url')">
+        <xforms:label>Choose License</xforms:label>
+        <xforms:itemset ref="xxforms:instance('LICENSE-options')//item">
+            <xforms:label ref="@label"/>
+            <xforms:value ref="@value"/>
+        </xforms:itemset>
+
+        <xforms:action ev:event="xforms-value-changed">
+            <xforms:delete nodeset="xxforms:instance('LICENSE-dialog-instance')/root()/instance/*"/>
+            <xforms:insert context="xxforms:instance('LICENSE-dialog-instance')/root()/instance"
+                           origin="xxforms:instance('LICENSE-template')"
+                           at="last()"
+                           position="after"
+                           />
+                           
+            <xxforms:variable name="licenseURL" value="xxforms:instance('LICENSE-url')"/>
+            <xforms:setvalue ref="xxforms:instance('LICENSE-dialog-instance')//METS:mdRef/@xlink:href" value="$licenseURL"/>
+            <xforms:setvalue ref="xxforms:instance('LICENSE-dialog-instance')//METS:mdRef/@MDTYPE" value="xxforms:instance('LICENSE-options')//item[@value = $licenseURL]/@mdtype"/>
+            <xforms:setvalue ref="xxforms:instance('LICENSE-dialog-instance')//METS:mdRef/@MIMETYPE" value="xxforms:instance('LICENSE-options')//item[@value = $licenseURL]/@mimetype"/>
+            <xforms:action if="xxforms:instance('LICENSE-options')//item[@value = $licenseURL]/@mdtype = 'OTHER'">
+                <xforms:insert context="xxforms:instance('LICENSE-dialog-instance')//METS:mdRef" origin="xforms:attribute('OTHERMDTYPE', xxforms:instance('LICENSE-options')//item[@value = $licenseURL]/@othermdtype)"/>
+            </xforms:action>
+        </xforms:action>
+
+    </xforms:select1>
+    
+    
+    
+    <xforms:trigger xxforms:modal="true">
+        <xforms:label>
+            <xhtml:img src="/apps/VuDL/images/trigger_save.png"/>
+            Save
+        </xforms:label>
+        <xforms:action ev:event="DOMActivate">
+            
+            <!-- if LICENSE exists -->
+            <!-- modifyDatastream -->
+            <xforms:action if=".[xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('edit-license-parameters')/PID]/access:objectDatastreams/access:datastream[@dsid = 'LICENSE']]">
+
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/PID" value="xxforms:instance('edit-license-parameters')/PID"/>
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/dsID" value="string('LICENSE')"/>
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/post-content" value="string('LICENSE-dialog-instance')"/>
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/dsLocation" value="string('')"/>
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/altIDs" value="string('')"/>
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/dsLabel" value="xxforms:instance('LICENSE-dialog-datastream-instance')//management:dsLabel"/>
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/versionable" value="xxforms:instance('LICENSE-dialog-datastream-instance')//management:dsVersionable"/>
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/dsState" value="xxforms:instance('LICENSE-dialog-datastream-instance')//management:dsState"/>
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/formatURI" value="xxforms:instance('LICENSE-dialog-datastream-instance')//management:dsFormatURI"/>
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/checksumType" value="xxforms:instance('LICENSE-dialog-datastream-instance')//management:dsChecksumType"/>
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/checksum" value="xxforms:instance('LICENSE-dialog-datastream-instance')//management:dsChecksum"/>
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/mimeType" value="xxforms:instance('LICENSE-dialog-datastream-instance')//management:dsMIME"/>
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/logMessage" value="string('Modified LICENSE Datastream')"/>
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/ignoreContent" value="string('false')"/>
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/lastModifiedDate" value="now()"/>
+                <!-- send submission -->
+                <xforms:dispatch name="performAPIRequest" 
+                                 target="FedoraAPI-helper"
+                                 xxforms:show-progress="true">
+                    <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('modifyDatastream-parameters')/PID, '/datastreams/', xxforms:instance('modifyDatastream-parameters')/dsID)"/>
+                    <xxforms:context name="dsID" value="xxforms:instance('modifyDatastream-parameters')/dsID"/>
+                    <xxforms:context name="apiMethod" value="string('modifyDatastream')"/>
+                    <xxforms:context name="httpMethod" value="string('put')"/>
+                    <xxforms:context name="mode" value="string('')"/>
+                    <xxforms:context name="destination-instance" value="string('')"/>
+                    <xxforms:context name="clear-destination-instance" value="string('')"/>
+                    <xxforms:context name="post-content" value="xxforms:instance('modifyDatastream-parameters')/post-content"/>
+                    <xxforms:context name="parameters" value="string('modifyDatastream-parameters')"/>
+                </xforms:dispatch>
+            </xforms:action>
+            
+            <!-- LICENSE does not exist -->
+            <!-- addDatastream -->
+            <xforms:action if=".[not(xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('edit-license-parameters')/PID]/access:objectDatastreams/access:datastream[@dsid = 'LICENSE'])]">
+                <!-- start root()/instance hack for adddatastream -->
+                <!-- TODO: the root of the posted content is *instance*. We do not want this in the DS, so we copy the first child (metsrights) into a new instance and use that for posting -->
+                <xforms:delete nodeset="xxforms:instance('LICENSE-dialog-instance-root-hack')/*"/>
+                <xforms:insert nodeset="xxforms:instance('LICENSE-dialog-instance-root-hack')"
+                               origin="xxforms:instance('LICENSE-dialog-instance')//METS:rightsMD"
+                               at="last()"
+                               position="after"
+                               />
+                <!-- end hack -->
+
+                
+                <!-- Prepare new LICENSE with url from select1 -->
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/PID" value="xxforms:instance('edit-license-parameters')/PID"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/dsID" value="string('LICENSE')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/post-content" value="string('LICENSE-dialog-instance-root-hack')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/controlGroup" value="string('X')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/dsLocation" value="string('')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/altIDs" value="string('')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/dsLabel" value="string('License for this Resource')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/versionable" value="string('false')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/dsState" value="string('A')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/formatURI" value="string('')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/checksumType" value="string('DISABLED')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/checksum" value="string('')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/mimeType" value="string('text/xml')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/logMessage" value="string('Addes LICENSE datastream')"/>
+                <!-- send submission -->
+                <xforms:dispatch name="performAPIRequest" 
+                                 target="FedoraAPI-helper"
+                                 xxforms:show-progress="true"
+                                 >
+                    <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('addDatastream-parameters')/PID, '/datastreams/', xxforms:instance('addDatastream-parameters')/dsID)"/>
+                    <xxforms:context name="dsID" value="xxforms:instance('addDatastream-parameters')/dsID"/>
+                    <xxforms:context name="apiMethod" value="string('addDatastream')"/>
+                    <xxforms:context name="httpMethod" value="string('post')"/>
+                    <xxforms:context name="mode" value="string('')"/>
+                    <xxforms:context name="destination-instance" value="string('')"/>
+                    <xxforms:context name="clear-destination-instance" value="string('')"/>
+                    <xxforms:context name="parameters" value="string('addDatastream-parameters')"/>
+                </xforms:dispatch>
+
+                
+            </xforms:action>
+
+            <xforms:dispatch name="refresh-PIDmetadata"
+                             target="CoreModel-helper"
+                             >
+                <xxforms:context name="PID" select="xxforms:instance('edit-license-parameters')/PID"/>
+                <xxforms:context name="mode" select="string('synchronous')"/>
+                <xxforms:context name="stats" select="string('true')"/>
+            </xforms:dispatch>
+                
+            <!-- Hide -->
+            <xxforms:hide dialog="edit-license-dialog"/>
+            
+        </xforms:action>
+    </xforms:trigger>
+    
+    <xforms:trigger>
+        <xforms:label>
+            <xhtml:img src="/apps/VuDL/images/trigger_cancel.png"/>
+            Cancel
+        </xforms:label>
+        <xforms:action ev:event="DOMActivate">
+            <xxforms:hide dialog="edit-license-dialog"/>
+        </xforms:action>
+    </xforms:trigger>
+    
+</xxforms:dialog>

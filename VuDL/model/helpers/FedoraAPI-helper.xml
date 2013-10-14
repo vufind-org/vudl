@@ -1,0 +1,1399 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xforms:model id="FedoraAPI-helper"
+              xmlns:xforms="http://www.w3.org/2002/xforms"
+              xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+              xmlns:ev="http://www.w3.org/2001/xml-events"
+              xmlns:xs="http://www.w3.org/2001/XMLSchema"
+              xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+              xmlns:xi="http://www.w3.org/2001/XInclude"
+              xmlns:foxml="info:fedora/fedora-system:def/foxml#"
+              xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+              xmlns:sparql="http://www.w3.org/2001/sw/DataAccess/rf1/result"
+              xmlns:fedora-model="info:fedora/fedora-system:def/model#" 
+              xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+              xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+              xmlns:dc="http://purl.org/dc/elements/1.1/"
+              xmlns:management="http://www.fedora.info/definitions/1/0/management/"
+              xmlns:METS="http://www.loc.gov/METS/"
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              xmlns:access="http://www.fedora.info/definitions/1/0/access/"
+              xmlns:vudl="http://vudl.org">
+    
+    <!-- ~~~~~~~~~~~~~~~~ -->
+    <!-- getNextPID -->
+    <!-- ~~~~~~~~~~~~~~~~ -->
+    <xforms:submission id="getNextPID"
+                       resource="{event('resourceURL')}"
+                       method="post"
+                       ref="xxforms:instance('empty-instance')"
+                       instance="getNextPID-return"
+                       replace="instance"
+                       xxforms:username="{xxforms:instance('user-credentials')//login/username}"
+                       xxforms:password="{xxforms:instance('user-credentials')//login/password}"
+                       >
+        <xforms:action ev:event="xforms-submit-done">
+            <xforms:setvalue ref="xxforms:instance('newPID')" value="xxforms:instance('getNextPID-return')//management:pid[1]"/>
+        </xforms:action>
+        <xforms:action ev:event="xforms-submit-error">
+            <xforms:message level="modal">getNextPID - and error occurred</xforms:message>
+        </xforms:action>
+    </xforms:submission>
+    <!-- -->
+    <xforms:instance id="getNextPID-parameters">
+        <data>
+            <parameters>
+                <numPIDs/>
+                <namespace/>
+                <format/>
+            </parameters>
+        </data>
+    </xforms:instance>
+    <!-- -->
+    <xforms:instance id="getNextPID-return">
+        <instance>init</instance>
+    </xforms:instance>
+    <!-- -->
+    <xforms:instance id="newPID">
+        <instance/>
+    </xforms:instance>
+    <!-- dispatched action -->
+    <xforms:action ev:event="getNextPID">
+        <xforms:send submission="getNextPID" model="FedoraAPI-helper">
+            <xxforms:context name="resourceURL" select="event('resourceURL')"/>
+            <xxforms:context name="httpMethod" select="event('httpMethod')"/>
+            <xxforms:context name="mode" select="event('mode')"/>
+        </xforms:send>
+    </xforms:action>
+    <!-- ~~~~~~~~~~~~~~~~ -->
+    <!-- END: getNextPID -->
+    <!-- ~~~~~~~~~~~~~~~~ -->
+    
+    <!-- ~~~~~~~~~~~~~~~~ -->
+    <!-- ingest -->
+    <!-- ~~~~~~~~~~~~~~~~ -->
+    <xforms:submission id="ingest"
+                       method="post" 
+                       ref="xxforms:instance('empty-instance')"
+                       resource="{event('resourceURL')}"
+                       serialization="text/xml"
+                       replace="none"
+                       instance="ingest-return"
+                       xxforms:username="{xxforms:instance('user-credentials')//login/username}"
+                       xxforms:password="{xxforms:instance('user-credentials')//login/password}"
+                       >
+
+        <xforms:action ev:event="xforms-submit-done">
+            <xforms:delete nodeset="xxforms:instance('empty-instance')"/>
+            <xforms:setvalue ref="xxforms:instance('empty-instance')" value="string('')"/>
+        </xforms:action>
+        <xforms:action ev:event="xforms-submit-error">
+            <xforms:message level="modal">ingest: An error occurred.</xforms:message>
+        </xforms:action>
+    </xforms:submission>
+    <!-- -->
+    <xforms:instance id="ingest-parameters">
+        <data>
+            <PID/>
+            <post-content/>
+            <parameters>
+                <label/>
+                <format/>
+                <encoding/>
+                <namespace/>
+                <ownerId/>
+                <logMessage/>
+                <ignoreMime/>
+            </parameters>
+        </data>
+    </xforms:instance>
+    <!-- -->
+    <xforms:instance id="ingest-return" xxforms:validation="lax">
+        <instance xmlns=""/>
+    </xforms:instance>
+    <!-- dispatched action -->
+    <xforms:action ev:event="ingest">
+        <xforms:send submission="ingest" model="FedoraAPI-helper">
+            <xxforms:context name="resourceURL" select="event('resourceURL')"/>
+            <xxforms:context name="httpMethod" select="event('httpMethod')"/>
+            <xxforms:context name="mode" select="event('mode')"/>
+        </xforms:send>
+    </xforms:action>
+    <!-- ~~~~~~~~~~~~~~~~ -->
+    <!-- ingest -->
+    <!-- ~~~~~~~~~~~~~~~~ -->
+    
+    
+    <!-- ~~~~~~~~~~~~~~~~ -->
+    <!-- getObjectProfile -->
+    <!-- ~~~~~~~~~~~~~~~~ -->
+    <xforms:submission id="getObjectProfile"
+                       resource="{event('resourceURL')}"
+                       method="get"
+                       replace="instance"
+                       instance="getObjectProfile-return"
+                       xxforms:username="{xxforms:instance('user-credentials')//login/username}"
+                       xxforms:password="{xxforms:instance('user-credentials')//login/password}"
+                       mode="{event('mode')}"
+                       >
+                       <!--   -->
+        <xforms:action ev:event="xforms-submit-done">
+            <!-- TODO: this str_replace is HACK!, but I couldn't figure out why the resulting resource-uri was polluted by the getNextPID parameters -->
+            <!-- <xxforms:variable name="resourceURL" value="replace(event('resource-uri'), '&amp;numPIDs=1&amp;namespace=vudl&amp;format=xml', '')"/> -->
+            <xxforms:variable name="resourceURL" value="event('resource-uri')"/>
+            <xxforms:variable name="submissionParams" value="xxforms:instance('submissionControls')/submission[@URL=$resourceURL]"/>
+            <xforms:action if="$submissionParams/@clear-destination-instance = 'true'">
+                <xforms:delete nodeset="xxforms:instance($submissionParams/@destination-instance)/root()/instance/*"/>
+            </xforms:action>
+            
+            <xforms:insert context="xxforms:instance($submissionParams/@destination-instance)/root()/instance" 
+                           origin="xxforms:instance('getObjectProfile-return')"
+                           />
+                           
+            <xforms:action if="string-length($submissionParams/@completion-event) > 0">
+                <xforms:dispatch name="{$submissionParams/@completion-event}" target="FedoraAPI-helper">
+                    <xxforms:context name="PID" select="$submissionParams/@PID"/>
+                    <xxforms:context name="param1" select="$submissionParams/@completion-event-param1"/>
+                </xforms:dispatch>
+            </xforms:action>
+        </xforms:action>
+        
+        <xforms:action ev:event="xforms-submit-error">
+            <xxforms:variable name="resourceURL" value="event('resource-uri')"/>
+            <xxforms:variable name="submissionParams" value="xxforms:instance('submissionControls')/submission[@URL=$resourceURL]"/>
+            <xforms:message  level="modal">
+                <xforms:output value="concat('getObjectProfile :: ', $submissionParams/@destination-instance, ' :: An error occurred.')"/> 
+            </xforms:message>
+        </xforms:action>
+    </xforms:submission>
+    <!-- -->
+    <xforms:instance id="getObjectProfile-parameters">
+        <data>
+            <PID/>
+            <destination-instance/>
+            <parameters>
+                <format/>
+                <asOfDateTime/>
+            </parameters>
+        </data>
+    </xforms:instance>
+    <!-- -->
+    <xforms:instance id="getObjectProfile-return">
+        <instance/>
+    </xforms:instance>
+    <!-- TODO: change the name of this to: update-after-browse-members-metadata-getObjectProfile -->
+    <xforms:action ev:event="update-after-browse-members-metadata">
+
+      	<xxforms:variable name="PID" value="event('PID')"/>
+      	<xxforms:variable name="browse-members-target" value="event('param1')"/>
+      	<xforms:insert context="xxforms:instance(concat($browse-members-target, '-instance'))//sparql:memberPID[. = $PID]/parent::*"
+                       origin="xxforms:instance('getObjectProfile-temp-instance')//access:objectProfile[@pid=$PID]"
+                       at="last()"
+                       position="after"
+                       />
+        
+    </xforms:action>
+    <xforms:action ev:event="update-PIDmetadata-getObjectProfile">
+      	<xxforms:variable name="PID" value="event('PID')"/>
+      	<xforms:insert context="xxforms:instance('PIDmetadata')/object[@pid = $PID]"
+                       origin="xxforms:instance('getObjectProfile-temp-instance')//access:objectProfile[@pid=$PID]"
+                       at="last()"
+                       position="after"
+                       />
+        
+    </xforms:action>
+    <!-- dispatched action -->
+    <xforms:action ev:event="getObjectProfile">
+        <xforms:send submission="getObjectProfile" model="FedoraAPI-helper">
+            <xxforms:context name="resourceURL" select="event('resourceURL')"/>
+            <xxforms:context name="httpMethod" select="event('httpMethod')"/>
+            <xxforms:context name="mode" select="event('mode')"/>
+        </xforms:send>
+    </xforms:action>
+    <!-- -->
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <!-- END: getObjectProfile -->
+    <!-- ~~~~~~~~~~~~~~~ -->
+    
+    
+    
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <!-- listDatastreams -->
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <xforms:submission id="listDatastreams"
+                       resource="{event('resourceURL')}"
+                       method="get"
+                       replace="instance"
+                       instance="listDatastreams-return"
+                       xxforms:username="{xxforms:instance('user-credentials')//login/username}"
+                       xxforms:password="{xxforms:instance('user-credentials')//login/password}"
+                       mode="{event('mode')}"
+                       >
+                       
+        <xforms:action ev:event="xforms-submit-done">
+            
+            <!-- TODO: this str_replace is HACK!, but I couldn't figure out why the resulting resource-uri was polluted by the getNextPID parameters -->
+            <!-- <xxforms:variable name="resourceURL" value="replace(event('resource-uri'), '&amp;numPIDs=1&amp;namespace=vudl&amp;format=xml', '')"/> -->
+            <xxforms:variable name="resourceURL" value="event('resource-uri')"/>
+            <xxforms:variable name="submissionParams" value="xxforms:instance('submissionControls')/submission[@URL=$resourceURL]"/>
+            <xforms:action if="$submissionParams/@clear-destination-instance = 'true'">
+                <xforms:delete nodeset="xxforms:instance($submissionParams/@destination-instance)/root()/instance/*"/>
+            </xforms:action>
+            <xforms:insert context="xxforms:instance($submissionParams/@destination-instance)/root()/instance" 
+                           origin="xxforms:instance('listDatastreams-return')"
+                           />
+                           
+            <xforms:action if="string-length($submissionParams/@completion-event) > 0">
+                <xforms:dispatch name="{$submissionParams/@completion-event}" target="FedoraAPI-helper">
+                    <xxforms:context name="PID" select="$submissionParams/@PID"/>
+                    <xxforms:context name="param1" select="$submissionParams/@completion-event-param1"/>
+                </xforms:dispatch>
+            </xforms:action>
+            
+        </xforms:action>
+        
+        <xforms:action ev:event="xforms-submit-error">
+            <xxforms:variable name="resourceURL" value="event('resource-uri')"/>
+            <xxforms:variable name="submissionParams" value="xxforms:instance('submissionControls')/submission[@URL=$resourceURL]"/>
+            <xforms:message  level="modal">
+                <xforms:output value="concat('listDatastreams :: ', $submissionParams/@destination-instance, ' :: An error occurred.')"/> 
+            </xforms:message>
+        </xforms:action>
+        
+    </xforms:submission>
+    <!-- -->
+    <xforms:instance id="listDatastreams-parameters">
+        <data>
+            <PID/>
+            <destination-instance/>
+            <clear-destination-instance/>
+            <mode/>
+            <parameters>
+                <format/>
+                <asOfDateTime/>
+            </parameters>
+        </data>
+    </xforms:instance>
+    <!-- -->
+    <xforms:instance id="listDatastreams-return">
+        <instance/>
+    </xforms:instance>
+    <!-- -->
+    <xforms:action ev:event="update-after-browse-members-metadata-listDatastreams">
+      	<xxforms:variable name="PID" value="event('PID')"/>
+      	<!-- <xforms:message><xforms:output value="$PID"/></xforms:message> -->
+      	<xxforms:variable name="browse-members-target" value="event('param1')"/>
+      	<xforms:insert context="xxforms:instance(concat($browse-members-target, '-instance'))//sparql:memberPID[. = $PID]/parent::*"
+                       origin="xxforms:instance('listDatastreams-temp-instance')//access:objectDatastreams[@pid=$PID]"
+                       at="last()"
+                       position="after"
+                       />
+
+    </xforms:action>
+    <!-- -->
+    <xforms:action ev:event="update-PIDmetadata-listDatastreams">
+      	<xxforms:variable name="PID" value="event('PID')"/>
+      	<xforms:insert context="xxforms:instance('PIDmetadata')/object[@pid = $PID]"
+                       origin="xxforms:instance('listDatastreams-temp-instance')//access:objectDatastreams[@pid=$PID]"
+                       at="last()"
+                       position="after"
+                       />
+
+    </xforms:action>
+    <!-- dispatched action -->
+    <xforms:action ev:event="listDatastreams">
+        <xforms:send submission="listDatastreams" model="FedoraAPI-helper">
+            <xxforms:context name="resourceURL" select="event('resourceURL')"/>
+            <xxforms:context name="httpMethod" select="event('httpMethod')"/>
+            <xxforms:context name="mode" select="event('mode')"/>
+        </xforms:send>
+    </xforms:action>
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <!-- END: listDatastreams -->
+    <!-- ~~~~~~~~~~~~~~~ -->
+
+
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <!-- getDatastream -->
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <xforms:submission id="getDatastream"
+                       resource="{event('resourceURL')}"
+                       method="get"
+                       replace="instance"
+                       xxforms:instance="getDatastream-return"
+                       xxforms:username="{xxforms:instance('user-credentials')//login/username}"
+                       xxforms:password="{xxforms:instance('user-credentials')//login/password}"
+                       mode="{event('mode')}"
+                       >
+                       <!--  -->
+
+        <xforms:action ev:event="xforms-submit-done">
+            <xxforms:variable name="resourceURL" value="event('resource-uri')"/>
+            <xxforms:variable name="submissionParams" value="xxforms:instance('submissionControls')/submission[@URL=$resourceURL]"/>
+            <xforms:action if="$submissionParams/@clear-destination-instance = 'true'">
+                <xforms:delete nodeset="xxforms:instance($submissionParams/@destination-instance)/root()/instance/*"/>
+            </xforms:action>
+            <xforms:insert context="xxforms:instance($submissionParams/@destination-instance)/root()/instance" 
+                           origin="xxforms:instance('getDatastream-return')"
+                           />
+                           
+            <xforms:action if="string-length($submissionParams/@completion-event) > 0">
+                <xforms:dispatch name="{$submissionParams/@completion-event}" target="FedoraAPI-helper">
+                    <xxforms:context name="PID" select="$submissionParams/@PID"/>
+                </xforms:dispatch>
+            </xforms:action>
+        
+        </xforms:action>
+
+        
+
+        <xforms:action ev:event="xforms-submit-error">
+            <xxforms:variable name="resourceURL" value="event('resource-uri')"/>
+            <xxforms:variable name="submissionParams" value="xxforms:instance('submissionControls')/submission[@URL=$resourceURL]"/>
+            <xforms:message  level="modal">
+                <xforms:output value="concat('getDatastream :: ', $submissionParams/@dsID, ' :: An error occurred. ', $resourceURL)"/> 
+            </xforms:message>
+        </xforms:action>
+
+    </xforms:submission>
+    <!-- -->
+    <xforms:action ev:event="update-PIDmetadata-DC-datastream">
+      	<xxforms:variable name="PID" value="event('PID')"/>
+      	<xforms:insert context="xxforms:instance('PIDmetadata')/object[@pid = $PID]"
+                       origin="xxforms:instance('getDatastream-return')"
+                       at="last()"
+                       position="after"
+                       />
+    </xforms:action>
+    <!-- -->
+    <xforms:instance id="getDatastream-parameters">
+        <instance>
+            <PID/>
+            <dsID/>
+            <destination-instance/>
+            <clear-destination-instance/>
+            <mode/>
+            <parameters>
+                <asOfDateTime/>
+                <format/>
+                <validateChecksum/>
+            </parameters>
+        </instance>
+    </xforms:instance>
+    <!-- -->
+    <xforms:instance id="getDatastream-return">
+        <instance/>
+    </xforms:instance>
+    <!-- dispatched action -->
+    <xforms:action ev:event="getDatastream">
+        <xforms:send submission="getDatastream" model="FedoraAPI-helper">
+            <xxforms:context name="resourceURL" select="event('resourceURL')"/>
+            <xxforms:context name="httpMethod" select="event('httpMethod')"/>
+            <xxforms:context name="mode" select="event('mode')"/>
+        </xforms:send>
+    </xforms:action>
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <!-- END: getDatastream -->
+    <!-- ~~~~~~~~~~~~~~~ -->
+    
+    
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <!-- getDatastreamDissemination -->
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <!-- getDatastreamDissemination -->
+    <!-- TODO: add 'asOfDateTime' and 'download' parameters to resource -->
+    <xforms:submission id="getDatastreamDissemination"
+                       resource="{event('resourceURL')}"
+                       method="get"
+                       replace="instance"
+                       instance="getDatastreamDissemination-return"
+                       xxforms:username="{xxforms:instance('user-credentials')//login/username}"
+                       xxforms:password="{xxforms:instance('user-credentials')//login/password}"
+                       mode="{event('mode')}"
+                       >
+        
+        <xforms:action ev:event="xforms-submit-done">
+            <xxforms:variable name="resourceURL" value="event('resource-uri')"/>
+            <xxforms:variable name="submissionParams" value="xxforms:instance('submissionControls')/submission[@URL=$resourceURL]"/>
+            
+            <xforms:action if="$submissionParams/@clear-destination-instance = 'true'">
+                <xforms:delete nodeset="xxforms:instance($submissionParams/@destination-instance)/root()/instance/*"/>
+            </xforms:action>
+            <xforms:insert context="xxforms:instance($submissionParams/@destination-instance)/root()/instance" 
+                           origin="xxforms:instance('getDatastreamDissemination-return')"
+                           />
+            <xforms:action if="string-length($submissionParams/@completion-event) > 0">
+                <xforms:dispatch name="{$submissionParams/@completion-event}" target="FedoraAPI-helper">
+                    <xxforms:context name="PID" select="$submissionParams/@PID"/>
+                </xforms:dispatch>
+            </xforms:action>
+
+        </xforms:action>
+        <xforms:action ev:event="xforms-submit-error">
+            <xxforms:variable name="resourceURL" value="event('resource-uri')"/>
+            <xxforms:variable name="submissionParams" value="xxforms:instance('submissionControls')/submission[@URL=$resourceURL]"/>
+            <xforms:message level="modal">
+                <xforms:output value="concat('getDatastreamDissemination :: ', $submissionParams/@dsID, ':: An error occurred. ', $resourceURL)"/> 
+            </xforms:message>
+        </xforms:action>
+    </xforms:submission>
+    <!-- 
+    <xforms:action ev:event="update-after-RELS">
+      	<xxforms:variable name="PID" value="event('PID')"/>
+      	<xforms:insert context="xxforms:instance('browse-members-instance')//sparql:result[sparql:memberPID = $PID]"
+                       origin="xxforms:instance('RELS-EXT-temp-instance')//rdf:Description[@rdf:about=concat('info:fedora/', $PID)]/parent::*"
+                       at="last()"
+                       position="after"
+                       />
+    </xforms:action>
+    -->
+    <!--
+    <xforms:action ev:event="update-after-RELS">
+      	<xxforms:variable name="PID" value="event('PID')"/>
+      	<xforms:insert context="xxforms:instance('browse-members-instance')//METS:div/METS:fptr[@FILEID = $PID]"
+                       origin="xxforms:instance('RELS-EXT-temp-instance')//rdf:Description[@rdf:about=concat('info:fedora/', $PID)]/parent::*"
+                       at="last()"
+                       position="after"
+                       />
+    </xforms:action>
+    -->
+    <xforms:action ev:event="update-PIDmetadata-DC">
+      	<xxforms:variable name="PID" value="event('PID')"/>
+      	<xforms:insert context="xxforms:instance('PIDmetadata')/object[@pid = $PID]"
+                       origin="xxforms:instance('getDatastreamDissemination-return')"
+                       at="last()"
+                       position="after"
+                       />
+    </xforms:action>
+    <!-- -->
+    <xforms:instance id="getDatastreamDissemination-parameters">
+        <instance>
+            <PID/>
+            <dsID/>
+            <mode/>
+            <destination-instance/>
+            <clear-destination-instance/>
+            <parameters>
+                <asOfDateTime/>
+                <download/>
+            </parameters>
+        </instance>
+    </xforms:instance>
+    <!-- -->
+    <xforms:instance id="getDatastreamDissemination-return">
+        <instance/>
+    </xforms:instance>
+    <!-- -->
+    <!-- dispatched action -->
+    <xforms:action ev:event="getDatastreamDissemination">
+        <xforms:send submission="getDatastreamDissemination" model="FedoraAPI-helper">
+            <xxforms:context name="resourceURL" select="event('resourceURL')"/>
+            <xxforms:context name="httpMethod" select="event('httpMethod')"/>
+            <xxforms:context name="mode" select="event('mode')"/>
+        </xforms:send>
+    </xforms:action>
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <!-- END: getDatastreamDissemination -->
+    <!-- ~~~~~~~~~~~~~~~ -->
+    
+    
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <!-- listMethods -->
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <xforms:submission id="listMethods"
+                       resource="{event('resourceURL')}"
+                       method="{event('httpMethod')}"
+                       replace="instance"
+                       instance="listMethods-return"
+                       xxforms:username="{xxforms:instance('user-credentials')//login/username}"
+                       xxforms:password="{xxforms:instance('user-credentials')//login/password}"
+                       mode="{event('mode')}"
+                       >
+        
+        <xforms:action ev:event="xforms-submit-done">
+            <xxforms:variable name="resourceURL" value="event('resource-uri')"/>
+            <xxforms:variable name="submissionParams" value="xxforms:instance('submissionControls')/submission[@URL=$resourceURL]"/>
+            <xforms:action if="$submissionParams/@clear-destination-instance = 'true'">
+                <xforms:delete nodeset="xxforms:instance($submissionParams/@destination-instance)/root()/instance/*"/>
+            </xforms:action>
+            <xforms:insert context="xxforms:instance($submissionParams/@destination-instance)/root()/instance" 
+                           origin="xxforms:instance('listMethods-return')"
+                           />
+        </xforms:action>
+        <xforms:action ev:event="xforms-submit-error">
+            <xxforms:variable name="resourceURL" value="event('resource-uri')"/>
+            <xxforms:variable name="submissionParams" value="xxforms:instance('submissionControls')/submission[@URL=$resourceURL]"/>
+            <xforms:message level="modal">
+                <xforms:output value="concat('listMethods :: ', $submissionParams/@URL, ':: An error occurred.')"/> 
+            </xforms:message>
+        </xforms:action>
+        <!--
+        <xforms:action ev:event="xforms-submit-done">
+            <xforms:delete nodeset="xxforms:instance(xxforms:instance('listMethods-parameters')/destination-instance)/*"/>
+            <xforms:insert nodeset="xxforms:instance(xxforms:instance('listMethods-parameters')/destination-instance)" 
+                           origin="xxforms:instance('listMethods-return')"
+                           />
+        </xforms:action>
+        <xforms:message ev:event="xforms-submit-error" level="modal">listMethods :: An error occurred.</xforms:message>
+        -->
+    </xforms:submission>
+    <!-- -->
+    <xforms:instance id="listMethods-parameters">
+        <data>
+            <PID/>
+            <destination-instance/>
+            <parameters>
+                <format/>
+                <asOfDateTime/>
+            </parameters>
+        </data>
+    </xforms:instance>
+    <!-- -->
+    <xforms:instance id="listMethods-return">
+        <instance/>
+    </xforms:instance>
+    <!-- dispatched action -->
+    <xforms:action ev:event="listMethods">
+        <xforms:send submission="listMethods" model="FedoraAPI-helper">
+            <xxforms:context name="resourceURL" select="event('resourceURL')"/>
+            <xxforms:context name="httpMethod" select="event('httpMethod')"/>
+            <xxforms:context name="mode" select="event('mode')"/>
+        </xforms:send>
+    </xforms:action>
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <!-- END: listMethods -->
+    <!-- ~~~~~~~~~~~~~~~ -->
+    
+    
+    
+    <!-- ~~~~~~~~~~~~~~~~~~~ -->
+    <!-- modifyDatastream -->
+    <!-- ~~~~~~~~~~~~~~~~~~~ -->
+    <!-- TODO: event('post-content') does not work -->
+    <xforms:submission id="modifyDatastream"
+                       resource="{event('resourceURL')}"
+                       method="put"
+                       ref="xxforms:instance(xxforms:instance('modifyDatastream-parameters')/post-content)/root()/instance/*"
+                       replace="instance"
+                       instance="modifyDatastream-return"
+                       xxforms:username="{xxforms:instance('user-credentials')//login/username}"
+                       xxforms:password="{xxforms:instance('user-credentials')//login/password}"
+                       >
+        <xforms:action ev:event="xforms-submit-error">
+            <xxforms:variable name="resourceURL" value="event('resource-uri')"/>
+            <xxforms:variable name="submissionParams" value="xxforms:instance('submissionControls')/submission[@URL=$resourceURL]"/>
+            <xforms:message level="modal">
+                <xforms:output value="concat('modifyDatastream :: ', $submissionParams/@dsID, ':: An error occurred.')"/> 
+            </xforms:message>
+        </xforms:action>
+    </xforms:submission>
+    <!-- -->
+    <xforms:instance id="modifyDatastream-parameters">
+        <data>
+            <PID/>
+            <dsID/>
+            <post-content/>
+            <parameters>
+                <dsLocation/>
+                <altIDs/>
+                <dsLabel/>
+                <versionable/>
+                <dsState/>
+                <formatURI/>
+                <checksumType/>
+                <checksum/>
+                <mimeType/>
+                <logMessage/>
+                <ignoreContent/>
+                <lastModifiedDate/>
+            </parameters>
+        </data>
+    </xforms:instance>
+    <!-- -->
+    <xforms:instance id="modifyDatastream-return">
+        <instance/>
+    </xforms:instance>
+    <!-- dispatched action -->
+    <xforms:action ev:event="modifyDatastream">
+        <xforms:send submission="modifyDatastream" model="FedoraAPI-helper">
+            <xxforms:context name="resourceURL" select="event('resourceURL')"/>
+            <xxforms:context name="httpMethod" select="event('httpMethod')"/>
+            <xxforms:context name="mode" select="event('mode')"/>
+            <xxforms:context name="post-content" select="event('post-content')"/>
+        </xforms:send>
+    </xforms:action>
+    <!-- ~~~~~~~~~~~~~~~~~~~ -->
+    <!-- END: modifyDatastream -->
+    <!-- ~~~~~~~~~~~~~~~~~~~ -->
+    
+    <!-- ~~~~~~~~~~~~~~~~~~~ -->
+    <!-- modifyObject -->
+    <!-- ~~~~~~~~~~~~~~~~~~~ -->
+    <xforms:submission id="modifyObject"
+                       method="put"
+                       ref="xxforms:instance('empty-instance')"
+                       resource="{event('resourceURL')}"
+                       replace="text"
+                       instance="modifyObject-return"
+                       xxforms:username="{xxforms:instance('user-credentials')//login/username}"
+                       xxforms:password="{xxforms:instance('user-credentials')//login/password}"
+                       >
+        <xforms:action ev:event="xforms-submit-done">
+            <xforms:delete nodeset="xxforms:instance('empty-instance')"/>
+            <xforms:setvalue ref="xxforms:instance('empty-instance')" value="string('')"/>
+        </xforms:action>
+        
+        <xforms:action ev:event="xforms-submit-error">
+            <xxforms:variable name="resourceURL" value="event('resource-uri')"/>
+            <xxforms:variable name="submissionParams" value="xxforms:instance('submissionControls')/submission[@URL=$resourceURL]"/>
+            <xforms:message level="modal">
+                <xforms:output value="concat('modifyObject :: ', $submissionParams/@PID, ':: An error occurred.')"/> 
+            </xforms:message>
+        </xforms:action>
+        
+    </xforms:submission>
+    <!-- -->
+    <xforms:instance id="modifyObject-parameters">
+        <data>
+            <PID/>
+            <post-content/>
+            <parameters>
+                <label/>
+                <ownerId/>
+                <state/>
+                <logMessage/>
+                <lastModifiedDate/>
+            </parameters>
+        </data>
+    </xforms:instance>
+    <!-- -->
+    <xforms:instance id="modifyObject-return">
+        <instance xmlns=""/>
+    </xforms:instance>
+    <!-- dispatched action -->
+    <xforms:action ev:event="modifyObject">
+        <xforms:send submission="modifyObject" model="FedoraAPI-helper">
+            <xxforms:context name="resourceURL" select="event('resourceURL')"/>
+            <xxforms:context name="httpMethod" select="event('httpMethod')"/>
+            <xxforms:context name="mode" select="event('mode')"/>
+            <xxforms:context name="post-content" select="event('post-content')"/>
+        </xforms:send>
+    </xforms:action>
+    <!-- ~~~~~~~~~~~~~~~~~~~ -->
+    <!-- END: modifyObject -->
+    <!-- ~~~~~~~~~~~~~~~~~~~ -->
+
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <!-- addDatastream -->
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <xforms:submission id="addDatastream"
+                       resource="{event('resourceURL')}"
+                       method="post"
+                       ref="xxforms:instance(xxforms:instance('addDatastream-parameters')/post-content)"
+                       replace="instance"
+                       instance="addDatastream-return"
+                       xxforms:username="{xxforms:instance('user-credentials')//login/username}"
+                       xxforms:password="{xxforms:instance('user-credentials')//login/password}"
+                       >
+        <xforms:action ev:event="xforms-submit-done">
+            <xforms:delete nodeset="xxforms:instance(xxforms:instance('addDatastream-parameters')/post-content)/*"/>
+            <xforms:setvalue ref="xxforms:instance('empty-instance')" value="string('')"/>
+        </xforms:action>
+        <xforms:action ev:event="xforms-submit-error">
+            <xxforms:variable name="resourceURL" value="event('resource-uri')"/>
+            <xxforms:variable name="submissionParams" value="xxforms:instance('submissionControls')/submission[@URL=$resourceURL]"/>
+            <xforms:message level="modal">
+                <xforms:output value="concat('addDatastream :: ', $submissionParams/@dsID, ':: An error occurred.')"/> 
+            </xforms:message>
+        </xforms:action>
+    </xforms:submission>
+    <!-- -->
+    <xforms:instance id="addDatastream-parameters">
+        <data>
+            <PID/>
+            <dsID/>
+            <post-content/>
+            <parameters>
+                <controlGroup/>
+                <dsLocation/>
+                <altIDs/>
+                <dsLabel/>
+                <versionable/>
+                <dsState/>
+                <formatURI/>
+                <checksumType/>
+                <checksum/>
+                <mimeType/>
+                <logMessage/>
+            </parameters>
+        </data>
+    </xforms:instance>
+    <!-- -->
+    <xforms:instance id="addDatastream-return">
+        <instance/>
+    </xforms:instance>
+    <!-- dispatched action -->
+    <xforms:action ev:event="addDatastream">
+        <xforms:send submission="addDatastream" model="FedoraAPI-helper">
+            <xxforms:context name="resourceURL" select="event('resourceURL')"/>
+            <xxforms:context name="httpMethod" select="event('httpMethod')"/>
+            <xxforms:context name="mode" select="event('mode')"/>
+            <xxforms:context name="post-content" select="event('post-content')"/>
+        </xforms:send>
+    </xforms:action>
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <!-- END: addDatastream -->
+    <!-- ~~~~~~~~~~~~~~~ -->
+    
+    
+    
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <!-- purgeDatastream -->
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <xforms:submission id="purgeDatastream"
+                       resource="{event('resourceURL')}"
+                       method="{event('httpMethod')}"
+                       replace="text"
+                       ref="xxforms:instance('empty-instance')"
+                       instance="purgeDatastream-return"
+                       xxforms:username="{xxforms:instance('user-credentials')//login/username}"
+                       xxforms:password="{xxforms:instance('user-credentials')//login/password}"
+                       >
+                       <!--  -->
+        <xforms:action ev:event="xforms-submit-done">
+            <xforms:delete nodeset="xxforms:instance('empty-instance')"/>
+            <xforms:setvalue ref="xxforms:instance('empty-instance')" value="string('')"/>
+        </xforms:action>
+        <xforms:action ev:event="xforms-submit-error" level="modal">
+            <xxforms:variable name="resourceURL" value="event('resource-uri')"/>
+            <xxforms:variable name="submissionParams" value="xxforms:instance('submissionControls')/submission[@URL=$resourceURL]"/>
+            <xforms:message level="modal">
+                <xforms:output value="concat('purgeDatastream :: ', $submissionParams/@dsID, ':: An error occurred.')"/> 
+            </xforms:message>
+        </xforms:action>
+    </xforms:submission>
+    <!-- -->
+    <xforms:instance id="purgeDatastream-parameters">
+        <data>
+            <PID/>
+            <dsID/>
+            <parameters>
+                <startDT/>
+                <endDT/>
+                <logMessage/>
+            </parameters>
+        </data>
+    </xforms:instance>
+    <!-- -->
+    <xforms:instance id="purgeDatastream-return">
+        <instance/>
+    </xforms:instance>
+    <!-- dispatched action -->
+    <xforms:action ev:event="purgeDatastream">
+        <xforms:send submission="purgeDatastream" model="FedoraAPI-helper">
+            <xxforms:context name="resourceURL" select="event('resourceURL')"/>
+            <xxforms:context name="httpMethod" select="event('httpMethod')"/>
+            <xxforms:context name="mode" select="event('mode')"/>
+        </xforms:send>
+    </xforms:action>
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <!-- END: purgeDatastream -->
+    <!-- ~~~~~~~~~~~~~~~ -->
+    
+    
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <!-- purgeObject -->
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <xforms:submission id="purgeObject"
+                       resource="{xxforms:instance('config-instance')/fedora/APIurl}:{xxforms:instance('config-instance')/fedora/APIport}/fedora/objects/{xxforms:instance('purgeObject-parameters')/PID}?logMessage={xxforms:instance('purgeObject-parameters')/parameters/logMessage}"
+                       method="delete"
+                       replace="text"
+                       ref="xxforms:instance('empty-instance')"
+                       instance="purgeObject-return"
+                       xxforms:username="{xxforms:instance('user-credentials')//login/username}"
+                       xxforms:password="{xxforms:instance('user-credentials')//login/password}"
+                       >
+                       <!--  -->
+        <xforms:action ev:event="xforms-submit-done">
+            <xforms:delete nodeset="xxforms:instance('empty-instance')"/>
+            <xforms:setvalue ref="xxforms:instance('empty-instance')" value="string('')"/>
+        </xforms:action>
+        <xforms:message ev:event="xforms-submit-error" level="modal">
+            <xforms:output value="concat('purgeObject :: ', xxforms:instance('purgeObject-parameters')/PID, ' :: An error occurred.')"/>
+        </xforms:message>
+    </xforms:submission>
+    <!-- -->
+    <xforms:instance id="purgeObject-parameters">
+        <data>
+            <PID/>
+            <parameters>
+                <logMessage/>
+            </parameters>
+        </data>
+    </xforms:instance>
+    <!-- -->
+    <xforms:instance id="purgeObject-return">
+        <instance/>
+    </xforms:instance>
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <!-- END: purgeObject -->
+    <!-- ~~~~~~~~~~~~~~~ -->
+    
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <!-- addRelationship -->
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <xforms:submission id="addRelationship"
+                       resource="{event('resourceURL')}"
+                       method="post"
+                       ref="xxforms:instance('empty-instance')"
+                       replace="none"
+                       instance="addRelationship-return"
+                       xxforms:username="{xxforms:instance('user-credentials')//login/username}"
+                       xxforms:password="{xxforms:instance('user-credentials')//login/password}"
+                       >
+        <xforms:action ev:event="xforms-submit-done">
+            <xforms:delete nodeset="xxforms:instance('empty-instance')"/>
+            <xforms:setvalue ref="xxforms:instance('empty-instance')" value="string('')"/>
+        </xforms:action>
+        
+        <xforms:action ev:event="xforms-submit-error">
+            <xforms:message level="modal">
+                <xforms:output value="event('resource-uri')"/>
+            </xforms:message>
+        </xforms:action>
+        
+    </xforms:submission>
+    <!-- -->
+    <xforms:instance id="addRelationship-parameters">
+        <data>
+            <PID/>
+            <parameters>
+                <subject/>
+                <predicate/>
+                <object/>
+                <isLiteral/>
+                <datatype/>
+            </parameters>
+        </data>
+    </xforms:instance>
+    <!-- -->
+    <xforms:instance id="addRelationship-return">
+        <instance/>
+    </xforms:instance>
+    <!-- dispatched action -->
+    <xforms:action ev:event="addRelationship">
+        <xforms:send submission="addRelationship" model="FedoraAPI-helper">
+            <xxforms:context name="resourceURL" select="event('resourceURL')"/>
+            <xxforms:context name="httpMethod" select="event('httpMethod')"/>
+            <xxforms:context name="mode" select="event('mode')"/>
+        </xforms:send>
+    </xforms:action>
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <!-- END: addRelationship -->
+    <!-- ~~~~~~~~~~~~~~~ -->
+    
+    
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <!-- purgeRelationship -->
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <xforms:submission id="purgeRelationship"
+                       resource="{event('resourceURL')}"
+                       method="delete"
+                       ref="xxforms:instance('empty-instance')"
+                       replace="text"
+                       instance="purgeRelationship-return"
+                       xxforms:username="{xxforms:instance('user-credentials')//login/username}"
+                       xxforms:password="{xxforms:instance('user-credentials')//login/password}"
+                       >
+        <xforms:action ev:event="xforms-submit-done">
+            <xforms:delete nodeset="xxforms:instance('empty-instance')"/>
+            <xforms:setvalue ref="xxforms:instance('empty-instance')" value="string('')"/>
+        </xforms:action>
+        
+        <xforms:action ev:event="xforms-submit-error">
+            <xforms:message level="modal">
+                <xforms:output value="event('resource-uri')"/>
+            </xforms:message>
+        </xforms:action>
+        
+    </xforms:submission>
+    <!-- -->
+    <xforms:instance id="purgeRelationship-parameters">
+        <data>
+            <PID/>
+            <parameters>
+                <subject/>
+                <predicate/>
+                <object/>
+                <isLiteral/>
+                <datatype/>
+            </parameters>
+        </data>
+    </xforms:instance>
+    <!-- -->
+    <xforms:instance id="purgeRelationship-return">
+        <instance/>
+    </xforms:instance>
+    <!-- dispatched action -->
+    <xforms:action ev:event="purgeRelationship">
+        <xforms:send submission="purgeRelationship" model="FedoraAPI-helper">
+            <xxforms:context name="resourceURL" select="event('resourceURL')"/>
+            <xxforms:context name="httpMethod" select="event('httpMethod')"/>
+            <xxforms:context name="mode" select="event('mode')"/>
+        </xforms:send>
+    </xforms:action>
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <!-- END: purgeRelationship -->
+    <!-- ~~~~~~~~~~~~~~~ -->
+    
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <!-- findObjects -->
+    <!-- ~~~~~~~~~~~~~~~ -->
+    
+    <xforms:submission id="findObjects"
+                       resource="{event('resourceURL')}"
+                       method="get"
+                       replace="instance"
+                       instance="findObjects-return"
+                       xxforms:username="{xxforms:instance('user-credentials')//login/username}"
+                       xxforms:password="{xxforms:instance('user-credentials')//login/password}"
+                       >
+        <xforms:action ev:event="xforms-submit-done">
+            <xxforms:variable name="resourceURL" value="event('resource-uri')"/>
+            <xxforms:variable name="submissionParams" value="xxforms:instance('submissionControls')/submission[@URL=$resourceURL]"/>
+            
+            <xforms:delete nodeset="xxforms:instance(xxforms:instance('findObjects-parameters')/destination-instance)/*"/>
+            <xforms:insert nodeset="xxforms:instance(xxforms:instance('findObjects-parameters')/destination-instance)" 
+                           origin="xxforms:instance('findObjects-return')"
+                           />
+            
+            <xforms:action if="string-length($submissionParams/@completion-event) > 0">
+                <xforms:dispatch name="{$submissionParams/@completion-event}" target="FedoraAPI-helper">
+                    <xxforms:context name="PID" select="$submissionParams/@PID"/>
+                    <xxforms:context name="param1" select="$submissionParams/@completion-event-param1"/>
+                </xforms:dispatch>
+            </xforms:action>
+            
+        </xforms:action>
+    </xforms:submission>
+    <!-- -->
+    <xforms:instance id="findObjects-parameters">
+        <data>
+            <destination-instance/>
+            <parameters>
+                <terms/>
+                <query/>
+                <maxResults>10</maxResults>
+                <resultFormat/>
+                <pid/>
+                <label/>
+                <state/>
+                <ownerId/>
+                <cDate/>
+                <mDate/>
+                <dcmDate/>
+                <title/>
+                <creator/>
+                <subject/>
+                <description/>
+                <publisher/>
+                <contributor/>
+                <date/>
+                <type/>
+                <format/>
+                <identifier/>
+                <source/>
+                <language/>
+                <relation/>
+                <coverage/>
+                <rights/>
+            </parameters>
+        </data>
+    </xforms:instance>
+    <!-- -->
+    <xforms:instance id="findObjects-return">
+        <instance/>
+    </xforms:instance>
+    <!-- dispatched action -->
+    <xforms:action ev:event="findObjects">
+        <xforms:send submission="findObjects" model="FedoraAPI-helper">
+            <xxforms:context name="resourceURL" select="event('resourceURL')"/>
+            <xxforms:context name="httpMethod" select="event('httpMethod')"/>
+            <xxforms:context name="mode" select="event('mode')"/>
+        </xforms:send>
+    </xforms:action>
+    <!-- -->
+    <xforms:action ev:event="update-after-findObjects-metadata">
+        <xforms:dispatch name="load-findObjects-metadata"
+                         target="CoreModel-helper"
+                         delay="1"
+                         />
+    </xforms:action>
+    
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <!-- risearchQuery -->
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <xforms:submission id="risearchQuery"
+                       method="post"
+                       ref="xxforms:instance('risearchQuery-requestBody')"
+                       resource="{event('resourceURL')}"
+                       mediatype="application/x-www-form-urlencoded"
+                       serialization="text/xml"
+                       instance="risearchQuery-return"
+                       replace="instance"
+                       xxforms:username="{xxforms:instance('user-credentials')//login/username}"
+                       xxforms:password="{xxforms:instance('user-credentials')//login/password}"
+                       mode="{event('mode')}"
+                       >
+        <xforms:message ev:event="xforms-submit-error" level="modal">risearchQuery: An error occurred.</xforms:message>
+        <xforms:action ev:event="xforms-submit-done">
+        
+            <!-- TODO: this str_replace is HACK!, but I couldn't figure out why the resulting resource-uri was polluted by the getNextPID parameters -->
+            <xxforms:variable name="resourceURL" value="replace(event('resource-uri'), '&amp;numPIDs=1&amp;namespace=vudl&amp;format=xml', '')"/>
+            <xxforms:variable name="submissionParams" value="xxforms:instance('submissionControls')/submission[@URL=$resourceURL]"/>
+            
+            <xforms:action if="$submissionParams/@clear-destination-instance = 'true'">
+                <xforms:delete nodeset="xxforms:instance($submissionParams/@destination-instance)/root()/instance/*"/>
+            </xforms:action>
+            
+            <xforms:insert context="xxforms:instance($submissionParams/@destination-instance)/root()/instance" 
+                           origin="xxforms:instance('risearchQuery-return')"
+                           />
+            
+            <xforms:action if="string-length($submissionParams/@completion-event) > 0">
+                <xforms:dispatch name="{$submissionParams/@completion-event}" target="FedoraAPI-helper">
+                    <xxforms:context name="PID" select="$submissionParams/@PID"/>
+                    <xxforms:context name="param1" select="$submissionParams/@completion-event-param1"/>
+                </xforms:dispatch>
+            </xforms:action>
+            
+            <!-- <xforms:delete nodeset="xxforms:instance('risearchQuery-return')/*"/> -->
+            
+        </xforms:action>
+    </xforms:submission>
+    <!-- -->
+    <xforms:instance id="risearchQuery-requestBody">
+        <instance/>
+    </xforms:instance>
+    <!-- -->
+    <xforms:instance id="risearchQuery-return">
+        <instance/>
+    </xforms:instance>
+    <!-- -->
+    <xforms:instance id="risearchQuery-temp-return">
+        <instance/>
+    </xforms:instance>
+    <!-- -->
+    <xforms:instance id="risearchQuery-parameters">
+        <data>
+            <PID/>
+            <destination-instance/>
+            <clear-destination-instance/>
+            <relationship/>
+            <parameters>
+                <flush/>
+                <lang/>
+                <format/>
+                <limit/>
+                <distinct/>
+                <stream/>
+                <query/>
+            </parameters>
+        </data>
+    </xforms:instance>
+    <!-- -->
+    <xforms:action ev:event="update-PIDmetadata-count-members">
+      	<xxforms:variable name="PID" value="event('PID')"/>
+      	<xxforms:variable name="query-type" value="event('param1')"/>
+
+      	<xforms:insert context="xxforms:instance('risearchQuery-return')/root()/sparql:sparql" origin="xforms:attribute('query-type', $query-type)"/>
+      	<xforms:insert context="xxforms:instance('PIDmetadata')/object[@pid = $PID]"
+                       origin="xxforms:instance('risearchQuery-return')"
+                       at="last()"
+                       position="after"
+                       />
+    </xforms:action>
+    <!-- -->
+    <!-- getAllChildren (including DataModels) -->
+    <xforms:instance id="getAllChildren-query">
+        <instance>
+            select $child $parent $childTitle
+              count(
+              select $item from &lt;#ri>
+              where  $child &lt;fedora-rels-ext:isMemberOf> $item
+              )
+              from &lt;#ri>
+              where  $child &lt;fedora-rels-ext:isMemberOf> $item
+              and 
+              walk (
+                    $child
+                    &lt;fedora-rels-ext:isMemberOf>
+                    &lt;info:fedora/XXX:XXX>
+                  and
+                    $child
+                    &lt;fedora-rels-ext:isMemberOf>
+                    $parent
+                ) 
+                and 
+                  $child 
+                  &lt;fedora-model:label>
+                  $childTitle
+        </instance>
+    </xforms:instance>
+    <!-- Count ALL members recursively -->
+    <xforms:instance id="count-members-recursive-query">
+        <instance>
+            select $object $PID count(
+                select  $child $parent 
+                from    &lt;#ri>
+                where   walk (
+                              $child
+                              &lt;fedora-rels-ext:isMemberOf>
+                              &lt;info:fedora/XXX:XXX>
+                                  and
+                              $child
+                              &lt;fedora-rels-ext:isMemberOf>
+                              $parent
+                            ) 
+                )
+            from &lt;#ri>
+            where $object &lt;dc:identifier> 'XXX:XXX'
+            and $object &lt;dc:identifier> $PID
+        </instance>
+    </xforms:instance>
+    <!-- Count immediate members -->
+    <xforms:instance id="count-members-query">
+        <instance>
+            select $object $PID count(
+              select  $child
+              from    &lt;#ri>
+              where   (
+                      $child
+                      &lt;fedora-rels-ext:isMemberOf>
+                      &lt;info:fedora/XXX:XXX>
+                      or
+                      $child
+                      &lt;fedora-rels-ext:isPartOf>
+                      &lt;info:fedora/XXX:XXX>
+                      )
+              )
+            from &lt;#ri>
+            where $object &lt;dc:identifier> 'XXX:XXX'
+            and $object &lt;dc:identifier> $PID
+        </instance>
+    </xforms:instance>
+    <!-- PARENT-LIST-RAW (all, including isPartOf) -->
+    <xforms:instance id="get-all-parents-query">
+        <instance>
+            select $child $parent $parentTitle from &lt;#ri&gt;
+              where 
+              (
+                walk (
+    
+                    &lt;info:fedora/XXX:XXX&gt;
+                    &lt;fedora-rels-ext:isPartOf&gt;
+                    $parent
+    
+                  and
+                    $child
+                    &lt;fedora-rels-ext:isPartOf&gt;
+                    $parent
+                )
+                
+                or
+                
+                walk (
+    
+                    &lt;info:fedora/XXX:XXX&gt;
+                    &lt;fedora-rels-ext:isMemberOf&gt;
+                    $parent
+    
+                  and
+                    $child
+                    &lt;fedora-rels-ext:isMemberOf&gt;
+                    $parent
+                )
+              )
+              and 
+                $parent 
+                &lt;fedora-model:label&gt;
+                $parentTitle
+        </instance>
+    </xforms:instance>
+    
+    <!-- Determine all Parent's with ResourceCollection Model -->
+    <xforms:instance id="get-parent-resource-query">
+        <instance>
+            select $child $parent $parentTitle from &lt;#ri>
+            where walk (
+                &lt;info:fedora/XXX:XXX>
+                &lt;fedora-rels-ext:isMemberOf>
+                $parent
+              and
+                $child
+                &lt;fedora-rels-ext:isMemberOf>
+                $parent
+            ) 
+            and 
+              $parent 
+              &lt;fedora-model:label>
+              $parentTitle
+            and
+              $parent 
+              &lt;info:fedora/fedora-system:def/model#hasModel> 
+              &lt;info:fedora/vudl-system:ResourceCollection>
+        </instance>
+    </xforms:instance>
+    <!-- get all immediate members -->
+    <xforms:instance id="getMembers-query">
+        <instance>
+            select $member  $memberPID $memberTitle $model
+            from   &lt;#ri>
+            where  $member                        &lt;fedora-rels-ext:VUDL_RELATIONSHIP> &lt;info:fedora/XXX:XXX>
+            and    $member                        &lt;fedora-model:label>         $memberTitle
+            and    $member                        &lt;dc:identifier>              $memberPID
+            and    $member                        &lt;info:fedora/fedora-system:def/model#hasModel> $model
+            and
+            (
+            $model &lt;mulgara:is> &lt;info:fedora/vudl-system:FolderCollection>
+            or
+            $model &lt;mulgara:is> &lt;info:fedora/vudl-system:ResourceCollection>
+            or
+            $model &lt;mulgara:is> &lt;info:fedora/vudl-system:ListCollection>
+            or
+            $model &lt;mulgara:is> &lt;info:fedora/vudl-system:ImageData>
+            or
+            $model &lt;mulgara:is> &lt;info:fedora/vudl-system:PDFData>
+            or
+            $model &lt;mulgara:is> &lt;info:fedora/vudl-system:DOCData>
+            or
+            $model &lt;mulgara:is> &lt;info:fedora/vudl-system:XLSData>
+            or
+            $model &lt;mulgara:is> &lt;info:fedora/vudl-system:AudioData>
+            or
+            $model &lt;mulgara:is> &lt;info:fedora/vudl-system:MP3Data>
+            or
+            $model &lt;mulgara:is> &lt;info:fedora/vudl-system:WAVData>
+            )
+            order by $model  $memberTitle
+        </instance>
+    </xforms:instance>
+    <!-- -->
+    <xforms:action ev:event="risearchQuery-prep-query">
+        <xforms:setvalue ref="xxforms:instance('risearchQuery-requestBody')" value="string('')"/>
+
+        <xforms:action xxforms:iterate="xxforms:instance('risearchQuery-parameters')/parameters/*">
+            <xforms:setvalue ref="xxforms:instance('risearchQuery-requestBody')" value="concat(xxforms:instance('risearchQuery-requestBody'), '&amp;', context()/name(), '=', context()/string())"/>
+        </xforms:action>
+
+        <!-- <xforms:send submission="risearchQuery" model="FedoraAPI-helper"/> -->
+        
+    </xforms:action>
+    
+    <!-- -->
+    <xforms:action ev:event="risearchQuery">
+        <xforms:send submission="risearchQuery" model="FedoraAPI-helper">
+            <xxforms:context name="resourceURL" select="event('resourceURL')"/>
+            <xxforms:context name="httpMethod" select="event('httpMethod')"/>
+            <xxforms:context name="mode" select="event('mode')"/>
+        </xforms:send>
+    </xforms:action>
+    
+    
+    <!-- ~~~~~~~~~~~~~~~ -->
+    <!-- END: risearchQuery -->
+    <!-- ~~~~~~~~~~~~~~~ -->
+    
+    
+    <!-- ~~~~~~~~~~~~~~~~~~~ -->
+    <!-- GENERIC dispatched action -->
+    <!-- ~~~~~~~~~~~~~~~~~~~ -->
+    <xforms:action ev:event="performAPIRequest">
+        <xforms:setvalue ref="xxforms:instance('submissionControls-resourceURL')" value="event('resourceURL')"/>
+        <!-- <xforms:message><xforms:output value="concat('start = ', xxforms:instance('submissionControls-resourceURL'))"/></xforms:message> -->
+        <!-- Construct GET params if they exist -->
+        <xforms:action if="string-length(event('parameters')) > 0">
+            <xforms:setvalue ref="xxforms:instance('submissionControls-resourceURL')" value="concat(xxforms:instance('submissionControls-resourceURL'), '?')"/>
+            <xxforms:variable name="parameters" value="event('parameters')"/>
+            <xforms:action xxforms:iterate="xxforms:instance(event('parameters'))//parameters/*">
+                <xxforms:variable name="parameterName" value="current()/name()"/>
+                <xxforms:variable name="parameterValue" value="current()/string()"/>
+                <xforms:action if="string-length($parameterValue) > 0">
+                    <xforms:setvalue ref="xxforms:instance('submissionControls-resourceURL')" value="concat(xxforms:instance('submissionControls-resourceURL'), $parameterName, '=', $parameterValue, '&amp;')"/>
+                </xforms:action>
+            </xforms:action>
+            <xforms:setvalue ref="xxforms:instance('submissionControls-resourceURL')" value="substring(xxforms:instance('submissionControls-resourceURL'), 1, string-length(xxforms:instance('submissionControls-resourceURL')) - 1)"/>
+            
+        </xforms:action>
+        
+        <!-- prepare/store parameters -->
+        <xforms:insert context="xxforms:instance('submissionControls')" 
+                       nodeset="submission"
+                       origin="xxforms:instance('submissionControls-template')"
+                       />
+        <xforms:setvalue ref="xxforms:instance('submissionControls')/submission[@URL='']/@clear-destination-instance" value="event('clear-destination-instance')"/>
+        <xforms:setvalue ref="xxforms:instance('submissionControls')/submission[@URL='']/@destination-instance" value="event('destination-instance')"/>
+        <xforms:setvalue ref="xxforms:instance('submissionControls')/submission[@URL='']/@dsID" value="event('dsID')"/>
+        <xforms:setvalue ref="xxforms:instance('submissionControls')/submission[@URL='']/@PID" value="event('PID')"/>
+        <xforms:setvalue ref="xxforms:instance('submissionControls')/submission[@URL='']/@completion-event" value="event('completion-event')"/>
+        <xforms:setvalue ref="xxforms:instance('submissionControls')/submission[@URL='']/@completion-event-param1" value="event('completion-event-param1')"/>
+        <xforms:setvalue ref="xxforms:instance('submissionControls')/submission[@URL='']/@post-content" value="event('post-content')"/>
+        <xforms:setvalue ref="xxforms:instance('submissionControls')/submission[@URL='']/@URL" value="xxforms:instance('submissionControls-resourceURL')"/>
+        <!-- -->
+        <!-- <xforms:message><xforms:output value="concat('stop = ', xxforms:instance('submissionControls-resourceURL'))"/></xforms:message> -->
+        <xforms:dispatch name="{event('apiMethod')}" target="FedoraAPI-helper">
+            <xxforms:context name="resourceURL" select="xxforms:instance('submissionControls-resourceURL')"/>
+            <xxforms:context name="httpMethod" select="event('httpMethod')"/>
+            <xxforms:context name="mode" select="event('mode')"/>
+            <xxforms:context name="post-content" select="event('post-content')"/>
+            <xxforms:context name="completion-event" select="event('completion-event')"/>
+        </xforms:dispatch>
+    </xforms:action>
+    <!-- ~~~~~~~~~~~~~~~~~~~ -->
+
+    <!-- ~~~~~~~~~~~~~~~~~~~ -->
+    <!-- Submission controls -->
+    <!-- Used to record each submission's paramaters stored under a unique key -->
+    <!-- ~~~~~~~~~~~~~~~~~~~ -->
+    <xforms:instance id="submissionControls">
+        <submissions/>
+    </xforms:instance>
+    <xforms:instance id="submissionControls-template">
+        <submission URL="" 
+                    clear-destination-instance="" 
+                    destination-instance="" 
+                    dsID="" 
+                    post-content="" 
+                    PID="" 
+                    completion-event="" 
+                    completion-event-param1=""/>
+    </xforms:instance>
+    <xforms:instance id="submissionControls-resourceURL">
+        <instance/>
+    </xforms:instance>
+    <!-- ~~~~~~~~~~~~~~~~~~~ -->
+    
+    <!-- Empty Instance for NULL post-content -->
+    <xforms:instance id="empty-instance" xxforms:validation="lax" xxforms:exclude-result-prefixes="#all">
+        <instance xmlns=""/>
+    </xforms:instance>
+    
+    
+    
+    
+</xforms:model>

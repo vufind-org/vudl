@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xxforms:dialog id="modifyObject-count-dialog"
+                appearance="full"
+                xmlns:xforms="http://www.w3.org/2002/xforms"
+                xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+                xmlns:xhtml="http://www.w3.org/1999/xhtml"
+                xmlns:ev="http://www.w3.org/2001/xml-events"
+                xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+                xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+                xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+                xmlns:access="http://www.fedora.info/definitions/1/0/access/"
+                xmlns:METS="http://www.loc.gov/METS/"
+                xmlns:fedora-model="info:fedora/fedora-system:def/model#" 
+                xmlns:xi="http://www.w3.org/2001/XInclude"
+                xmlns:fits="http://hul.harvard.edu/ois/xml/ns/fits/fits_output"
+                xmlns:management="http://www.fedora.info/definitions/1/0/management/"
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                xmlns:sparql="http://www.w3.org/2001/sw/DataAccess/rf1/result"
+                >
+
+    <xforms:action ev:event="xxforms-dialog-open">
+
+        <xforms:setfocus control="cancel-modifyObject-count"/>
+    
+        <!-- -->
+        <xforms:delete nodeset="xxforms:instance('all-children-temp-formatted')/root()/instance/*"/>
+        <xforms:delete nodeset="xxforms:instance('all-children-temp-raw')/root()/instance/*"/>
+            
+        <!-- Load Children if Necessary -->
+        <xforms:action if=".[xxforms:instance('modifyObject-editor')/state_children = 'Yes' or xxforms:instance('modifyObject-editor')/owner_children = 'Yes']">
+
+            <!-- -->
+            <xxforms:variable name="show-buttons" value="string('false')"/>
+            <xforms:dispatch name="prepModifyObjectTree" 
+                             target="CoreModel-helper" 
+                             delay="1"/>
+        </xforms:action>
+        
+    </xforms:action>
+    
+    <xforms:label>Modify Object</xforms:label>
+    
+    <!-- If the operation is recursive -->
+    <xforms:group ref=".[xxforms:instance('modifyObject-editor')/state_children = 'Yes' or xxforms:instance('modifyObject-editor')/owner_children = 'Yes']">
+    
+        <xxforms:variable name="show-buttons" value="string('true')"/>
+        
+        <!-- Still acquiring recursive members -->
+        <xforms:group ref=".[not(xxforms:instance('all-children-temp-formatted')//child)]">
+            <xhtml:p>
+                <xhtml:span>Calculating Sub-Objects (Not Modifying yet)</xhtml:span>
+                <xhtml:br/>
+                <xhtml:img src="/apps/VuDL/images/loading-bar.gif"/>
+            </xhtml:p>
+        </xforms:group>
+        
+        <!-- TODO: format this -->
+        <!-- Display recursive member info -->
+        <xforms:group ref=".[xxforms:instance('all-children-temp-formatted')//child]">
+            <xhtml:p style="max-width:400px;">
+                <xhtml:strong>Total Objects Selected: </xhtml:strong>
+                <xforms:output value="count(xxforms:instance('all-children-temp-formatted')//child)"/>
+                <xhtml:br/>
+                <xhtml:strong>Time to Complete <xhtml:i>(est)</xhtml:i>: </xhtml:strong>
+                <xforms:output value="concat(format-number((count(xxforms:instance('all-children-temp-formatted')//child) div 60), '#.##'), ' mins')"/>
+                <xhtml:br/>
+                This will modify the selected Object and all of its Members (Folders, Resources, Lists, Groups, and Data Items)
+                Are you sure that you want to continue?
+            </xhtml:p>
+        </xforms:group>
+        
+    </xforms:group>
+    
+    <!-- Non-recursive modification -->
+    <xforms:group ref=".[not(xxforms:instance('modifyObject-editor')/state_children = 'Yes') and not(xxforms:instance('modifyObject-editor')/owner_children = 'Yes')]">
+        <xxforms:variable name="show-buttons" value="string('true')"/>
+        <xhtml:p>This will modify the selected Object. Are you sure you wish to continue? </xhtml:p>
+    </xforms:group>
+    
+    <!-- <xforms:group ref=".[xxforms:instance('all-children-temp-formatted')//child]"> -->
+    
+        <xforms:group ref=".[(xxforms:instance('modifyObjectTree-parameters')/processing = 'false') or (not(xxforms:instance('modifyObject-editor')/state_children = 'Yes') and not(xxforms:instance('modifyObject-editor')/owner_children = 'Yes'))]">
+
+            <xforms:trigger xxforms:modal="true">
+                <xforms:label>
+                    <xhtml:img src="/apps/VuDL/images/trigger_apply.png"/>
+                    OK
+                </xforms:label>
+                <xforms:action ev:event="DOMActivate">
+                    
+                    <!-- edit RELS if we are Recycling the Object -->
+                    <!-- START: RECYCLE -->
+                    <xforms:action if="xxforms:instance('modifyObject-editor')/recycle = 'Yes'">
+
+                        <!-- RELS-EXT: getDatastreamDissemination -->
+                        <!-- xxforms:instance('RELS-EXT-dialog-instance') -->
+                        <xforms:dispatch name="performAPIRequest" 
+                                         target="FedoraAPI-helper"
+                                         xxforms:show-progress="true">
+                            <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('edit-RELS-EXT-parameters')/PID, '/datastreams/', string('RELS-EXT'), '/content?format=', string('xml'), '&amp;asOfDateTime=', now(),'&amp;validateChecksum=', string('false'))"/>
+                            <xxforms:context name="dsID" value="string('RELS-EXT')"/>
+                            <xxforms:context name="apiMethod" value="string('getDatastreamDissemination')"/>
+                            <xxforms:context name="httpMethod" value="string('get')"/>
+                            <xxforms:context name="mode" value="string('synchronous')"/>
+                            <xxforms:context name="destination-instance" value="string('RELS-EXT-dialog-instance')"/>
+                            <xxforms:context name="clear-destination-instance" value="string('true')"/>
+                        </xforms:dispatch>
+
+                        <!-- use RELS-EXT-dialog-temp-instance to compare changes -->
+                        <!-- RELS-EXT-dialog-temp-instance represents what it looked like before changes were made -->
+                        <!-- RELS-EXT-dialog-instance is what it looks like now -->
+                        <xforms:delete nodeset="xxforms:instance('RELS-EXT-dialog-temp-instance')/root()/instance/*"/>
+                        <xforms:insert context="xxforms:instance('RELS-EXT-dialog-temp-instance')/root()/instance"
+                                       origin="xxforms:instance('RELS-EXT-dialog-instance')/root()/instance/*"
+                                       />
+                                       
+                        <!-- delete all isMemberOf's -->
+                        <xforms:action xxforms:iterate="xxforms:instance('RELS-EXT-dialog-instance')//rel:isMemberOf">
+                            <xforms:delete nodeset="."/>
+                        </xforms:action>
+                        
+                        <!-- delete all isPartOf's -->
+                        <xforms:action xxforms:iterate="xxforms:instance('RELS-EXT-dialog-instance')//rel:isPartOf">
+                            <xforms:delete nodeset="."/>
+                        </xforms:action>
+                        
+                        <!-- add isMemberOf Recycle Bin -->
+                        <xforms:insert context="xxforms:instance('RELS-EXT-dialog-instance')/rdf:RDF/rdf:Description"
+                                       nodeset="rel:isMemberOf"
+                                       origin="xxforms:instance('RELS-EXT-isMemberOf-template')"
+                                       position="after"
+                                       at="last()"
+                                       />
+                        <xforms:setvalue ref="xxforms:instance('RELS-EXT-dialog-instance')//rel:isMemberOf[@rdf:resource='']/@rdf:resource" value="concat('info:fedora/', xxforms:instance('recycle-bin'))"/>
+                        
+                        <!-- insert new position template -->
+                        <xforms:insert context="xxforms:instance('edit-RELS-EXT-item-position')/root()/instance"
+                                       origin="xxforms:instance('edit-RELS-EXT-item-position-template')"
+                                       position="after"
+                                       at="last()"
+                                       />
+                        <xforms:setvalue ref="xxforms:instance('edit-RELS-EXT-item-position')//PID[.='']" value="xxforms:instance('recycle-bin')"/>
+                        <xforms:setvalue ref="xxforms:instance('edit-RELS-EXT-item-position')//PID[.=xxforms:instance('recycle-bin')]/parent::*/position" value="string('last')"/>
+                        
+                        <!-- Process -->
+                        <xforms:dispatch name="do-edit-RELS-EXT" 
+                                         target="CoreModel-helper"
+                                         xxforms:show-progress="true"
+                                         xxforms:progress-message="Saving Membership Info..."
+                                         />
+                        
+
+                    </xforms:action>
+                    <!-- END: RECYCLE --> -->
+                    
+                    <!-- Loop Children Necessary -->
+                    <xforms:action if=".[xxforms:instance('modifyObject-editor')/state_children = 'Yes' or xxforms:instance('modifyObject-editor')/owner_children = 'Yes']">
+                        <xforms:dispatch name="modifyObjectTree"
+                                         target="CoreModel-helper"
+                                         />
+                    </xforms:action>
+
+                    <!-- Modify selected Object -->
+                    <xforms:setvalue ref="xxforms:instance('modifyObject-parameters')/PID" value="xxforms:instance('modifyObject-editor')/PID"/>
+                    <xforms:setvalue ref="xxforms:instance('modifyObject-parameters')/parameters/label" value="string('')"/>
+                    <xforms:setvalue ref="xxforms:instance('modifyObject-parameters')/parameters/ownerId" value="xxforms:instance('modifyObject-editor')/owner"/>
+                    <xforms:setvalue ref="xxforms:instance('modifyObject-parameters')/parameters/state" value="xxforms:instance('modifyObject-editor')/state"/>
+                    <xforms:setvalue ref="xxforms:instance('modifyObject-parameters')/parameters/logMessage" value="string('Alter publish status and/or owner')"/>
+                    <xforms:setvalue ref="xxforms:instance('modifyObject-parameters')/parameters/lastModifiedDate" value="now()"/>
+                    <xforms:dispatch name="performAPIRequest" 
+                                     target="FedoraAPI-helper"
+                                     xxforms:show-progress="true">
+                        <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('modifyObject-parameters')/PID)"/>
+                        <xxforms:context name="dsID" value="string('')"/>
+                        <xxforms:context name="apiMethod" value="string('modifyObject')"/>
+                        <xxforms:context name="httpMethod" value="string('put')"/>
+                        <xxforms:context name="mode" value="string('')"/>
+                        <xxforms:context name="destination-instance" value="string('')"/>
+                        <xxforms:context name="clear-destination-instance" value="string('')"/>
+                        <xxforms:context name="post-content" value="string('')"/>
+                        <xxforms:context name="parameters" value="string('modifyObject-parameters')"/>
+                    </xforms:dispatch>
+                    
+                    <!-- Close members -->
+                    <xforms:delete nodeset="xxforms:instance('browse-members-instance')//sparql:sparql[@PID = xxforms:instance('modifyObject-editor')/PID]"/>
+                    
+                    
+                    <!-- Refresh PIDmetadata -->
+                    <xforms:dispatch name="refresh-PIDmetadata"
+                                     target="CoreModel-helper"
+                                     >
+                        <xxforms:context name="PID" select="xxforms:instance('modifyObject-editor')/PID"/>
+                        <xxforms:context name="mode" select="string('asynchronous')"/>
+                        <xxforms:context name="stats" select="string('true')"/>
+                    </xforms:dispatch>
+
+                    <!-- Update PIDmetadata -->
+                    <xforms:action if="xxforms:instance('modifyObject-editor')/recycle = 'Yes'">
+                    
+                        <!-- determine parents -->
+                        <xxforms:variable name="parents" value="xxforms:instance('browse-members-instance')//sparql:memberPID[. = xxforms:instance('modifyObject-editor')/PID]/parent::*/parent::*/parent::*"/>
+                        
+                        <!-- Close container -->
+                        <xforms:delete nodeset="xxforms:instance('browse-members-instance')//sparql:memberPID[. = xxforms:instance('modifyObject-editor')/PID]/parent::*"/>
+                        
+                        <!-- refresh metadata for parent -->
+                        <xforms:action xxforms:iterate="$parents">
+                            <xforms:dispatch name="refresh-PIDmetadata"
+                                             target="CoreModel-helper"
+                                             >
+                                <xxforms:context name="PID" select="./@PID"/>
+                                <xxforms:context name="mode" select="string('asynchronous')"/>
+                                <xxforms:context name="stats" select="string('true')"/>
+                            </xforms:dispatch>
+                        </xforms:action>
+                        
+                        <!-- Refresh Recycle Bin stats -->
+                        <xforms:dispatch name="refresh-PIDmetadata"
+                                         target="CoreModel-helper"
+                                         >
+                            <xxforms:context name="PID" select="xxforms:instance('recycle-bin')"/>
+                            <xxforms:context name="mode" select="string('asynchronous')"/>
+                            <xxforms:context name="stats" select="string('true')"/>
+                        </xforms:dispatch>
+
+                    </xforms:action>
+
+                    <!-- Close Dialog -->
+                    <xxforms:hide dialog="modifyObject-count-dialog"/>
+                    
+                    <!-- Close Dialog -->
+                    <xxforms:hide dialog="edit-object-dialog"/>
+                    
+                </xforms:action>
+            </xforms:trigger>
+        
+        
+        <xforms:trigger id="cancel-modifyObject-count">
+            <xforms:label>
+                <xhtml:img src="/apps/VuDL/images/trigger_cancel.png"/>
+                Cancel
+            </xforms:label>
+            <xforms:action ev:event="DOMActivate">
+                <xforms:setvalue ref="xxforms:instance('modifyObjectTree-parameters')/PID" value="string('')"/>
+                <xforms:setvalue ref="xxforms:instance('modifyObjectTree-parameters')/processing" value="string('false')"/>
+                <xxforms:hide dialog="modifyObject-count-dialog"/>
+            </xforms:action>
+        </xforms:trigger>
+        
+        </xforms:group>
+        
+
+    
+</xxforms:dialog>

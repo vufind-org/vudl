@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xxforms:dialog id="edit-datastreams-dialog"
+                appearance="full"
+                xmlns:xforms="http://www.w3.org/2002/xforms"
+                xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+                xmlns:xhtml="http://www.w3.org/1999/xhtml"
+                xmlns:ev="http://www.w3.org/2001/xml-events"
+                xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+                xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+                xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+                xmlns:access="http://www.fedora.info/definitions/1/0/access/"
+                xmlns:METS="http://www.loc.gov/METS/"
+                xmlns:fedora-model="info:fedora/fedora-system:def/model#" 
+                xmlns:xi="http://www.w3.org/2001/XInclude"
+                xmlns:fits="http://hul.harvard.edu/ois/xml/ns/fits/fits_output"
+                xmlns:management="http://www.fedora.info/definitions/1/0/management/"
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                xmlns:xxi="http://orbeon.org/oxf/xml/xinclude"
+                >
+
+    <xforms:action ev:event="xxforms-dialog-open">
+
+        <!-- Get RELS-EXT -->
+        <!-- ~~~~~~~~~~~~~~~~ -->
+        <!-- RELS-EXT: getDatastream -->
+        <!-- xxforms:instance('RELS-EXT-dialog-datastream-instance') -->
+        <xforms:dispatch name="performAPIRequest" 
+                         target="FedoraAPI-helper"
+                         xxforms:show-progress="true">
+            <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('edit-datastreams-dialog-parameters')/PID, '/datastreams/', string('RELS-EXT'), '?format=', string('xml'), '&amp;asOfDateTime=', now(),'&amp;validateChecksum=', string('false'))"/>
+            <xxforms:context name="dsID" value="string('RELS-EXT')"/>
+            <xxforms:context name="apiMethod" value="string('getDatastream')"/>
+            <xxforms:context name="httpMethod" value="string('get')"/>
+            <xxforms:context name="mode" value="string('synchronous')"/>
+            <xxforms:context name="destination-instance" value="string('RELS-EXT-dialog-datastream-instance')"/>
+            <xxforms:context name="clear-destination-instance" value="string('true')"/>
+        </xforms:dispatch>
+        <!-- RELS-EXT: getDatastreamDissemination -->
+        <!-- xxforms:instance('RELS-EXT-dialog-instance') -->
+        <xforms:dispatch name="performAPIRequest" 
+                         target="FedoraAPI-helper"
+                         xxforms:show-progress="true">
+            <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('edit-datastreams-dialog-parameters')/PID, '/datastreams/', string('RELS-EXT'), '/content?format=', string('xml'), '&amp;asOfDateTime=', now(),'&amp;validateChecksum=', string('false'))"/>
+            <xxforms:context name="dsID" value="string('RELS-EXT')"/>
+            <xxforms:context name="apiMethod" value="string('getDatastreamDissemination')"/>
+            <xxforms:context name="httpMethod" value="string('get')"/>
+            <xxforms:context name="mode" value="string('synchronous')"/>
+            <xxforms:context name="destination-instance" value="string('RELS-EXT-dialog-instance')"/>
+            <xxforms:context name="clear-destination-instance" value="string('true')"/>
+        </xforms:dispatch>
+        
+    </xforms:action>
+    
+    <xforms:label>Edit Datastreams</xforms:label>
+
+    <xhtml:div class="datastream-sidebar well">
+        <xxforms:variable name="RELS-EXT-SRC" value="string('RELS-EXT-dialog-instance')"/>
+        <xxforms:variable name="datastreamPID" value="xxforms:instance('edit-datastreams-dialog-parameters')/PID"/>
+        <xi:include href="oxf:/apps/VuDL/view/elements/modifyDatastreamGroup.xml" xxi:omit-xml-base="true"/> 
+    </xhtml:div>
+    
+    <xforms:trigger>
+        <xforms:label>
+            <xhtml:img src="/apps/VuDL/images/trigger_cancel.png"/>
+            Cancel
+        </xforms:label>
+        <xforms:action ev:event="DOMActivate">
+            <xxforms:hide dialog="edit-datastreams-dialog"/>
+        </xforms:action>
+    </xforms:trigger>
+    
+</xxforms:dialog>

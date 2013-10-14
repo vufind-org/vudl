@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xxforms:dialog id="control-menu-dialog"
+                xmlns:xforms="http://www.w3.org/2002/xforms"
+                xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+                xmlns:xhtml="http://www.w3.org/1999/xhtml"
+                xmlns:ev="http://www.w3.org/2001/xml-events"
+                xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+                xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xmlns:management="http://www.fedora.info/definitions/1/0/management/"
+                xmlns:sparql="http://www.w3.org/2001/sw/DataAccess/rf1/result"
+                xmlns:access="http://www.fedora.info/definitions/1/0/access/"
+                xmlns:vudl="http://vudl.org"
+                appearance="minimal"
+                close="false"
+                level="modal"
+                >
+
+    <!-- Add Child Object -->
+    <xforms:group ref=".[not(xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('control-menu-parameters')/PID]//access:model[.='info:fedora/vudl-system:DataModel'])]">
+        <xforms:trigger style="padding: 3px;">
+            <xforms:label>
+                <xhtml:img src="/apps/VuDL/images/add-object.png"/>
+            </xforms:label>
+            <xforms:hint>Add a new Folder, List, Image, Document, etc</xforms:hint>
+            <xforms:action ev:event="DOMActivate">
+                <xxforms:hide dialog="control-menu-dialog"/>
+                <xforms:setvalue ref="xxforms:instance('object-ingest-parameters')/PID" value="xxforms:instance('control-menu-parameters')/PID"/>
+                <xforms:setvalue ref="xxforms:instance('object-ingest-parameters')/owner" value="string('diglibEditor')"/>
+                <xforms:setvalue ref="xxforms:instance('object-ingest-parameters')/state" value="string('I')"/>
+                <xforms:setvalue ref="xxforms:instance('object-ingest-parameters')/objectType" value="string('')"/>
+                <xforms:setvalue ref="xxforms:instance('object-ingest-parameters')/parentPID" value="xxforms:instance('control-menu-parameters')/PID"/>
+                <xforms:dispatch name="launch-add-object" target="CoreModel-helper"/>
+            </xforms:action>
+        </xforms:trigger>
+        <xhtml:span>Add Object</xhtml:span>
+        <xhtml:br/>
+    </xforms:group>
+    
+    <!-- Add Segment -->
+    <xforms:group ref=".[xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('control-menu-parameters')/PID]//access:model[.='info:fedora/vudl-system:ImageData']]">
+        <xforms:trigger style="padding: 3px;" xxforms:modal="true">
+            <xforms:label>
+                <xhtml:img src="/apps/VuDL/images/add-object.png"/>
+            </xforms:label>
+            <xforms:hint>Create a new Segment of this image</xforms:hint>
+            <xforms:action ev:event="DOMActivate">
+                <!-- <xxforms:hide dialog="control-menu-dialog"/> -->
+                <xforms:setvalue ref="xxforms:instance('object-ingest-parameters')/PID" value="xxforms:instance('control-menu-parameters')/PID"/>
+                <xforms:setvalue ref="xxforms:instance('object-ingest-parameters')/title" value="string('segment')"/>
+                <xforms:setvalue ref="xxforms:instance('object-ingest-parameters')/owner" value="string('diglibEditor')"/>
+                <xforms:setvalue ref="xxforms:instance('object-ingest-parameters')/state" value="string('A')"/>
+                <xforms:setvalue ref="xxforms:instance('object-ingest-parameters')/objectType" value="string('SegmentImage')"/>
+                <xforms:setvalue ref="xxforms:instance('object-ingest-parameters')/parentPID" value="xxforms:instance('control-menu-parameters')/PID"/>
+                
+                <xforms:dispatch name="launch-add-object" target="CoreModel-helper"/>
+                <!--
+                <xforms:delete nodeset="xxforms:instance('object-ingest-parameters')/objectTypes/*"/>
+                <xforms:action xxforms:iterate="xxforms:instance('ModelTypes')//ModelType[@fullname=xxforms:instance('object-ingest-parameters')/objectType]/ancestor-or-self::*">
+                    <xforms:insert context="xxforms:instance('object-ingest-parameters')/objectTypes"
+                                   nodeset="ModelType"
+                                   origin="xxforms:instance('ModelType-template')"
+                                   at="last()"
+                                   position="after" 
+                                   />
+                    <xforms:setvalue ref="xxforms:instance('object-ingest-parameters')/objectTypes/ModelType[@fullname='']/@uri" value="context()/@uri"/>
+                    <xforms:setvalue ref="xxforms:instance('object-ingest-parameters')/objectTypes/ModelType[@fullname='']/@name" value="context()/@name"/>
+                    <xforms:setvalue ref="xxforms:instance('object-ingest-parameters')/objectTypes/ModelType[@fullname='']/@fullname" value="context()/@fullname"/>
+                </xforms:action>
+                -->
+                <!-- main ingest dispatch 
+                <xforms:dispatch name="object-ingest" target="CoreModel-helper"/>
+                -->
+                
+                <!--  Add new object to member list, then grab metadata 
+                <xforms:setvalue ref="xxforms:instance('add-browse-member-template')/sparql:memberPID" value="xxforms:instance('newPID')"/>
+                <xforms:setvalue ref="xxforms:instance('add-browse-member-template')/sparql:memberTitle" value="xxforms:instance('object-ingest-parameters')/title"/>
+                <xforms:insert context="xxforms:instance('browse-members-instance')//sparql:sparql[@PID = xxforms:instance('object-ingest-parameters')/parentPID]/sparql:results"
+                               origin="xxforms:instance('add-browse-member-template')"
+                               at="1"
+                               position="before"
+                               />
+                <xforms:setvalue ref="xxforms:instance('browse-members-parameters')/vudl:PID" value="xxforms:instance('object-ingest-parameters')/parentPID"/>
+                <xforms:dispatch name="browse-load-parameters"
+                                 target="CoreModel-helper"
+                                 >
+                    <xxforms:context name="container-PID" select="xxforms:instance('object-ingest-parameters')/parentPID"/>
+                    <xxforms:context name="browse-members-target" select="string('browse-members')"/>
+                </xforms:dispatch>
+                -->
+                <!-- get metadata 
+                <xforms:dispatch name="refresh-PIDmetadata"
+                                 target="CoreModel-helper"
+                                 >
+                    <xxforms:context name="PID" select="xxforms:instance('newPID')"/>
+                    <xxforms:context name="mode" select="string('asynchronous')"/>
+                    <xxforms:context name="stats" select="string('true')"/>
+                </xforms:dispatch>
+                -->
+                <!-- refresh metadata for parent 
+                <xforms:dispatch name="refresh-PIDmetadata"
+                                 target="CoreModel-helper"
+                                 >
+                    <xxforms:context name="PID" select="xxforms:instance('object-ingest-parameters')/parentPID"/>
+                    <xxforms:context name="mode" select="string('asynchronous')"/>
+                    <xxforms:context name="stats" select="string('true')"/>
+                </xforms:dispatch>
+                -->
+                <!-- <xforms:dispatch name="launch-add-object" target="CoreModel-helper"/> -->
+            </xforms:action>
+        </xforms:trigger>
+        <xhtml:span>Create Segment</xhtml:span>
+        <xhtml:br/>
+    </xforms:group>
+    
+    <!-- Edit MetaData (DC) -->
+    <xforms:trigger style="padding: 3px;">
+        <xforms:label>
+            <xhtml:img src="/apps/VuDL/images/edit.png" alt="Edit Metadata"  border="0"/>
+        </xforms:label>
+        <xforms:hint>Title, author, publishing information</xforms:hint>
+        <xforms:action ev:event="DOMActivate">
+            <!-- -->
+            <xxforms:hide dialog="control-menu-dialog"/>
+            <!-- TODO: move all this into the dialog -->
+            <xforms:setvalue ref="xxforms:instance('DC-editor')/PID" value="xxforms:instance('control-menu-parameters')/PID"/>
+            <!-- -->
+            <xforms:delete nodeset="xxforms:instance('DC-dialog-instance')/root()/instance/*"/>
+            <xforms:delete nodeset="xxforms:instance('DC-dialog-datastream-instance')/root()/instance/*"/>
+            <!-- -->
+            <xforms:insert context="xxforms:instance('DC-dialog-instance')/root()/instance"
+                           origin="xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('DC-editor')/PID]/oai_dc:dc"
+                           at="last()"
+                           position="after"
+                           />
+            <xforms:insert context="xxforms:instance('DC-dialog-datastream-instance')/root()/instance"
+                           origin="xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('DC-editor')/PID]/access:datastreamProfile[@dsID = 'DC']"
+                           at="last()"
+                           position="after"
+                           />               
+            <!-- END: TODO -->
+            <!-- -->
+            <xforms:dispatch name="launch-DC" target="CoreModel-helper"/>
+        </xforms:action>
+    </xforms:trigger>
+    <xhtml:span>Edit Metadata</xhtml:span>
+    <xhtml:br/>
+    <!-- End Edit Metadata -->
+    
+    <!-- Edit Object (owner, status) -->
+    <xforms:trigger style="padding: 3px;">
+        <xforms:label>
+            <xhtml:img src="/apps/VuDL/images/edit-object.png" alt="Edit Object"  border="0"/>
+        </xforms:label>
+        <xforms:hint>Change owner and publish status</xforms:hint>
+        <xforms:action ev:event="DOMActivate">
+            <!-- -->
+            <xxforms:hide dialog="control-menu-dialog"/>
+            <!-- -->
+            <xforms:setvalue ref="xxforms:instance('modifyObject-editor')/PID" value="xxforms:instance('control-menu-parameters')/PID"/>
+            <!-- -->
+            <xforms:dispatch name="launch-edit-object" target="CoreModel-helper"/>
+        </xforms:action>
+    </xforms:trigger>
+    <xhtml:span>Edit Object</xhtml:span>
+    <xhtml:br/>
+    
+    <!-- Edit RELS-EXT -->
+    <xforms:group ref=".[not(xxforms:instance('control-menu-parameters')/PID = 'vudl:1')]">
+        <xforms:trigger style="padding: 3px;">
+            <xforms:label>
+                <xhtml:img src="/apps/VuDL/images/edit-rels-ext.png"/>
+            </xforms:label>
+            <xforms:hint>Modify collection membership and model type</xforms:hint>
+            <xforms:action ev:event="DOMActivate">
+                <xxforms:hide dialog="control-menu-dialog"/>
+                <xforms:setvalue ref="xxforms:instance('edit-RELS-EXT-parameters')/PID" value="xxforms:instance('control-menu-parameters')/PID"/>
+                <xforms:dispatch name="launch-RELS-EXT" target="CoreModel-helper"/>
+            </xforms:action>
+        </xforms:trigger>
+        <xhtml:span>Edit Relationships</xhtml:span>
+        <xhtml:br/>
+    </xforms:group>
+    
+    <!-- Edit Members -->
+    <xforms:group ref=".[xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('control-menu-parameters')/PID]//access:model[.='info:fedora/vudl-system:CollectionModel']]">
+        <xforms:trigger style="padding: 3px;">
+            <xforms:label>
+                <xhtml:img src="/apps/VuDL/images/edit-members.png"/>
+            </xforms:label>
+            <xforms:hint>Rename Members</xforms:hint>
+            <xforms:action ev:event="DOMActivate">
+                <xxforms:hide dialog="control-menu-dialog"/>
+                <xforms:setvalue ref="xxforms:instance('edit-members-parameters')/PID" value="xxforms:instance('control-menu-parameters')/PID"/>
+                <xforms:setvalue ref="xxforms:instance('edit-members-parameters')/ordered" value="string('false')"/>
+                <xforms:setvalue ref="xxforms:instance('edit-members-parameters')/edit-in-line" value="string('true')"/>
+                <xforms:setvalue ref="xxforms:instance('edit-members-parameters')/relationship" value="string('isMemberOf')"/>
+                <xforms:dispatch name="launch-edit-members" target="CoreModel-helper"/>
+            </xforms:action>
+        </xforms:trigger>
+        <xhtml:span>Edit Members</xhtml:span>
+        <xhtml:br/>
+    </xforms:group>
+    
+    <!-- Sort Members -->
+    <xforms:group ref=".[xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('control-menu-parameters')/PID]//access:model[.='info:fedora/vudl-system:CollectionModel']]">
+        <xforms:trigger style="padding: 3px;">
+            <xforms:label>
+                <xhtml:img src="/apps/VuDL/images/sort-members.png"/>
+            </xforms:label>
+            <xforms:hint>Sort Members</xforms:hint>
+            <xforms:action ev:event="DOMActivate">
+                <xxforms:hide dialog="control-menu-dialog"/>
+
+                <xforms:setvalue ref="xxforms:instance('edit-members-parameters')/PID" value="xxforms:instance('control-menu-parameters')/PID"/>
+                <xforms:setvalue ref="xxforms:instance('edit-members-parameters')/edit-in-line" value="string('false')"/>
+                <xforms:setvalue ref="xxforms:instance('edit-members-parameters')/ordered" value="string('true')"/>
+                <xforms:setvalue ref="xxforms:instance('edit-members-parameters')/memberContainer" value="string('STRUCTMAP-dialog-instance')"/>
+                <xforms:setvalue ref="xxforms:instance('edit-members-parameters')/memberContainerNode" value="string('METS:div')"/>
+                <xforms:dispatch name="launch-edit-ordered-members" target="CoreModel-helper"/>
+        
+            </xforms:action>
+        </xforms:trigger>
+        <xhtml:span>Sort Members</xhtml:span>
+        <xhtml:br/>
+    </xforms:group>
+    
+    <!-- Edit Parts -->
+    <xforms:group ref=".[xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('control-menu-parameters')/PID]//access:model[.='info:fedora/vudl-system:ImageData']]">
+        <xforms:trigger style="padding: 3px;">
+            <xforms:label>
+                <xhtml:img src="/apps/VuDL/images/edit-members.png"/>
+            </xforms:label>
+            <xforms:hint>Rename Parts</xforms:hint>
+            <xforms:action ev:event="DOMActivate">
+                <xxforms:hide dialog="control-menu-dialog"/>
+                <xforms:setvalue ref="xxforms:instance('edit-members-parameters')/PID" value="xxforms:instance('control-menu-parameters')/PID"/>
+                <xforms:setvalue ref="xxforms:instance('edit-members-parameters')/ordered" value="string('false')"/>
+                <xforms:setvalue ref="xxforms:instance('edit-members-parameters')/edit-in-line" value="string('false')"/>
+                <xforms:setvalue ref="xxforms:instance('edit-members-parameters')/relationship" value="string('isPartOf')"/>
+                <xforms:dispatch name="launch-edit-members" target="CoreModel-helper"/>
+            </xforms:action>
+        </xforms:trigger>
+        <xhtml:span>Edit Parts</xhtml:span>
+        <xhtml:br/>
+    </xforms:group>
+    
+    <!-- Recycle --> 
+    <xforms:group ref=".[not(xxforms:instance('control-menu-parameters')/PID = xxforms:instance('recycle-bin'))]">
+    
+        <xforms:trigger style="padding: 3px;">
+            <xforms:label>
+                <xhtml:img src="/apps/VuDL/images/delete.png" alt="Recycle"  border="0"/>
+            </xforms:label>
+            <xforms:hint>Recycle this object and all of its children</xforms:hint>
+            <xforms:action ev:event="DOMActivate">
+                <xxforms:hide dialog="control-menu-dialog"/>
+                
+                
+                <xforms:setvalue ref="xxforms:instance('modifyObject-editor')/PID" value="xxforms:instance('control-menu-parameters')/PID"/>
+                <xforms:setvalue ref="xxforms:instance('modifyObject-editor')/owner" value="string('')"/>
+                <xforms:setvalue ref="xxforms:instance('modifyObject-editor')/owner_children" value="string('')"/>
+                <xforms:setvalue ref="xxforms:instance('modifyObject-editor')/state" value="string('D')"/>
+                <xforms:setvalue ref="xxforms:instance('modifyObject-editor')/state_children" value="string('Yes')"/>
+                <xforms:setvalue ref="xxforms:instance('modifyObject-editor')/recycle" value="string('Yes')"/>
+                
+                <xforms:setvalue ref="xxforms:instance('edit-RELS-EXT-parameters')/PID" value="xxforms:instance('control-menu-parameters')/PID"/>
+                <xforms:setvalue ref="xxforms:instance('edit-RELS-EXT-parameters')/ModelType" value="string('')"/>
+                
+                <xxforms:show dialog="modifyObject-count-dialog"/>
+
+            </xforms:action>
+        </xforms:trigger>  
+        <xhtml:span>Recycle</xhtml:span>
+        <xhtml:br/>
+    
+    </xforms:group>
+    
+    <!-- Purge 
+    <xforms:trigger style="padding: 3px;">
+        <xforms:label>
+            <xhtml:img src="/apps/VuDL/images/delete.png" alt="Delete"  border="0"/>
+        </xforms:label>
+        <xforms:hint>Purge this object and all of its children</xforms:hint>
+        <xforms:action ev:event="DOMActivate">
+            <xxforms:hide dialog="control-menu-dialog"/>
+            <xforms:setvalue ref="xxforms:instance('purgeTree-parameters')/PID" value="xxforms:instance('control-menu-parameters')/PID"/>
+            <xforms:dispatch name="launch-purge-object" target="CoreModel-helper" delay="1"/>
+        </xforms:action>
+    </xforms:trigger>  
+    <xhtml:span>Delete</xhtml:span>
+    <xhtml:br/>
+    -->
+    <xhtml:hr/>
+    
+    <!-- View XML -->
+    <xforms:trigger style="padding: 3px;">
+        <xforms:label>
+            <xhtml:img src="/apps/VuDL/images/xml.png" alt="View XML"  border="0"/>
+        </xforms:label>
+        <xforms:hint>View the raw FOXML of this object</xforms:hint>
+        <xforms:action ev:event="DOMActivate">
+            <xxforms:hide dialog="control-menu-dialog"/>
+            <xforms:load resource="{concat(xxforms:instance('config-instance')/fedora/publicUrl, '/objects/', xxforms:instance('control-menu-parameters')/PID, '/objectXML')}" 
+                         xxforms:target="_blank"
+                         xxforms:show-progress="false"/>
+        </xforms:action>
+    </xforms:trigger>
+    <xhtml:span>View XML</xhtml:span>
+    <xhtml:br/>
+
+    <!-- Preview -->
+    <xforms:trigger style="padding: 3px;">
+        <xforms:label>
+            <xhtml:img src="/apps/VuDL/images/eye.png" alt="Preview"  border="0"/>
+        </xforms:label>
+        <xforms:hint>View this object in VuFind</xforms:hint>
+        <xforms:action ev:event="DOMActivate">
+            <xxforms:hide dialog="control-menu-dialog"/>
+            <xforms:load resource="{concat(xxforms:instance('config-instance')//vufindUrl, '/Item/', xxforms:instance('control-menu-parameters')/PID)}" 
+                         xxforms:target="_blank"
+                         xxforms:show-progress="false"/>
+        </xforms:action>
+    </xforms:trigger>
+    <xhtml:span>Preview</xhtml:span>
+    <xhtml:br/>
+    
+    <xhtml:hr/>
+    
+    <xhtml:div>
+        <xforms:output value="xxforms:instance('control-menu-parameters')/PID"/>
+        <xhtml:br/>
+        <xforms:output value="xxforms:instance('control-menu-parameters')/label"/>
+    </xhtml:div>
+    
+    
+    
+</xxforms:dialog>

@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xhtml:div  xmlns:xforms="http://www.w3.org/2002/xforms"
+            xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+            xmlns:xhtml="http://www.w3.org/1999/xhtml"
+            xmlns:ev="http://www.w3.org/2001/xml-events"
+            xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+            xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+            xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns:fedora-types="http://www.fedora.info/definitions/1/0/types/"
+            xmlns:access="http://www.fedora.info/definitions/1/0/access/">
+    <xhtml:div style="float:left; padding:7px;">
+        <xforms:input ref="xxforms:instance('findObjects-parameters')/parameters/terms">
+            <xforms:label>Terms</xforms:label>
+            <xforms:action ev:event="DOMActivate">
+                <xforms:dispatch name="perform-findObjects" target="CoreModel-helper"/>
+            </xforms:action>
+        </xforms:input>
+    </xhtml:div>
+    
+    <xhtml:div style="float:left; padding:7px;">    
+        <xforms:select1 ref="xxforms:instance('findObjects-parameters')/parameters/maxResults">
+            <xforms:label>Max Results</xforms:label>
+            <xforms:item>
+                <xforms:label>10</xforms:label>
+                <xforms:value>10</xforms:value>
+            </xforms:item>
+            <xforms:item>
+                <xforms:label>20</xforms:label>
+                <xforms:value>20</xforms:value>
+            </xforms:item>
+            <xforms:item>
+                <xforms:label>50</xforms:label>
+                <xforms:value>50</xforms:value>
+            </xforms:item>
+            <xforms:item>
+                <xforms:label>100</xforms:label>
+                <xforms:value>100</xforms:value>
+            </xforms:item>
+        </xforms:select1>
+    </xhtml:div>
+
+    <xhtml:div style="float:left; padding-left:7px; padding-top:32px;"> 
+        <xforms:trigger>
+            <xforms:label>Search</xforms:label>
+            <xforms:action ev:event="DOMActivate">
+                <xforms:dispatch name="perform-findObjects" target="CoreModel-helper"/>
+            </xforms:action>
+        </xforms:trigger>
+    </xhtml:div>
+    
+    <xforms:group ref=".[xxforms:instance('findObjects-instance')/fedora-types:resultList]">
+        <xhtml:div style="float:left; padding-left:15px; padding-top:37px;"> 
+            <xforms:output value="concat('Objects Found: ', count(xxforms:instance('findObjects-instance')//fedora-types:objectFields))"/>
+        </xhtml:div>
+    </xforms:group>
+    
+    <xhtml:div style="clear:both;"/>
+    
+    <fr:datatable class="collection_list" 
+                  paginated="true" 
+                  modal="true"
+                  rowsPerPage="10" 
+                  maxNbPagesToDisplay="5"
+                  width="100%"
+                  >
+        <xhtml:thead>
+            <xhtml:tr>
+                <xhtml:th>#</xhtml:th> <!-- # -->
+                <xhtml:th>Model</xhtml:th> <!-- Model -->
+                <xhtml:th>Thumb</xhtml:th> <!-- Thumb -->
+                <xhtml:th>Status</xhtml:th> <!-- state -->
+                <xhtml:th>ID</xhtml:th> <!-- pid -->
+                <xhtml:th>Title</xhtml:th> <!-- dc:title -->
+                <xhtml:th>Description</xhtml:th> <!-- dc:desc -->
+                <xhtml:th>Owner</xhtml:th> <!-- ownerID -->
+                <!-- <xhtml:th>Collection</xhtml:th> --> <!-- Collection -->
+            </xhtml:tr>
+        </xhtml:thead>
+        
+        <xhtml:tbody>
+            <xforms:repeat nodeset="xxforms:instance('findObjects-instance')//fedora-types:objectFields">
+                <xxforms:variable name="pid" select="./fedora-types:pid"/>
+                <xxforms:variable name="label" select="./fedora-types:label"/>
+                <xxforms:variable name="title" select="./fedora-types:title"/>
+                <xxforms:variable name="description" select="./fedora-types:description"/>
+                <xxforms:variable name="ownerId" select="./fedora-types:ownerId"/>
+                <xxforms:variable name="state" select="./fedora-types:state"/>
+                <xxforms:variable name="ModelType" select="xxforms:instance('ModelTypes')//*[@uri = xxforms:instance('findObjects-getObjectProfile-instance')//access:objectProfile[@pid = $pid]//access:model][count(ancestor::node()) = max(xxforms:instance('ModelTypes')//*[@uri = xxforms:instance('findObjects-getObjectProfile-instance')//access:objectProfile[@pid = $pid]//access:model]/count(ancestor::node()))]/@fullname"/>
+                
+                <xhtml:tr>
+                
+                    <!-- -->
+                    <xhtml:td>
+                        <xforms:output value="position()"/>
+                    </xhtml:td>
+                    
+                    <!-- ModelType -->
+                    <xhtml:td>
+                        <xforms:group ref=".[not($ModelType)]">
+                            <xhtml:img src="/apps/VuDL/images/loading-spinner-sm.gif" alt="Loading Model..."/>
+                        </xforms:group>
+                        <xforms:group ref=".[$ModelType]">
+                            <xhtml:img src="/apps/VuDL/images/ModelIcons/{$ModelType}-icon.png" title="{$ModelType}"/>
+                        </xforms:group>
+                    </xhtml:td>
+                    
+                    <!-- THUMBNAIL -->
+                    <xhtml:td>
+                        <xforms:group ref=".[not(xxforms:instance('findObjects-listDatastreams-instance')//access:objectDatastreams[@pid = $pid]/access:datastream[@dsid = 'THUMBNAIL'])]">
+                            <xhtml:img src="/apps/VuDL/images/loading-spinner-sm.gif" alt="Loading Thumbnail..."/>
+                        </xforms:group>
+                        <xforms:group ref=".[xxforms:instance('findObjects-listDatastreams-instance')//access:objectDatastreams[@pid = $pid]/access:datastream[@dsid = 'THUMBNAIL']]">
+                            <xhtml:img src="{xxforms:instance('config-instance')/fedora/publicUrl}/objects/{$pid}/datastreams/THUMBNAIL/content" alt="THUMBNAIL"/>
+                        </xforms:group>
+                    </xhtml:td>
+                    
+                    <xhtml:td>
+                        <xforms:output value="$state"/>
+                    </xhtml:td>
+                    <xhtml:td>
+                    
+                        <xhtml:a href="{concat(xxforms:instance('config-instance')/VuDL/vudlUrl, '/object/', $pid)}" title="Edit Object">
+                            <xforms:output value="$pid"/>
+                        </xhtml:a>
+                    </xhtml:td>
+                    <xhtml:td>
+                        <xforms:output value="$title"/>
+                    </xhtml:td>
+                    <xhtml:td>
+                        <!-- <xforms:output value="$description"
+                                       mediatype="text/html"/> -->
+                    </xhtml:td>
+                    <xhtml:td>
+                        <xforms:output value="$ownerId"/>
+                    </xhtml:td>
+                    
+                    <!-- Bread Crumbs 
+                    <xhtml:td>
+                        <xforms:group ref=".[not(xxforms:instance('findObjects-PARENT-LIST-instance')/parents[@pid = $pid]//parent)]">
+                            <xhtml:img src="/apps/VuDL/images/loading-spinner-sm.gif" alt="Loading Thumbnail..."/>
+                        </xforms:group>
+                        
+                        
+                        <xforms:repeat nodeset="xxforms:instance('findObjects-PARENT-LIST-instance')/parents[@pid = $pid]//parent">
+                            <xxforms:variable name="parentPID" value="./@PID"/>
+                            <xxforms:variable name="parentName" value="./@name"/>
+
+                            <xforms:output value="string(' -> ')"/>
+                            <xhtml:a href="{concat(xxforms:instance('config-instance')/VuDL/vudlUrl, '/object/', $parentPID)}" title="$parentName">
+                                <xforms:output value="$parentName"/>
+                            </xhtml:a>
+                            <xhtml:br/>
+                        </xforms:repeat>
+                    </xhtml:td>
+                    -->
+                </xhtml:tr>
+                
+            </xforms:repeat>
+        </xhtml:tbody>
+        
+    </fr:datatable>
+</xhtml:div>
+    

@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xxforms:dialog id="edit-process-md-dialog"
+                appearance="full"
+                xmlns:xforms="http://www.w3.org/2002/xforms"
+                xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+                xmlns:xhtml="http://www.w3.org/1999/xhtml"
+                xmlns:ev="http://www.w3.org/2001/xml-events"
+                xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+                xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+                xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+                xmlns:access="http://www.fedora.info/definitions/1/0/access/"
+                xmlns:METS="http://www.loc.gov/METS/"
+                xmlns:fedora-model="info:fedora/fedora-system:def/model#" 
+                xmlns:xi="http://www.w3.org/2001/XInclude"
+                xmlns:fits="http://hul.harvard.edu/ois/xml/ns/fits/fits_output"
+                xmlns:management="http://www.fedora.info/definitions/1/0/management/"
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                xmlns:DIGIPROVMD="http://www.loc.gov/PMD"
+                >
+
+    <xforms:action ev:event="xxforms-dialog-open">
+
+        <!-- -->
+        <xforms:delete nodeset="xxforms:instance('PROCESS-MD-dialog-instance')/root()/instance/*"/>
+
+        
+        <!-- PROCESS-MD already exists -->
+        <xforms:action if=".[xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('edit-process-md-parameters')/PID]/access:objectDatastreams/access:datastream[@dsid = 'PROCESS-MD']]">
+            <!-- Get PROCESS-MD -->
+            <!-- ~~~~~~~~~~~~~~~~ -->
+            <!-- PROCESS-MD: getDatastream -->
+            <!-- xxforms:instance('PROCESS-MD-dialog-datastream-instance') -->
+            <xforms:dispatch name="performAPIRequest" 
+                             target="FedoraAPI-helper"
+                             xxforms:show-progress="true">
+                <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('edit-process-md-parameters')/PID, '/datastreams/', string('PROCESS-MD'), '?format=', string('xml'), '&amp;asOfDateTime=', now(),'&amp;validateChecksum=', string('false'))"/>
+                <xxforms:context name="dsID" value="string('PROCESS-MD')"/>
+                <xxforms:context name="apiMethod" value="string('getDatastream')"/>
+                <xxforms:context name="httpMethod" value="string('get')"/>
+                <xxforms:context name="mode" value="string('synchronous')"/>
+                <xxforms:context name="destination-instance" value="string('PROCESS-MD-dialog-datastream-instance')"/>
+                <xxforms:context name="clear-destination-instance" value="string('true')"/>
+            </xforms:dispatch>
+            <!-- PROCESS-MD: getDatastreamDissemination -->
+            <!-- xxforms:instance('PROCESS-MD-dialog-instance') -->
+            <xforms:dispatch name="performAPIRequest" 
+                             target="FedoraAPI-helper"
+                             xxforms:show-progress="true">
+                <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('edit-process-md-parameters')/PID, '/datastreams/', string('PROCESS-MD'), '/content?format=', string('xml'), '&amp;asOfDateTime=', now(),'&amp;validateChecksum=', string('false'))"/>
+                <xxforms:context name="dsID" value="string('PROCESS-MD')"/>
+                <xxforms:context name="apiMethod" value="string('getDatastreamDissemination')"/>
+                <xxforms:context name="httpMethod" value="string('get')"/>
+                <xxforms:context name="mode" value="string('synchronous')"/>
+                <xxforms:context name="destination-instance" value="string('PROCESS-MD-dialog-instance')"/>
+                <xxforms:context name="clear-destination-instance" value="string('true')"/>
+            </xforms:dispatch>
+
+        </xforms:action>
+        
+        <!-- PROCESS-MD does not already exist -->
+        <xforms:action if=".[not(xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('edit-process-md-parameters')/PID]/access:objectDatastreams/access:datastream[@dsid = 'PROCESS-MD'])]">
+            <xforms:insert context="xxforms:instance('PROCESS-MD-dialog-instance')/root()/instance"
+                           origin="xxforms:instance('PROCESS-MD-template')"
+                           at="last()"
+                           position="after"
+                           />
+            <!-- Insert defaults -->
+            <!-- TODO: make this configurable -->
+            <xforms:setvalue ref="xxforms:instance('PROCESS-MD-dialog-instance')/root()/instance/DIGIPROVMD:DIGIPROVMD/DIGIPROVMD:process_label" value="string('Digitize Original Item')"/>
+            <xforms:setvalue ref="xxforms:instance('PROCESS-MD-dialog-instance')/root()/instance/DIGIPROVMD:DIGIPROVMD/DIGIPROVMD:process_organization" value="string('')"/>
+            
+            <xforms:insert ev:event="DOMActivate" 
+                           context="xxforms:instance('PROCESS-MD-dialog-instance')/DIGIPROVMD:DIGIPROVMD" 
+                           nodeset="DIGIPROVMD:task" 
+                           at="last()" 
+                           position="after" 
+                           origin="xxforms:instance('DIGIPROVMD-task-template')"
+                           />
+
+            <!-- END TODO -->
+        </xforms:action>
+        
+    </xforms:action>
+    
+    <xforms:label>Edit Process Metadata</xforms:label>
+    
+    <!-- -->
+    <xhtml:h2>Digital Provenance</xhtml:h2>
+    <xxforms:variable name="process-md-container" select="xxforms:instance('PROCESS-MD-dialog-instance')/DIGIPROVMD:DIGIPROVMD"/>
+    
+    <xforms:group ref=".[$process-md-container]">
+        
+        <xhtml:table>
+            <xhtml:tr>
+              <xhtml:td>
+                <xforms:input  ref="$process-md-container/DIGIPROVMD:process_label">
+                    <xforms:label>Process Label</xforms:label>
+                    <xforms:alert>This required</xforms:alert>
+                </xforms:input>
+              </xhtml:td>
+              <xhtml:td>
+
+                <xforms:input  ref="$process-md-container/DIGIPROVMD:process_creator">
+                    <xforms:label>Process Creator</xforms:label>
+                    <xforms:alert>This required</xforms:alert>
+                </xforms:input>
+              </xhtml:td>
+              <xhtml:td>
+                <xforms:input ref="$process-md-container/DIGIPROVMD:process_datetime">
+                    <xforms:label>Process Date/Time</xforms:label>
+                    <xforms:alert>This required</xforms:alert>
+                </xforms:input>
+              </xhtml:td>
+              <xhtml:td>
+                <xforms:input  ref="$process-md-container/DIGIPROVMD:process_organization">
+                    <xforms:label>Process Organization</xforms:label>
+                    <xforms:alert>This required</xforms:alert>
+                </xforms:input>
+              </xhtml:td>
+              
+            </xhtml:tr>
+        </xhtml:table>
+        
+        <xhtml:br/>
+        
+        <xhtml:table border="1" width="100%" cellspacing="0" cellpadding="5">
+            <xhtml:tr>
+              <xhtml:td>
+                <xforms:trigger appearance="minimal">
+                    <xforms:label><xhtml:img src="/apps/VuDL/images/add.gif"/></xforms:label>
+                    
+                    <xforms:insert ev:event="DOMActivate" 
+                                   context="$process-md-container" 
+                                   nodeset="DIGIPROVMD:task" 
+                                   at="last()" 
+                                   position="after" 
+                                   origin="xxforms:instance('DIGIPROVMD-task-template')"
+                                   />
+                    
+                </xforms:trigger>
+              </xhtml:td>
+              <xhtml:td class="add-td">
+                  <!-- -->
+              </xhtml:td>
+            </xhtml:tr>
+            <xforms:repeat id="DIGIPROVMD-task-repeat" nodeset="$process-md-container/DIGIPROVMD:task">
+            <xforms:group>
+            <xhtml:tr>
+                <xhtml:td>
+                  <xforms:trigger appearance="minimal">
+                    
+                    <xforms:delete ev:event="DOMActivate" 
+                                   context="$process-md-container" 
+                                   nodeset="DIGIPROVMD:task" 
+                                   at="index('DIGIPROVMD-task-repeat')"
+                                   />
+                    
+                    <xforms:label><xhtml:img src="/apps/VuDL/images/remove.gif"/></xforms:label>
+                  </xforms:trigger>
+                </xhtml:td>
+                <xhtml:td class="form-td">
+                    <xhtml:table>
+                        <xhtml:tr>
+                            <xhtml:td>
+                                <xforms:input ref="./DIGIPROVMD:task_sequence">
+                                    <xforms:label>Task Sequence</xforms:label>
+                                    <xforms:alert>This required</xforms:alert>
+                                </xforms:input>
+                            </xhtml:td>
+                            <xhtml:td>
+                                <xforms:input ref="./DIGIPROVMD:task_label">
+                                    <xforms:label>Task Label</xforms:label>
+                                    <xforms:alert>This required</xforms:alert>
+                                </xforms:input>
+                            </xhtml:td>
+                            <xhtml:td>
+                                <xforms:input ref="./DIGIPROVMD:task_description">
+                                    <xforms:label>Task Description</xforms:label>
+                                    <xforms:alert>This required</xforms:alert>
+                                </xforms:input>
+                            </xhtml:td>
+                            <xhtml:td>
+                                <xforms:input ref="./DIGIPROVMD:task_individual">
+                                    <xforms:label>Task Individual</xforms:label>
+                                    <xforms:alert>This required</xforms:alert>
+                                </xforms:input>
+                            </xhtml:td>
+                        </xhtml:tr>
+                        <xhtml:tr>
+                            <xhtml:td>
+                                <xforms:select1 ref="./DIGIPROVMD:tool/DIGIPROVMD:tool_label">
+                                  <xforms:label>Task Tool</xforms:label>
+                                  
+                                  <xforms:action ev:event="xforms-value-changed">
+                                      <xxforms:variable name="tool_label" select="$process-md-container/DIGIPROVMD:task[index('DIGIPROVMD-task-repeat')]/DIGIPROVMD:tool/DIGIPROVMD:tool_label"/>
+                                      <xxforms:variable name="selected_DIGIPROVMD_tool" select="xxforms:instance('DIGIPROVMD_tools')//item/value[text() = $tool_label]/parent::*"/>
+                                      <xforms:setvalue  ref="$process-md-container/DIGIPROVMD:task[index('DIGIPROVMD-task-repeat')]/DIGIPROVMD:tool/DIGIPROVMD:tool_description" value="$selected_DIGIPROVMD_tool/description"/>
+                                      <xforms:setvalue  ref="$process-md-container/DIGIPROVMD:task[index('DIGIPROVMD-task-repeat')]/DIGIPROVMD:tool/DIGIPROVMD:tool_make" value="$selected_DIGIPROVMD_tool/make"/>
+                                      <xforms:setvalue  ref="$process-md-container/DIGIPROVMD:task[index('DIGIPROVMD-task-repeat')]/DIGIPROVMD:tool/DIGIPROVMD:tool_version" value="$selected_DIGIPROVMD_tool/version"/>
+                                      <xforms:setvalue  ref="$process-md-container/DIGIPROVMD:task[index('DIGIPROVMD-task-repeat')]/DIGIPROVMD:tool/DIGIPROVMD:tool_serial_number" value="$selected_DIGIPROVMD_tool/serial"/>
+                                  </xforms:action>
+                                  
+                                  <xforms:itemset nodeset="xxforms:instance('DIGIPROVMD_tools')//item">
+                                    <xforms:label ref="./label" />
+                                    <xforms:value ref="./value" />
+                                  </xforms:itemset>
+                                  
+                                  <xforms:alert>A Tool Label is required</xforms:alert>
+                                  
+                                </xforms:select1>
+                            </xhtml:td>
+                            <xhtml:td>
+                                <xforms:input ref="./DIGIPROVMD:tool/DIGIPROVMD:tool_description">
+                                    <xforms:label>Tool Description</xforms:label>
+                                    <xforms:alert>This required</xforms:alert>
+                                </xforms:input>
+                            </xhtml:td>
+                            <xhtml:td>
+                                <xforms:input ref="./DIGIPROVMD:tool/DIGIPROVMD:tool_make">
+                                    <xforms:label>Tool Make</xforms:label>
+                                    <xforms:alert>This required</xforms:alert>
+                                </xforms:input>
+                            </xhtml:td>
+                            <xhtml:td>
+                                <xforms:input ref="./DIGIPROVMD:tool/DIGIPROVMD:tool_version">
+                                    <xforms:label>Tool Version</xforms:label>
+                                    <xforms:alert>This required</xforms:alert>
+                                </xforms:input>
+                            </xhtml:td>
+                            <xhtml:td>
+                                <xforms:input ref="./DIGIPROVMD:tool/DIGIPROVMD:tool_serial_number">
+                                    <xforms:label>Tool Serial Number</xforms:label>
+                                    <xforms:alert>This required</xforms:alert>
+                                </xforms:input>
+                            </xhtml:td>
+                        </xhtml:tr>
+                    </xhtml:table>
+                </xhtml:td>
+            </xhtml:tr>
+            </xforms:group>
+            </xforms:repeat>
+        </xhtml:table>
+
+    </xforms:group>
+    
+    <xhtml:br/>
+
+    
+    
+    <xforms:trigger xxforms:modal="true">
+        <xforms:label>
+            <xhtml:img src="/apps/VuDL/images/trigger_save.png"/>
+            Save
+        </xforms:label>
+        <xforms:action ev:event="DOMActivate">
+            
+            <!-- if PROCESS-MD exists -->
+            <!-- modifyDatastream -->
+            <xforms:action if=".[xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('edit-process-md-parameters')/PID]/access:objectDatastreams/access:datastream[@dsid = 'PROCESS-MD']]">
+
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/PID" value="xxforms:instance('edit-process-md-parameters')/PID"/>
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/dsID" value="string('PROCESS-MD')"/>
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/post-content" value="string('PROCESS-MD-dialog-instance')"/>
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/dsLocation" value="string('')"/>
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/altIDs" value="string('')"/>
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/dsLabel" value="xxforms:instance('PROCESS-MD-dialog-datastream-instance')//management:dsLabel"/>
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/versionable" value="xxforms:instance('PROCESS-MD-dialog-datastream-instance')//management:dsVersionable"/>
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/dsState" value="xxforms:instance('PROCESS-MD-dialog-datastream-instance')//management:dsState"/>
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/formatURI" value="xxforms:instance('PROCESS-MD-dialog-datastream-instance')//management:dsFormatURI"/>
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/checksumType" value="xxforms:instance('PROCESS-MD-dialog-datastream-instance')//management:dsChecksumType"/>
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/checksum" value="xxforms:instance('PROCESS-MD-dialog-datastream-instance')//management:dsChecksum"/>
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/mimeType" value="xxforms:instance('PROCESS-MD-dialog-datastream-instance')//management:dsMIME"/>
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/logMessage" value="string('Modified PROCESS-MD Datastream')"/>
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/ignoreContent" value="string('false')"/>
+                <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/lastModifiedDate" value="now()"/>
+                <!-- send submission -->
+                <xforms:dispatch name="performAPIRequest" 
+                                 target="FedoraAPI-helper"
+                                 xxforms:show-progress="true">
+                    <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('modifyDatastream-parameters')/PID, '/datastreams/', xxforms:instance('modifyDatastream-parameters')/dsID)"/>
+                    <xxforms:context name="dsID" value="xxforms:instance('modifyDatastream-parameters')/dsID"/>
+                    <xxforms:context name="apiMethod" value="string('modifyDatastream')"/>
+                    <xxforms:context name="httpMethod" value="string('put')"/>
+                    <xxforms:context name="mode" value="string('')"/>
+                    <xxforms:context name="destination-instance" value="string('')"/>
+                    <xxforms:context name="clear-destination-instance" value="string('')"/>
+                    <xxforms:context name="post-content" value="xxforms:instance('modifyDatastream-parameters')/post-content"/>
+                    <xxforms:context name="parameters" value="string('modifyDatastream-parameters')"/>
+                </xforms:dispatch>
+            </xforms:action>
+            
+            <!-- PROCESS-MD does not exist -->
+            <!-- addDatastream -->
+            <xforms:action if=".[not(xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('edit-process-md-parameters')/PID]/access:objectDatastreams/access:datastream[@dsid = 'PROCESS-MD'])]">
+                <!-- start root()/instance hack for adddatastream -->
+                <!-- TODO: the root of the posted content is *instance*. We do not want this in the DS, so we copy the first child (metsrights) into a new instance and use that for posting -->
+                <xforms:delete nodeset="xxforms:instance('PROCESS-MD-dialog-instance-root-hack')/*"/>
+                <xforms:insert nodeset="xxforms:instance('PROCESS-MD-dialog-instance-root-hack')"
+                               origin="xxforms:instance('PROCESS-MD-dialog-instance')//DIGIPROVMD:DIGIPROVMD"
+                               at="last()"
+                               position="after"
+                               />
+                <!-- end hack -->
+
+                
+                <!-- Prepare new PROCESS-MD with url from select1 -->
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/PID" value="xxforms:instance('edit-process-md-parameters')/PID"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/dsID" value="string('PROCESS-MD')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/post-content" value="string('PROCESS-MD-dialog-instance-root-hack')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/controlGroup" value="string('X')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/dsLocation" value="string('')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/altIDs" value="string('')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/dsLabel" value="string('Process Metadata for this Resource')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/versionable" value="string('false')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/dsState" value="string('A')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/formatURI" value="string('')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/checksumType" value="string('DISABLED')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/checksum" value="string('')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/mimeType" value="string('text/xml')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/logMessage" value="string('Added PROCESS-MD datastream')"/>
+                <!-- send submission -->
+                <xforms:dispatch name="performAPIRequest" 
+                                 target="FedoraAPI-helper"
+                                 xxforms:show-progress="true"
+                                 >
+                    <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('addDatastream-parameters')/PID, '/datastreams/', xxforms:instance('addDatastream-parameters')/dsID)"/>
+                    <xxforms:context name="dsID" value="xxforms:instance('addDatastream-parameters')/dsID"/>
+                    <xxforms:context name="apiMethod" value="string('addDatastream')"/>
+                    <xxforms:context name="httpMethod" value="string('post')"/>
+                    <xxforms:context name="mode" value="string('')"/>
+                    <xxforms:context name="destination-instance" value="string('')"/>
+                    <xxforms:context name="clear-destination-instance" value="string('')"/>
+                    <xxforms:context name="parameters" value="string('addDatastream-parameters')"/>
+                </xforms:dispatch>
+
+                
+            </xforms:action>
+
+            <xforms:dispatch name="refresh-PIDmetadata"
+                             target="CoreModel-helper"
+                             >
+                <xxforms:context name="PID" select="xxforms:instance('edit-process-md-parameters')/PID"/>
+                <xxforms:context name="mode" select="string('synchronous')"/>
+                <xxforms:context name="stats" select="string('true')"/>
+            </xforms:dispatch>
+            
+            <!-- Hide -->
+            <xxforms:hide dialog="edit-process-md-dialog"/>
+            
+        </xforms:action>
+    </xforms:trigger>
+
+    <xforms:trigger>
+        <xforms:label>
+            Cancel
+            <xhtml:img src="/apps/VuDL/images/trigger_cancel.png"/>
+        </xforms:label>
+        <xforms:action ev:event="DOMActivate">
+            <xxforms:hide dialog="edit-process-md-dialog"/>
+        </xforms:action>
+    </xforms:trigger>
+    
+</xxforms:dialog>

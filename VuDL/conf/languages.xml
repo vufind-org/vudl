@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xforms:instance id="languages"
+                 xmlns:xforms="http://www.w3.org/2002/xforms"
+                 xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+                 xmlns:ev="http://www.w3.org/2001/xml-events">
+  <!-- ISO 639-1 -->
+  <!-- http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes -->
+  <itemset xmlns="">
+    <item>
+      <label/>
+      <value/>
+    </item>
+    <item>
+      <label>English</label>
+      <value>en</value>
+    </item>
+    <item>
+      <label>French</label>
+      <value>fr</value>
+    </item>
+    <item>
+      <label>German</label>
+      <value>de</value>
+    </item>
+    <item>
+      <label>Latin</label>
+      <value>la</value>
+    </item>
+    <item>
+      <label>Italian</label>
+      <value>it</value>
+    </item>
+    <item>
+      <label>Spanish</label>
+      <value>es</value>
+    </item>
+    <item>
+      <label>Dutch</label>
+      <value>nl</value>
+    </item>
+    <item>
+      <label>Japanese</label>
+      <value>ja</value>
+    </item>
+    <item>
+      <label>Irish Gaelic</label>
+      <value>ga</value>
+    </item>
+    <item>
+      <label>Scottish Gaelic</label>
+      <value>gd</value>
+    </item>
+    <item>
+      <label>Brazilian Portuguese</label>
+      <value>pt-BR</value>
+    </item>
+    <item>
+      <label>Modern Greek</label>
+      <value>el</value>
+    </item>
+    <item>
+      <label>Ukrainian</label>
+      <value>uk</value>
+    </item>
+    <item>
+      <label>Polish</label>
+      <value>pl</value>
+    </item>
+    <item>
+      <label>Swedish</label>
+      <value>sv</value>
+    </item>
+    <item>
+      <label>Continental Portuguese</label>
+      <value>pt</value>
+    </item>
+    <item>
+      <label>Danish</label>
+      <value>da</value>
+    </item>
+    <item>
+      <label>Finnish</label>
+      <value>fi</value>
+    </item>
+    <item>
+      <label>Hungarian</label>
+      <value>hu</value>
+    </item>
+    <item>
+      <label>Czech</label>
+      <value>cs</value>
+    </item>
+    <item>
+      <label>Chinese</label>
+      <value>zh</value>
+    </item>
+  </itemset>
+</xforms:instance>

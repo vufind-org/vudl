@@ -1,0 +1,453 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xxforms:dialog id="edit-DC-dialog"
+                xmlns:xforms="http://www.w3.org/2002/xforms"
+                xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+                xmlns:xhtml="http://www.w3.org/1999/xhtml"
+                xmlns:ev="http://www.w3.org/2001/xml-events"
+                xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+                xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                xmlns:access="http://www.fedora.info/definitions/1/0/access/"
+                xmlns:management="http://www.fedora.info/definitions/1/0/management/"
+                xmlns:dc="http://purl.org/dc/elements/1.1/"
+                >
+    <xforms:label>
+        <xforms:output value="concat('Edit DC: ', xxforms:instance('DC-editor')/PID)"/>
+    </xforms:label>
+    
+    <xforms:action ev:event="xxforms-dialog-open">
+        <xforms:setfocus control="cancel-edit-DC"/>
+    </xforms:action>
+    
+    <!-- this fires when a DC group/node is created for the first time. It will not fire when adding additional nodes to the group -->
+    <xforms:action ev:event="xxforms-nodeset-changed" ev:target="dc_nodes_top">
+        <xforms:setvalue ref="xxforms:instance('DC-setFocus')/parent" value="xxforms:instance('DC-setFocus')/position"/>
+        <xforms:setvalue ref="xxforms:instance('DC-setFocus')/child"  value="count(xxforms:instance('DC-dialog-instance')/oai_dc:dc/*/.[name() = xxforms:instance('DC-setFocus')/nodeName])"/>
+        
+        <xforms:setindex  repeat="dc_nodes_top" index="xxforms:instance('DC-setFocus')/parent"/> 
+        <xforms:setindex  repeat="dc_nodes_group" index="xxforms:instance('DC-setFocus')/child"/>
+        <xforms:setfocus control="{xxforms:instance('DC-setFocus')/field}"/>
+
+    </xforms:action>
+    
+    
+    <xhtml:div class="pull-right">
+        <xforms:trigger>
+            <xforms:label>
+                <xhtml:img src="/apps/VuDL/images/trigger_clone.png"/>
+                Clone metadata
+            </xforms:label>
+            <xforms:hint>Clone metadata from another object</xforms:hint>
+            <xforms:action ev:event="DOMActivate">
+                <xforms:dispatch name="launch-DC-clone" target="CoreModel-helper"/>
+            </xforms:action>
+        </xforms:trigger>
+    </xhtml:div>
+    
+    <xhtml:div class="pull-left">
+        <xforms:trigger>
+            <xforms:label>
+                <xhtml:img src="/apps/VuDL/images/eye-lg.png" alt="Preview"  border="0"/>
+                Preview
+            </xforms:label>
+            <xforms:hint>View this object in VuFind</xforms:hint>
+            <xforms:action ev:event="DOMActivate">
+                <xxforms:hide dialog="control-menu-dialog"/>
+                <xforms:load resource="{concat(xxforms:instance('config-instance')//vufindUrl, '/Item/', xxforms:instance('DC-editor')/PID)}" 
+                             xxforms:target="_blank"
+                             xxforms:show-progress="false"/>
+            </xforms:action>
+        </xforms:trigger>
+    </xhtml:div>
+    
+    <xhtml:div style="clear:both;"/>
+    
+    <xhtml:hr/>
+    
+    <xhtml:div id="DC-editor" style="float:left;">
+      <xforms:repeat nodeset="xxforms:instance('DC-nodes')/node[@name = xxforms:instance('DC-dialog-instance')/root()/instance/oai_dc:dc/*/name()]" 
+                     id="dc_nodes_top">
+          <xxforms:variable name="nodeName" select="./@name"/>
+          <xxforms:variable name="nodeStem" select="./@stem"/>
+          <xxforms:variable name="nodeLabel" select="./@label"/>
+          <xxforms:variable name="nodeMultiple" select="./@multiple"/>
+          
+          <xxforms:variable name="current-position" select="position()"/>
+          
+          
+          <xforms:action ev:event="xforms-enabled">
+              <xforms:setvalue ref="xxforms:instance('DC-setFocus')/position" value="$current-position"/>
+              <xforms:setvalue ref="xxforms:instance('DC-setFocus')/nodeName" value="$nodeName"/>
+          </xforms:action>
+          
+          
+          <xhtml:div style="width:400px; padding-bottom:15px;">
+              <xhtml:div style="padding-bottom:4px;">
+                  <xforms:output value="$nodeLabel"/>
+              </xhtml:div>
+
+              <xhtml:div>
+              
+                  
+                  <xforms:action ev:event="xxforms-nodeset-changed" ev:target="dc_nodes_group">
+
+                      <xforms:setvalue ref="xxforms:instance('DC-setFocus')/parent" value="xxforms:instance('DC-setFocus')/position"/>
+                      <xforms:setvalue ref="xxforms:instance('DC-setFocus')/child"  value="count(xxforms:instance('DC-dialog-instance')/oai_dc:dc/*/.[name() = xxforms:instance('DC-setFocus')/nodeName])"/>
+
+                      <xforms:setindex  repeat="dc_nodes_top" index="xxforms:instance('DC-setFocus')/parent"/> 
+                      <xforms:setindex  repeat="dc_nodes_group" index="xxforms:instance('DC-setFocus')/child"/>
+                      <xforms:setfocus control="{instance('DC-setFocus')/field}"/>
+
+                  </xforms:action>
+                  
+                  
+                  <xforms:repeat nodeset="xxforms:instance('DC-dialog-instance')/root()/instance/oai_dc:dc/*/.[name() = $nodeName]" id="dc_nodes_group">
+                  
+                      <xxforms:variable name="dc-current-position" select="position()"/>
+
+                      <xforms:action ev:event="xforms-enabled">
+                          <xforms:setvalue ref="xxforms:instance('DC-setFocus')/position" value="$dc-current-position"/>
+                          <xforms:setvalue ref="xxforms:instance('DC-setFocus')/nodeName" value="$nodeName"/>
+                      </xforms:action>
+
+                      <xxforms:variable name="nodeValue" select="." />
+                      
+                      <!-- Add row/node -->
+                      <xhtml:div style="float:left; margin-right:3px;">
+                          <xforms:trigger appearance="minimal">
+                              <xforms:label>
+                                  <xhtml:img src="/apps/VuDL/images/add.gif"/>
+                              </xforms:label>
+                              <xforms:action ev:event="DOMActivate" if="$nodeMultiple = 'true' or count(xxforms:instance('DC-dialog-instance')/root()/instance/oai_dc:dc/*/.[name() = $nodeName]) lt 1">
+                                <xforms:insert nodeset="xxforms:instance('DC-dialog-instance')/root()/instance/oai_dc:dc/*/.[name() = $nodeName]"
+                                               at="xxforms:index()"
+                                               position="after" 
+                                               origin="xxforms:instance(concat($nodeStem, '-template'))"
+                                               />
+
+                                <xforms:setvalue ref="xxforms:instance('DC-setFocus')/parent" value="xxforms:index('dc_nodes_top')"/>
+                                <xforms:setvalue ref="xxforms:instance('DC-setFocus')/child" value="xxforms:index('dc_nodes_group')"/>
+                                <xforms:setvalue ref="xxforms:instance('DC-setFocus')/field" value="if($nodeName = 'dc:description') then 'dc_input_description' else if($nodeName = 'dc:language') then 'dc_input_language' else if($nodeName = 'dc:format') then 'dc_input_format' else if($nodeName = 'dc:creator') then 'dc_input_creator' else if($nodeName = 'dc:subject') then 'dc_input_subject' else 'dc_input'"/>
+
+                            </xforms:action>
+                          </xforms:trigger>
+                      </xhtml:div>
+                      
+                      <!-- remove row/node -->
+                      <xhtml:div style="float:left; margin-right:3px;">
+                          <xforms:trigger appearance="minimal">
+                              <xforms:label>
+                                  <xhtml:img src="/apps/VuDL/images/remove.gif"/>
+                              </xforms:label>
+                              <!-- This is a hack to prevent the "can't add nodes to a blank slate" problem. I.E. - can't delete the dc:identifier node -->
+                              <xforms:action ev:event="DOMActivate" if="$nodeName != 'dc:identifier'">
+                                  <xforms:delete nodeset="."/>
+                              </xforms:action>
+                          </xforms:trigger>
+                      </xhtml:div>
+                      
+                      <!-- -->
+                      <xhtml:div style="float:left; margin-left:8px; width:350px; margin-bottom:2px;">
+                          <!-- dc:* input -->
+                          <xforms:group ref=".[not(.[name() = 'dc:language']) and not(.[name() = 'dc:description']) and not(.[name() = 'dc:format']) and not(.[name() = 'dc:creator']) and not(.[name() = 'dc:subject'])]">
+                              <xforms:input ref="$nodeValue" id="dc_input">
+                                  <xforms:alert>
+                                      <xforms:output value="concat($nodeLabel, ' is required')"/>
+                                  </xforms:alert>
+                              </xforms:input>
+                          </xforms:group>
+                          
+                          <!-- creator -->
+                          <!-- labelref="xxforms:instance('author_label')" -->
+                          <xforms:group ref=".[name() = 'dc:creator']">
+                              <xxforms:variable name="solrUrl" value="xxforms:instance('config-instance')/VuFind/vufindSolrUrl"/>
+                              <xforms:input ref="$nodeValue" id="dc_creator_input">
+                                  <xforms:alert>
+                                      <xforms:output value="concat($nodeLabel, ' is required')"/>
+                                  </xforms:alert>
+                              </xforms:input>
+                              <!--
+                              <fr:autocomplete ref="$nodeValue"
+                                               resource="{$solrUrl}/select/?q=*:*&amp;facet=true&amp;facet.field=author-letter&amp;facet.mincount=1&amp;facet.prefix={$fr-search-value}&amp;rows=0"
+                                               max-results-displayed="6">
+
+                                  <xforms:itemset nodeset="//lst[@name='author-letter']/int">
+                                      <xforms:label ref="./@name"/>
+                                      <xforms:value ref="./@name"/>
+                                  </xforms:itemset>
+                                  <xforms:alert>Creator is required</xforms:alert>
+                              </fr:autocomplete>
+                              -->
+                          </xforms:group>
+                          
+                          <!-- subject / topic_str_mv -->
+                          <!-- labelref="xxforms:instance('subject_label')" -->
+                          <xforms:group ref=".[name() = 'dc:subject']">
+                              <xxforms:variable name="subject-position" value="position()"/>
+                              
+                              <xforms:input ref="$nodeValue" id="dc_subject_input">
+                                  <xforms:alert>
+                                      <xforms:output value="concat($nodeLabel, ' is required')"/>
+                                  </xforms:alert>
+                              </xforms:input>
+                              <!--
+                              <fr:autocomplete ref="$nodeValue"
+                                               dynamic-itemset="true"
+                                               labelref="$nodeValue">
+
+                                  <xforms:action ev:event="fr-search-changed">
+                                      <xxforms:variable name="search-value" select="event('fr-search-value')"/>
+                                      <xxforms:variable name="make-suggestion"
+                                                        select="string-length($search-value) >= 2"/>
+                                      
+                                      <xforms:action if="not(xxforms:instance('DC-dynamic-subjects')/result[$subject-position])">
+                                          <xforms:insert context="xxforms:instance('DC-dynamic-subjects')/root()/instance"
+                                                         nodeset="int"
+                                                         origin="xxforms:instance('autocomplete-search-results-template')"
+                                                         at="last()"
+                                                         position="after"
+                                                         />
+                                      </xforms:action>
+                                            
+                                      <xforms:action if="xxforms:instance('DC-dynamic-subjects')/result[$subject-position]">
+                                          <xforms:action if="$make-suggestion">
+                                              <xforms:setvalue ref="xxforms:instance('search-dynamic-subjects')"
+                                                               value="$search-value"/>
+                                              <xforms:send submission="search-subjects"/>
+
+                                              <xforms:delete nodeset="xxforms:instance('DC-dynamic-subjects')/result[$subject-position]/*"/>
+                                              <xforms:insert context="xxforms:instance('DC-dynamic-subjects')/result[$subject-position]"
+                                                             origin="xxforms:instance('search-subjects-return')"
+                                                             at="last()"
+                                                             position="after"
+                                                             />
+                                                             
+                                              <xforms:insert context="xxforms:instance('DC-dynamic-subjects')/result[$subject-position]//lst[@name = 'topic_str_mv']"
+                                                             nodeset="int"
+                                                             origin="xxforms:instance('int-template')"
+                                                             at="last()"
+                                                             position="after"
+                                                             />
+                                              <xforms:setvalue ref="xxforms:instance('DC-dynamic-subjects')/result[$subject-position]//int[@name='']" value="string('1')"/>
+                                              <xforms:setvalue ref="xxforms:instance('DC-dynamic-subjects')/result[$subject-position]//int[@name='']/@name" value="event('fr-search-value')"/>
+                                              
+                                          </xforms:action>
+                                      </xforms:action>
+
+                                  </xforms:action>
+                              
+                                  <xforms:itemset nodeset="xxforms:instance('DC-dynamic-subjects')/result[$subject-position]//lst[@name='topic_str_mv']/int">
+                                      <xforms:label ref="./@name"/>
+                                      <xforms:value ref="./@name"/>
+                                  </xforms:itemset>
+                                  
+                              </fr:autocomplete>
+                              -->
+                              
+                              <!-- 
+                              <xxforms:variable name="solrUrl" value="xxforms:instance('config-instance')/VuFind/vufindSolrUrl"/>
+                              <fr:autocomplete ref="$nodeValue"
+                                               resource="{$solrUrl}/select/?q=*:*&amp;facet=true&amp;facet.field=topic_str_mv&amp;facet.mincount=1&amp;facet.prefix={$fr-search-value}&amp;rows=0"
+                                               max-results-displayed="6">
+
+                                  <xforms:itemset nodeset="//lst[@name='topic_str_mv']/int">
+                                      <xforms:label ref="./@name"/>
+                                      <xforms:value ref="./@name"/>
+                                  </xforms:itemset>
+                                  <xforms:alert>Subject is required</xforms:alert>
+                              </fr:autocomplete>
+                              -->
+                          </xforms:group>
+                          
+                          <!-- dc:language -->
+                          <xforms:group ref=".[name() = 'dc:language']">
+                              <xforms:select1 ref="." id="dc_input_language">
+                                <xforms:itemset nodeset="xxforms:sort(xxforms:instance('languages')//item, ./label, 'text', 'ascending')">
+                                  <xforms:label ref="./label" />
+                                  <xforms:value ref="./value" />
+                                </xforms:itemset>
+                                <xforms:alert>A Language is required</xforms:alert>
+                              </xforms:select1>
+                          </xforms:group>
+                          
+                          <!-- dc:format -->
+                          <xforms:group ref=".[name() = 'dc:format']">
+                              <xforms:select1 ref="." id="dc_input_format">
+                                <xforms:itemset nodeset="xxforms:sort(xxforms:instance('formats')//item, ./label, 'text', 'ascending')">
+                                  <xforms:label ref="./label" />
+                                  <xforms:value ref="./value" />
+                                </xforms:itemset>
+                                <xforms:alert>A Format is required</xforms:alert>
+                              </xforms:select1>
+                          </xforms:group>
+                          
+                          <!-- dc:description -->
+                          <xforms:group ref=".[name() = 'dc:description']">
+                              <!-- launch tinymce -->
+                              <xforms:trigger>
+                                  <xforms:label>Edit Description</xforms:label>
+                                  <xforms:action ev:event="DOMActivate">
+                                      <xforms:dispatch name="launch-DC-description" target="CoreModel-helper"/>
+                                  </xforms:action>
+                              </xforms:trigger>
+                              
+                              <!-- html output -->
+                              <xhtml:p>
+                                  <xforms:output value="$nodeValue"
+                                                 mediatype="text/html"/>
+                              </xhtml:p>
+                          </xforms:group>
+                      </xhtml:div>
+                      
+                      <xhtml:div style="clear:both;"/>
+                      
+                  </xforms:repeat>
+                  
+              </xhtml:div>
+              <xhtml:div style="clear:both;"/>
+          </xhtml:div>
+          
+      </xforms:repeat>
+    </xhtml:div>
+    
+    <xhtml:div style="float:right;">
+    
+        
+        
+        <xhtml:ul style="margin-top: 0px;">
+            <xforms:repeat nodeset="xxforms:instance('DC-nodes')/node" id="dc_list">
+                <xxforms:variable name="nodeName" select="./@name"/>
+                <xxforms:variable name="nodeStem" select="./@stem"/>
+                <xxforms:variable name="nodeLabel" select="./@label"/>
+                <xxforms:variable name="nodeMultiple" select="./@multiple"/>
+                <xxforms:variable name="nodeValue" select="xxforms:instance('DC-dialog-instance')/root()/instance/oai_dc:dc/.[name() = $nodeName]" />
+                <xhtml:li>
+                    <xforms:trigger appearance="xxforms:link">
+                        <xforms:label>
+                            <xforms:output value="$nodeLabel"/>
+                        </xforms:label>
+                        <xforms:action ev:event="DOMActivate" if="$nodeMultiple = 'true' or count(xxforms:instance('DC-dialog-instance')/root()/instance/oai_dc:dc/*/.[name() = $nodeName]) lt 1">
+                            <xforms:setvalue ref="xxforms:instance('DC-setFocus')/field" value="if($nodeName = 'dc:description') then 'dc_input_description' else if($nodeName = 'dc:language') then 'dc_input_language' else if($nodeName = 'dc:format') then 'dc_input_format' else if($nodeName = 'dc:creator') then 'dc_input_creator' else if($nodeName = 'dc:subject') then 'dc_input_subject' else 'dc_input'"/>
+                            <xforms:insert nodeset="xxforms:instance('DC-dialog-instance')/root()/instance/oai_dc:dc//*"
+                                           at="last()" 
+                                           position="after"
+                                           origin="xxforms:instance(concat($nodeStem, '-template'))"
+                                           />
+                        </xforms:action>
+                    </xforms:trigger>
+                </xhtml:li>
+            </xforms:repeat>
+        </xhtml:ul>
+    </xhtml:div>
+    
+    <xhtml:div style="clear:both;"/>
+
+    <xforms:trigger xxforms:modal="true">
+        <xforms:label>
+            <xhtml:img src="/apps/VuDL/images/trigger_save.png"/>
+            Save
+        </xforms:label>
+        <xforms:action ev:event="DOMActivate">
+
+            <!-- populate these params with data from the datastream -->
+            <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/PID" value="xxforms:instance('DC-editor')/PID"/>
+            <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/dsID" value="string('DC')"/>
+            <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/post-content" value="string('DC-dialog-instance')"/>
+            <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/dsLocation" value="string('')"/>
+            <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/altIDs" value="string('')"/>
+            <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/dsLabel" value="xxforms:instance('DC-dialog-datastream-instance')//management:dsLabel"/>
+            <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/versionable" value="xxforms:instance('DC-dialog-datastream-instance')//management:dsVersionable"/>
+            <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/dsState" value="xxforms:instance('DC-dialog-datastream-instance')//management:dsState"/>
+            <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/formatURI" value="xxforms:instance('DC-dialog-datastream-instance')//management:dsFormatURI"/>
+            <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/checksumType" value="xxforms:instance('DC-dialog-datastream-instance')//management:dsChecksumType"/>
+            <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/checksum" value="xxforms:instance('DC-dialog-datastream-instance')//management:dsChecksum"/>
+            <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/mimeType" value="xxforms:instance('DC-dialog-datastream-instance')//management:dsMIME"/>
+            <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/logMessage" value="string('Modified DC Datastream')"/>
+            <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/ignoreContent" value="string('false')"/>
+            <xforms:setvalue ref="xxforms:instance('modifyDatastream-parameters')/parameters/lastModifiedDate" value="now()"/>
+            <!-- modifyDatastream -->
+            <xforms:dispatch name="performAPIRequest" 
+                             target="FedoraAPI-helper"
+                             xxforms:show-progress="true">
+                <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('modifyDatastream-parameters')/PID, '/datastreams/', xxforms:instance('modifyDatastream-parameters')/dsID)"/>
+                <xxforms:context name="dsID" value="xxforms:instance('modifyDatastream-parameters')/dsID"/>
+                <xxforms:context name="apiMethod" value="string('modifyDatastream')"/>
+                <xxforms:context name="httpMethod" value="string('put')"/>
+                <xxforms:context name="mode" value="string('')"/>
+                <xxforms:context name="destination-instance" value="string('')"/>
+                <xxforms:context name="clear-destination-instance" value="string('')"/>
+                <xxforms:context name="post-content" value="string('DC-dialog-instance')"/>
+                <xxforms:context name="parameters" value="string('modifyDatastream-parameters')"/>
+            </xforms:dispatch>
+
+            <!-- bind dc:title to the object label -->
+            <xforms:setvalue ref="xxforms:instance('modifyObject-parameters')/PID" value="xxforms:instance('DC-editor')/PID"/>
+            <xforms:setvalue ref="xxforms:instance('modifyObject-parameters')/parameters/label" value="encode-for-uri(substring(xxforms:instance('DC-dialog-instance')//dc:title[1], 1, 150))"/>
+            <xforms:setvalue ref="xxforms:instance('modifyObject-parameters')/parameters/ownerId" value="xxforms:instance('objectProfile-dialog-instance')//access:objOwnerId"/>
+            <xforms:setvalue ref="xxforms:instance('modifyObject-parameters')/parameters/state" value="xxforms:instance('objectProfile-dialog-instance')//access:objState"/>
+            <xforms:setvalue ref="xxforms:instance('modifyObject-parameters')/parameters/logMessage" value="string('Bind Label to dc:title')"/>
+            <xforms:setvalue ref="xxforms:instance('modifyObject-parameters')/parameters/lastModifiedDate" value="now()"/>
+            <!-- modifyObject -->
+            <xforms:dispatch name="performAPIRequest" 
+                             target="FedoraAPI-helper"
+                             xxforms:show-progress="true">
+                <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('modifyObject-parameters')/PID)"/>
+                <xxforms:context name="apiMethod" value="string('modifyObject')"/>
+                <xxforms:context name="httpMethod" value="string('put')"/>
+                <xxforms:context name="mode" value="string('')"/>
+                <xxforms:context name="destination-instance" value="string('')"/>
+                <xxforms:context name="clear-destination-instance" value="string('')"/>
+                <xxforms:context name="post-content" value="string('')"/>
+                <xxforms:context name="parameters" value="string('modifyObject-parameters')"/>
+            </xforms:dispatch>
+            
+            <!-- update parent ResourceCollection if one exists -->
+            <xforms:dispatch name="update-parent-resource"
+                             target="CoreModel-helper">
+                <xxforms:context name="PID" value="xxforms:instance('DC-editor')/PID"/>
+            </xforms:dispatch>
+            
+            <!-- 
+            <xforms:load resource="/VuDL/object/{xxforms:instance('currentPID')}"/>
+            -->
+            <xforms:dispatch name="refresh-PIDmetadata"
+                             target="CoreModel-helper"
+                             >
+                <xxforms:context name="PID" select="xxforms:instance('DC-editor')/PID"/>
+                <xxforms:context name="mode" select="string('asynchronous')"/>
+                <xxforms:context name="stats" select="string('true')"/>
+            </xforms:dispatch>
+            
+            <!-- Close Dialog -->
+            <xxforms:hide dialog="edit-DC-dialog"/>
+                    
+        </xforms:action>
+    </xforms:trigger>
+    
+    <xforms:trigger id="cancel-edit-DC">
+        <xforms:label>
+            <xhtml:img src="/apps/VuDL/images/trigger_cancel.png"/>
+            Cancel
+        </xforms:label>
+        <xforms:action ev:event="DOMActivate">
+            <xxforms:hide dialog="edit-DC-dialog"/>
+        </xforms:action>
+    </xforms:trigger>
+    
+</xxforms:dialog>

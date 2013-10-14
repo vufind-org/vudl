@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xforms:instance id="Datastreams"
+                 xmlns:xforms="http://www.w3.org/2002/xforms"
+                 xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+                 xmlns:ev="http://www.w3.org/2001/xml-events">
+    <datastreams>
+        <!-- Core -->
+        <datastream dsID="THUMBNAIL" label="Thumbnail"/>
+        <datastream dsID="LICENSE" label="License"/>
+        <!-- Collection -->
+        <datastream dsID="STRUCTMAP" label="Sort Order"/>
+        <!-- Resource -->
+        <datastream dsID="AGENTS" label="Agents"/>
+        <datastream dsID="PROCESS-MD" label="Process MD"/>
+        <!-- Data -->
+        <datastream dsID="MASTER" label="Master File"/>
+        <datastream dsID="MASTER-MD" label="Master MD"/>
+        <!-- Image -->
+        <datastream dsID="LARGE" label="Large"/>
+        <datastream dsID="MEDIUM" label="Medium"/>
+        <datastream dsID="OCR-DIRTY" label="OCR Dirty"/>
+        <datastream dsID="OCR-EDITED" label="OCR Edited"/>
+        <!-- Segment -->
+        <datastream dsID="COORDINATES" label="Coordinates"/>
+        <!-- Audio -->
+        <datastream dsID="OGG" label=".ogg"/>
+        <datastream dsID="WAV" label=".wav"/>
+        <datastream dsID="MP3" label=".mp3"/>
+        
+    </datastreams>
+</xforms:instance>

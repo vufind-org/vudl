@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<foxml:digitalObject VERSION="1.1" PID="vudl:2"
+xmlns:foxml="info:fedora/fedora-system:def/foxml#"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd">
+
+<foxml:objectProperties>
+<foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Inactive"/>
+<foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Holding Area"/>
+<foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="fedoraAdmin"/>
+<foxml:property NAME="info:fedora/fedora-system:def/model#createdDate" VALUE="2012-04-24T14:22:34.133Z"/>
+<foxml:property NAME="info:fedora/fedora-system:def/view#lastModifiedDate" VALUE="2012-04-24T14:22:35.823Z"/>
+</foxml:objectProperties>
+
+
+
+<foxml:datastream ID="DC" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+<foxml:datastreamVersion ID="DC1.0" LABEL="Dublin Core Record for this object" CREATED="2013-04-24T14:22:34.133Z" MIMETYPE="text/xml" FORMAT_URI="http://www.openarchives.org/OAI/2.0/oai_dc/" SIZE="371">
+<foxml:xmlContent>
+<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+  <dc:title>Holding Area</dc:title>
+  <dc:identifier>vudl:2</dc:identifier>
+</oai_dc:dc>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+
+<foxml:datastream ID="RELS-EXT" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+  <foxml:datastreamVersion ID="RELS-EXT.4" LABEL="Relationships" CREATED="2013-04-24T14:22:34.893Z" MIMETYPE="application/rdf+xml" FORMAT_URI="info:fedora/fedora-system:FedoraRELSExt-1.0" SIZE="735">
+    <foxml:xmlContent>
+      <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+        <rdf:Description rdf:about="info:fedora/vudl:2">
+        	<hasModel xmlns="info:fedora/fedora-system:def/model#" rdf:resource="info:fedora/vudl-system:CoreModel"></hasModel>
+        	<hasModel xmlns="info:fedora/fedora-system:def/model#" rdf:resource="info:fedora/vudl-system:CollectionModel"></hasModel>
+        	<hasModel xmlns="info:fedora/fedora-system:def/model#" rdf:resource="info:fedora/vudl-system:FolderCollection"></hasModel>
+        	<isMemberOf xmlns="info:fedora/fedora-system:def/relations-external#" rdf:resource="info:fedora/vudl:1"></isMemberOf>
+        </rdf:Description>
+      </rdf:RDF>
+    </foxml:xmlContent>
+  </foxml:datastreamVersion>
+</foxml:datastream>
+
+
+<foxml:datastream ID="THUMBNAIL" STATE="A" CONTROL_GROUP="E" VERSIONABLE="false">
+<foxml:datastreamVersion ID="THUMBNAIL.0" LABEL="Thumbnail image for this collection" CREATED="2013-04-24T14:22:35.008Z" MIMETYPE="image/png">
+<foxml:contentDigest TYPE="MD5" DIGEST="82a0354093c232655cb17e0e1a860736"/>
+<foxml:contentLocation TYPE="URL" REF="http://local.fedora.server/fedora/objects/vudl-system:FolderCollection/datastreams/MODEL-THUMBNAIL/content"/>
+</foxml:datastreamVersion>
+</foxml:datastream>
+
+<foxml:datastream ID="PARENT-QUERY" STATE="A" CONTROL_GROUP="E" VERSIONABLE="false">
+<foxml:datastreamVersion ID="PARENT-QUERY.0" LABEL="Query to list parents" CREATED="2013-04-24T14:22:35.172Z" MIMETYPE="text/plain">
+<foxml:contentLocation TYPE="URL" REF="http://local.fedora.server/fedora/objects/vudl:2/methods/vudl-system:CoreModelService/generateParentQuery"/>
+</foxml:datastreamVersion>
+</foxml:datastream>
+
+<foxml:datastream ID="PARENT-LIST-RAW" STATE="A" CONTROL_GROUP="E" VERSIONABLE="false">
+<foxml:datastreamVersion ID="PARENT-LIST-RAW.0" LABEL="Unformatted list of parents" CREATED="2013-04-24T14:22:35.289Z" MIMETYPE="text/xml">
+<foxml:contentLocation TYPE="URL" REF="http://local.fedora.server/fedora/objects/vudl:2/methods/vudl-system:CoreModelService/executeParentQuery"/>
+</foxml:datastreamVersion>
+</foxml:datastream>
+
+<foxml:datastream ID="PARENT-LIST" STATE="A" CONTROL_GROUP="E" VERSIONABLE="false">
+<foxml:datastreamVersion ID="PARENT-LIST.0" LABEL="Formatted list of parents" CREATED="2013-04-24T14:22:35.431Z" MIMETYPE="text/xml">
+<foxml:contentLocation TYPE="URL" REF="http://local.fedora.server/fedora/objects/vudl:2/methods/vudl-system:CoreModelService/formatParentQueryResult"/>
+</foxml:datastreamVersion>
+</foxml:datastream>
+
+<foxml:datastream ID="MEMBER-QUERY" STATE="A" CONTROL_GROUP="E" VERSIONABLE="false">
+<foxml:datastreamVersion ID="MEMBER-QUERY.0" LABEL="Query to list members" CREATED="2013-04-24T14:22:35.557Z" MIMETYPE="text/plain">
+<foxml:contentLocation TYPE="URL" REF="http://local.fedora.server/fedora/objects/vudl:2/methods/vudl-system:CollectionModelService/generateMemberQuery"/>
+</foxml:datastreamVersion>
+</foxml:datastream>
+
+<foxml:datastream ID="MEMBER-LIST-RAW" STATE="A" CONTROL_GROUP="E" VERSIONABLE="false">
+<foxml:datastreamVersion ID="MEMBER-LIST-RAW.0" LABEL="Unformatted list of members" CREATED="2013-04-24T14:22:35.685Z" MIMETYPE="text/xml">
+<foxml:contentLocation TYPE="URL" REF="http://local.fedora.server/fedora/objects/vudl:2/methods/vudl-system:CollectionModelService/executeMemberQuery"/>
+</foxml:datastreamVersion>
+</foxml:datastream>
+
+<foxml:datastream ID="STRUCTMAP" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+<foxml:datastreamVersion ID="STRUCTMAP.0" LABEL="Ordered list of Members for this Object" CREATED="2013-04-24T14:22:35.823Z" MIMETYPE="text/xml" SIZE="89">
+<foxml:xmlContent>
+<METS:structMap xmlns:METS="http://www.loc.gov/METS/" TYPE="physical"></METS:structMap>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+
+</foxml:digitalObject>

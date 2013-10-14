@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xxforms:dialog id="edit-DC-clone-dialog"
+                appearance="full"
+                xmlns:xforms="http://www.w3.org/2002/xforms"
+                xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+                xmlns:xhtml="http://www.w3.org/1999/xhtml"
+                xmlns:ev="http://www.w3.org/2001/xml-events"
+                xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+                xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+                xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+                xmlns:access="http://www.fedora.info/definitions/1/0/access/"
+                xmlns:METS="http://www.loc.gov/METS/"
+                xmlns:fedora-model="info:fedora/fedora-system:def/model#" 
+                xmlns:xi="http://www.w3.org/2001/XInclude"
+                xmlns:xxi="http://orbeon.org/oxf/xml/xinclude"
+                xmlns:dc="http://purl.org/dc/elements/1.1/"
+                xmlns:sparql="http://www.w3.org/2001/sw/DataAccess/rf1/result"
+                xmlns:vudl="http://vudl.org"
+                >
+    <!-- Clear Fields, load children -->
+    <xforms:action ev:event="xxforms-dialog-open">
+
+        <xforms:setfocus control="cancel-edit-DC-clone"/>
+    
+        <!-- PARENT-LIST-RAW: getDatastreamDissemination -->
+        <!-- xxforms:instance('PARENT-LIST-RAW-temp-instance') -->
+        <xforms:dispatch name="performAPIRequest" 
+                         target="FedoraAPI-helper"
+                         xxforms:show-progress="true">
+            <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('DC-editor')/PID, '/datastreams/', string('PARENT-LIST-RAW'), '/content?format=', string('xml'), '&amp;asOfDateTime=', now(),'&amp;validateChecksum=', string('false'))"/>
+            <xxforms:context name="dsID" value="string('PARENT-LIST-RAW')"/>
+            <xxforms:context name="apiMethod" value="string('getDatastreamDissemination')"/>
+            <xxforms:context name="httpMethod" value="string('get')"/>
+            <xxforms:context name="mode" value="string('synchronous')"/>
+            <xxforms:context name="destination-instance" value="string('PARENT-LIST-RAW-temp-instance')"/>
+            <xxforms:context name="clear-destination-instance" value="string('true')"/>
+        </xforms:dispatch>
+        <!-- ~~~~~~~~~~~~~~~~ -->
+        
+        <xxforms:variable name="parentURI" value="xxforms:instance('PARENT-LIST-RAW-temp-instance')//sparql:child[@uri = concat('info:fedora/', xxforms:instance('DC-editor')/PID)]/parent::*/sparql:parent/@uri"/>
+        <xxforms:variable name="parentPID" value="substring-after($parentURI, 'info:fedora/')"/>
+
+        <!-- initialize browse-members-instance -->
+        <xforms:setvalue ref="xxforms:instance('browse-members-target')" value="string('browse-members-dialog')"/>
+
+        <xforms:delete nodeset="xxforms:instance('browse-members-dialog-instance')/root()/instance/*"/>
+        <xforms:setvalue ref="xxforms:instance('browse-members-dialog-selected')" value="string('')"/>
+        <xforms:setvalue ref="xxforms:instance('browse-members-dialog-parameters')/vudl:PID" value="$parentPID"/>
+        <xforms:setvalue ref="xxforms:instance('browse-members-dialog-parameters')/vudl:action" value="string('browse-members-set-PID')"/>
+        <xforms:setvalue ref="xxforms:instance('browse-members-dialog-parameters')/vudl:control-menu" value="string('false')"/>
+        <xforms:setvalue ref="xxforms:instance('browse-members-dialog-parameters')/vudl:relationship" value="string('isMemberOf')"/>
+
+        <xforms:dispatch name="browse-members"
+                         target="CoreModel-helper"
+                         delay="10"
+                         />
+        
+    </xforms:action>
+    
+    <xforms:label>Clone Metadata</xforms:label>
+    
+    <xxforms:variable name="browse-members-target" value="string('browse-members-dialog')"/>
+
+    <fr:accordion id="browse-DC-clone-accordion"
+                  class="fr-accordion-lnf" 
+                  open-closes-others="true">
+                  
+        <fr:case selected="true">
+            <fr:label>Browse</fr:label>
+            
+            <!-- Browse Members NOT initialized -->
+            <xforms:group ref=".[not(xxforms:instance(concat($browse-members-target, '-instance'))//sparql:sparql)]">
+                <xhtml:p>
+                    <xhtml:img src="/apps/VuDL/images/loading-bar.gif"/>
+                </xhtml:p>
+            </xforms:group>
+        
+            <!-- Browse Members initialized -->
+            <xforms:group ref=".[xxforms:instance(concat($browse-members-target, '-instance'))//sparql:sparql]">
+                <xi:include href="oxf:/apps/VuDL/view/elements/browseMembers.xml" xxi:omit-xml-base="true"/>
+            </xforms:group>
+        </fr:case>
+        
+        <fr:case>
+            <fr:label>Specify PID</fr:label>
+            <xforms:input ref="xxforms:instance(concat($browse-members-target, '-selected'))"/>
+        </fr:case>
+        
+    </fr:accordion>
+    
+    <xhtml:br/>
+
+    <xforms:trigger xxforms:modal="true">
+        <xforms:label>
+            <xhtml:img src="/apps/VuDL/images/trigger_add.png"/>
+            Add
+        </xforms:label>
+        <xforms:action ev:event="DOMActivate">
+            
+            <xxforms:variable name="selectedPID" value="xxforms:instance('browse-members-dialog-selected')"/>
+            
+            <!-- DC: getDatastreamDissemination -->
+            <!-- xxforms:instance('DC-dialog-instance') -->
+            <xforms:dispatch name="performAPIRequest" 
+                             target="FedoraAPI-helper"
+                             xxforms:show-progress="true">
+                <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', $selectedPID, '/datastreams/', string('DC'), '/content?format=', string('xml'), '&amp;asOfDateTime=', now(),'&amp;validateChecksum=', string('false'))"/>
+                <xxforms:context name="dsID" value="string('DC')"/>
+                <xxforms:context name="apiMethod" value="string('getDatastreamDissemination')"/>
+                <xxforms:context name="httpMethod" value="string('get')"/>
+                <xxforms:context name="mode" value="string('synchronous')"/>
+                <xxforms:context name="destination-instance" value="string('DC-temp-instance')"/>
+                <xxforms:context name="clear-destination-instance" value="string('true')"/>
+            </xforms:dispatch>
+            
+            <xforms:action xxforms:iterate="xxforms:instance('DC-nodes')/node[@name = xxforms:instance('DC-temp-instance')/root()/instance/oai_dc:dc/*/name()]">
+                <xxforms:variable name="nodeName" value="./@name"/>
+                <xxforms:variable name="nodeStem" value="./@stem"/>
+                <xxforms:variable name="nodeLabel" value="./@label"/>
+                <xxforms:variable name="nodeMultiple" value="./@multiple"/>
+                <xxforms:variable name="nodeClone" value="./@clone"/>
+
+                <xforms:action if="$nodeClone = 'true'">
+
+                    <xforms:insert context="xxforms:instance('DC-dialog-instance')/root()/instance/oai_dc:dc"
+                                   origin="xxforms:instance('DC-temp-instance')/root()/instance/oai_dc:dc/*/.[name() = $nodeName]"
+                                   />
+                    
+                </xforms:action>
+                
+            </xforms:action>
+            <!-- Hide -->
+            <xxforms:hide dialog="edit-DC-clone-dialog"/>
+            
+        </xforms:action>
+    </xforms:trigger>
+    
+    <xforms:trigger id="cancel-edit-DC-clone">
+        <xforms:label>
+            <xhtml:img src="/apps/VuDL/images/trigger_cancel.png"/>
+            Cancel
+        </xforms:label>
+        <xforms:action ev:event="DOMActivate">
+            <xxforms:hide dialog="edit-DC-clone-dialog"/>
+        </xforms:action>
+    </xforms:trigger>
+    
+</xxforms:dialog>

@@ -1,0 +1,13 @@
+select $child $parent
+  from <#ri>
+  where  $child <fedora-rels-ext:isDependentOf> $item
+  and 
+  walk (
+        $child
+        <fedora-rels-ext:isDependentOf>
+        <info:fedora/vudl-system:CoreModel>
+      and
+        $child
+        <fedora-rels-ext:isDependentOf>
+        $parent
+    ) 

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xforms:instance id="ModelTypes"
+                 xmlns:xforms="http://www.w3.org/2002/xforms"
+                 xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+                 xmlns:ev="http://www.w3.org/2001/xml-events">
+    <!-- Model Type URIs -->
+    <ModelType uri="info:fedora/vudl-system:CoreModel" name="Core" fullname="CoreModel" defaultThumbnail="">
+        <ModelType uri="info:fedora/vudl-system:CollectionModel" name="Collection" fullname="CollectionModel" defaultThumbnail="http://local.fedora.server/fedora/objects/vudl-system:CollectionModel/datastreams/MODEL-THUMBNAIL/content">
+            <ModelType uri="info:fedora/vudl-system:FolderCollection" name="Folder" fullname="FolderCollection" defaultThumbnail="http://local.fedora.server/fedora/objects/vudl-system:FolderCollection/datastreams/MODEL-THUMBNAIL/content"/>
+            <ModelType uri="info:fedora/vudl-system:ResourceCollection" name="Resource" fullname="ResourceCollection" defaultThumbnail="http://local.fedora.server/fedora/objects/vudl-system:ResourceCollection/datastreams/MODEL-THUMBNAIL/content"/>
+            <ModelType uri="info:fedora/vudl-system:ListCollection" name="List" fullname="ListCollection" defaultThumbnail="http://local.fedora.server/fedora/objects/vudl-system:ListCollection/datastreams/MODEL-THUMBNAIL/content"/>
+        </ModelType>
+        <ModelType uri="info:fedora/vudl-system:DataModel" name="Data" fullname="DataModel" defaultThumbnail="http://local.fedora.server/fedora/objects/vudl-system:DataModel/datastreams/MODEL-THUMBNAIL/content">
+            <ModelType uri="info:fedora/vudl-system:ImageData" name="Image" fullname="ImageData" defaultThumbnail="http://local.fedora.server/fedora/objects/vudl-system:ImageData/datastreams/MODEL-THUMBNAIL/content">
+                <ModelType uri="info:fedora/vudl-system:SegmentImage" name="Segment" fullname="SegmentImage" defaultThumbnail="http://local.fedora.server/fedora/objects/vudl-system:SegmentImage/datastreams/MODEL-THUMBNAIL/content"/>
+            </ModelType>
+            <ModelType uri="info:fedora/vudl-system:TextData" name="Text" fullname="TextData" defaultThumbnail="http://local.fedora.server/fedora/objects/vudl-system:TextData/datastreams/MODEL-THUMBNAIL/content"/>
+            <ModelType uri="info:fedora/vudl-system:HTMLData" name="HTML" fullname="HTMLData" defaultThumbnail="http://local.fedora.server/fedora/objects/vudl-system:HTMLData/datastreams/MODEL-THUMBNAIL/content"/>
+            <ModelType uri="info:fedora/vudl-system:PDFData" name="PDF" fullname="PDFData" defaultThumbnail="http://local.fedora.server/fedora/objects/vudl-system:PDFData/datastreams/MODEL-THUMBNAIL/content"/>
+            <ModelType uri="info:fedora/vudl-system:DOCData" name="DOC" fullname="DOCData" defaultThumbnail="http://local.fedora.server/fedora/objects/vudl-system:DOCData/datastreams/MODEL-THUMBNAIL/content"/>
+            <ModelType uri="info:fedora/vudl-system:XLSData" name="XLS" fullname="XLSData" defaultThumbnail="http://local.fedora.server/fedora/objects/vudl-system:XLSData/datastreams/MODEL-THUMBNAIL/content"/>
+            <ModelType uri="info:fedora/vudl-system:AudioData" name="Audio" fullname="AudioData" defaultThumbnail="http://local.fedora.server/fedora/objects/vudl-system:AudioData/datastreams/MODEL-THUMBNAIL/content"/>
+            <ModelType uri="info:fedora/vudl-system:MP3Data" name="MP3" fullname="MP3Data" defaultThumbnail="http://local.fedora.server/fedora/objects/vudl-system:MP3Data/datastreams/MODEL-THUMBNAIL/content"/>
+            <ModelType uri="info:fedora/vudl-system:WAVData" name="WAV" fullname="WAVData" defaultThumbnail="http://local.fedora.server/fedora/objects/vudl-system:WAVData/datastreams/MODEL-THUMBNAIL/content"/>
+        </ModelType>
+    </ModelType>
+</xforms:instance>

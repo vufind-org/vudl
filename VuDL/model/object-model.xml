@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xforms:model id="Object-model"
+              xmlns:xhtml="http://www.w3.org/1999/xhtml"
+              xmlns:xforms="http://www.w3.org/2002/xforms"
+              xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+              xmlns:ev="http://www.w3.org/2001/xml-events"
+              xmlns:xs="http://www.w3.org/2001/XMLSchema"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+              xmlns:xi="http://www.w3.org/2001/XInclude"
+              xmlns:foxml="info:fedora/fedora-system:def/foxml#"
+              xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+              xmlns:sparql="http://www.w3.org/2001/sw/DataAccess/rf1/result"
+              xmlns:fedora-model="info:fedora/fedora-system:def/model#" 
+              xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+              xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+              xmlns:dc="http://purl.org/dc/elements/1.1/"
+              xmlns:management="http://www.fedora.info/definitions/1/0/management/"
+              xmlns:access="http://www.fedora.info/definitions/1/0/access/"
+              xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+              xmlns:METS="http://www.loc.gov/METS/"
+              xmlns:composite-model="info:fedora/fedora-system:def/dsCompositeModel#"
+              xmlns:oai="http://www.openarchives.org/OAI/2.0/"
+              xmlns:vudl="http://vudl.org">
+
+    <xforms:action ev:event="xforms-ready">
+            <!-- Append pageTitle with currentPID -->
+            <xforms:setvalue ref="xxforms:instance('pageTitle')" value="concat(xxforms:instance('pageTitle'), ' - ', xxforms:instance('currentPID'))"/>
+            
+            <!-- -->
+            <xforms:dispatch name="load-PIDmetadata" 
+                             target="CoreModel-helper"
+                             >
+                <xxforms:context name="PID" select="xxforms:instance('currentPID')"/>
+                <xxforms:context name="mode" select="string('synchronous')"/>
+                <xxforms:context name="stats" select="string('true')"/>
+            </xforms:dispatch>
+            
+            <!-- TODO: a lot of this can be rolled into "load-PIDmetadata" -->
+
+            <!-- Gather all required Datastreams -->
+            <xforms:dispatch name="get-all-required-datastreams" 
+                             target="CoreModel-helper"
+                             delay="1"
+                             />
+            
+            <!-- listMethods -->
+            <!-- xxforms:instance('listMethods-Core-instance') -->
+            <xforms:dispatch name="performAPIRequest" 
+                             target="FedoraAPI-helper"
+                             xxforms:show-progress="true">
+                <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('currentPID'), '/methods?format=', string('xml'), '&amp;asOfDateTime=', now())"/>               
+                <xxforms:context name="apiMethod" value="string('listMethods')"/>
+                <xxforms:context name="httpMethod" value="string('get')"/>
+                <xxforms:context name="mode" value="string('synchronous')"/>
+                <xxforms:context name="destination-instance" value="string('listMethods-Core-instance')"/>
+                <xxforms:context name="clear-destination-instance" value="string('true')"/>
+            </xforms:dispatch>
+
+            
+            <!-- Get RELS-EXT -->
+            <!-- ~~~~~~~~~~~~~~~~ -->
+            <!-- RELS-EXT: getDatastream -->
+            <!-- xxforms:instance('RELS-EXT-Core-datastream-instance') -->
+            <xforms:dispatch name="performAPIRequest" 
+                             target="FedoraAPI-helper"
+                             xxforms:show-progress="true">
+                <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('currentPID'), '/datastreams/', string('RELS-EXT'), '?format=', string('xml'), '&amp;asOfDateTime=', now(),'&amp;validateChecksum=', string('false'))"/>
+                <xxforms:context name="dsID" value="string('RELS-EXT')"/>
+                <xxforms:context name="apiMethod" value="string('getDatastream')"/>
+                <xxforms:context name="httpMethod" value="string('get')"/>
+                <xxforms:context name="mode" value="string('synchronous')"/>
+                <xxforms:context name="destination-instance" value="string('RELS-EXT-Core-datastream-instance')"/>
+                <xxforms:context name="clear-destination-instance" value="string('true')"/>
+            </xforms:dispatch>
+            <!-- RELS-EXT: getDatastreamDissemination -->
+            <!-- xxforms:instance('RELS-EXT-Core-instance') -->
+            <xforms:dispatch name="performAPIRequest" 
+                             target="FedoraAPI-helper"
+                             xxforms:show-progress="true">
+                <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('currentPID'), '/datastreams/', string('RELS-EXT'), '/content?format=', string('xml'), '&amp;asOfDateTime=', now(),'&amp;validateChecksum=', string('false'))"/>
+                <xxforms:context name="dsID" value="string('RELS-EXT')"/>
+                <xxforms:context name="apiMethod" value="string('getDatastreamDissemination')"/>
+                <xxforms:context name="httpMethod" value="string('get')"/>
+                <xxforms:context name="mode" value="string('synchronous')"/>
+                <xxforms:context name="destination-instance" value="string('RELS-EXT-Core-instance')"/>
+                <xxforms:context name="clear-destination-instance" value="string('true')"/>
+            </xforms:dispatch>
+            <!-- ~~~~~~~~~~~~~~~~ -->
+            
+            <!-- Determine CurrentModel -->
+            <xxforms:variable name="ModelType" select="xxforms:instance('ModelTypes')//*[@uri=xxforms:instance('RELS-EXT-Core-instance')//rdf:Description[@rdf:about=concat('info:fedora/', xxforms:instance('currentPID'))]/fedora-model:hasModel/@rdf:resource][count(ancestor::node()) = max(xxforms:instance('ModelTypes')//*[@uri=xxforms:instance('RELS-EXT-Core-instance')//rdf:Description[@rdf:about=concat('info:fedora/', xxforms:instance('currentPID'))]/fedora-model:hasModel/@rdf:resource]/count(ancestor::node()))]/@fullname"/>
+            <xforms:setvalue ref="xxforms:instance('CurrentModel')" value="$ModelType" />
+        
+            <!-- THUMBNAIL: getDatastream -->
+            <!-- xxforms:instance('THUMBNAIL-Core-datastream-instance') -->
+            <xforms:dispatch name="performAPIRequest" 
+                             target="FedoraAPI-helper"
+                             xxforms:show-progress="true"
+                             if="xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('currentPID')]//access:datastream[@dsid='THUMBNAIL']">
+                <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('currentPID'), '/datastreams/', string('THUMBNAIL'), '?format=', string('xml'), '&amp;asOfDateTime=', now(),'&amp;validateChecksum=', string('false'))"/>
+                <xxforms:context name="dsID" value="string('THUMBNAIL')"/>
+                <xxforms:context name="apiMethod" value="string('getDatastream')"/>
+                <xxforms:context name="httpMethod" value="string('get')"/>
+                <xxforms:context name="mode" value="string('asynchronous')"/>
+                <xxforms:context name="destination-instance" value="string('THUMBNAIL-Core-datastream-instance')"/>
+                <xxforms:context name="clear-destination-instance" value="string('true')"/>
+            </xforms:dispatch>
+            
+            <!-- Get PARENT-LIST-RAW content -->
+            <!-- ~~~~~~~~~~~~~~~~ -->
+            <!-- TODO: Is this necessary? I think we only need the content -->
+            <!-- PARENT-LIST-RAW: getDatastream -->
+            <!-- xxforms:instance('PARENT-LIST-RAW-Core-datastream-instance') -->
+            <xforms:dispatch name="performAPIRequest" 
+                             target="FedoraAPI-helper"
+                             xxforms:show-progress="true">
+                <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('currentPID'), '/datastreams/', string('PARENT-LIST-RAW'), '?format=', string('xml'), '&amp;asOfDateTime=', now(),'&amp;validateChecksum=', string('false'))"/>
+                <xxforms:context name="dsID" value="string('PARENT-LIST-RAW')"/>
+                <xxforms:context name="apiMethod" value="string('getDatastream')"/>
+                <xxforms:context name="httpMethod" value="string('get')"/>
+                <xxforms:context name="mode" value="string('synchronous')"/>
+                <xxforms:context name="destination-instance" value="string('PARENT-LIST-RAW-Core-datastream-instance')"/>
+                <xxforms:context name="clear-destination-instance" value="string('true')"/>
+            </xforms:dispatch>
+            <!-- PARENT-LIST-RAW: getDatastreamDissemination -->
+            <!-- xxforms:instance('PARENT-LIST-RAW-Core-instance') -->
+            <xforms:dispatch name="performAPIRequest" 
+                             target="FedoraAPI-helper"
+                             xxforms:show-progress="true">
+                <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('currentPID'), '/datastreams/', string('PARENT-LIST-RAW'), '/content?format=', string('xml'), '&amp;asOfDateTime=', now(),'&amp;validateChecksum=', string('false'))"/>
+                <xxforms:context name="dsID" value="string('PARENT-LIST-RAW')"/>
+                <xxforms:context name="apiMethod" value="string('getDatastreamDissemination')"/>
+                <xxforms:context name="httpMethod" value="string('get')"/>
+                <xxforms:context name="mode" value="string('synchronous')"/>
+                <xxforms:context name="destination-instance" value="string('PARENT-LIST-RAW-Core-instance')"/>
+                <xxforms:context name="clear-destination-instance" value="string('true')"/>
+            </xforms:dispatch>
+            <!-- ~~~~~~~~~~~~~~~~ -->
+            
+            <!-- TODO: combine these asynchronously by creating a completion event that transforms the list into a breadcrumb -->
+            <!-- Breadcrumb Format Output -->
+            <!-- TODO: Use this instead: http://wiki.orbeon.com/forms/how-to/logic/xslt-from-xforms -->
+            <xforms:insert nodeset="xxforms:instance('breadcrumb')"
+                           origin="xxforms:call-xpl('oxf:/apps/VuDL/xpl/breadcrumb.xpl', ('data','PID'), (xxforms:instance('PARENT-LIST-RAW-Core-instance'), xxforms:instance('currentPID')), 'data')"/>
+
+
+            <!-- initialize browse-members-instance -->
+            <xforms:setvalue ref="xxforms:instance('browse-members-target')" value="string('browse-members')"/>
+
+            <xforms:delete nodeset="xxforms:instance('browse-members-instance')/root()/instance/*"/>
+            <xforms:setvalue ref="xxforms:instance('browse-members-selected')" value="string('')"/>
+            <xforms:setvalue ref="xxforms:instance('browse-members-parameters')/vudl:PID" value="xxforms:instance('currentPID')"/>
+            <xforms:setvalue ref="xxforms:instance('browse-members-parameters')/vudl:action" value="string('browse-members-goto-object')"/>
+            <xforms:setvalue ref="xxforms:instance('browse-members-parameters')/vudl:control-menu" value="string('true')"/>
+            
+            <xforms:action if="xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('currentPID')]//access:model[.='info:fedora/vudl-system:CollectionModel']">
+                <xforms:setvalue ref="xxforms:instance('browse-members-parameters')/vudl:relationship" value="string('isMemberOf')"/>
+            </xforms:action>
+            <xforms:action if="xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('currentPID')]//access:model[.='info:fedora/vudl-system:DataModel']">
+                <xforms:setvalue ref="xxforms:instance('browse-members-parameters')/vudl:relationship" value="string('isPartOf')"/>
+            </xforms:action>
+            
+            <!-- -->
+
+            <xforms:dispatch name="browse-members"
+                             target="CoreModel-helper"
+                             delay="10"
+                             /> <!--  -->
+
+            
+
+    </xforms:action>
+    
+</xforms:model>

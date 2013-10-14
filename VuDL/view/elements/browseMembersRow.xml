@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+
+<xhtml:div  class="browse-member-row" 
+            style="padding-left:{$member-depth - 3}em;"
+            xmlns:xhtml="http://www.w3.org/1999/xhtml"
+            xmlns:xforms="http://www.w3.org/2002/xforms"
+            xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+            xmlns:ev="http://www.w3.org/2001/xml-events"
+            xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            xmlns:sparql="http://www.w3.org/2001/sw/DataAccess/rf1/result"
+            xmlns:xi="http://www.w3.org/2001/XInclude"
+            xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+            xmlns:METS="http://www.loc.gov/METS/"
+            xmlns:access="http://www.fedora.info/definitions/1/0/access/"
+            xmlns:vudl="http://vudl.org"
+           >
+
+<xhtml:div class="member pull-left">
+
+    <xxforms:variable name="memberContainer" value="xxforms:instance($browse-members-target-instance)//sparql:memberPID[. = $member-PID]/parent::*"/>
+
+    <!-- Open/Close Button -->
+    <xhtml:div class="browse-member-toggle-button pull-left">
+        <!-- Only display collections -->
+        <!-- <xforms:group ref=".[xxforms:instance('PIDmetadata')/object[@pid = $member-PID]//access:model[. = 'info:fedora/vudl-system:CollectionModel']]"> -->
+        <!-- No, only display if children present (imagesegemnts included -->
+        <xforms:group ref=".[number(xxforms:instance('PIDmetadata')/object[@pid = $member-PID]/sparql:sparql[@query-type = 'count-members']//sparql:k0) gt 0]">
+            <!-- Open (+) -->
+            <xforms:group ref=".[not($memberContainer/sparql:sparql)]">
+                <xforms:trigger appearance="minimal" xxforms:modal="true">
+                    <xforms:label>
+                        <xhtml:img src="/apps/VuDL/images/toggle-expand.png"/>
+                    </xforms:label>
+                    <xforms:action ev:event="DOMActivate">
+                        <xforms:setvalue ref="xxforms:instance($browse-members-target-parameters)/vudl:PID" value="$member-PID"/>
+                        <!-- <xforms:setvalue ref="xxforms:instance($browse-members-target-parameters)/vudl:relationship" value="string('isMemberOf')"/> -->
+                        <xforms:action if="xxforms:instance('PIDmetadata')/object[@pid = $member-PID]//access:model[.='info:fedora/vudl-system:CollectionModel']">
+                            <xforms:setvalue ref="xxforms:instance($browse-members-target-parameters)/vudl:relationship" value="string('isMemberOf')"/>
+                        </xforms:action>
+                        <xforms:action if="xxforms:instance('PIDmetadata')/object[@pid = $member-PID]//access:model[.='info:fedora/vudl-system:DataModel']">
+                            <xforms:setvalue ref="xxforms:instance($browse-members-target-parameters)/vudl:relationship" value="string('isPartOf')"/>
+                        </xforms:action>
+                        
+                        <xforms:dispatch name="browse-members" target="CoreModel-helper">
+                            <xxforms:context name="browse-members-target" select="$browse-members-target"/>
+                        </xforms:dispatch>
+
+                    </xforms:action>
+                </xforms:trigger>
+            </xforms:group>
+            <!-- Close (-) -->
+            <xforms:group ref=".[$memberContainer/sparql:sparql]">
+                <xforms:trigger appearance="minimal" xxforms:modal="true"> <!-- xxforms:modal="true" -->
+                    <xforms:label>
+                        <xhtml:img src="/apps/VuDL/images/toggle-collapse.png"/>
+                    </xforms:label>
+                    <xforms:action ev:event="DOMActivate">
+                        <xforms:delete nodeset="xxforms:instance($browse-members-target-instance)//sparql:sparql[@PID = $member-PID]"/>
+                        <!-- <xforms:delete nodeset="xxforms:instance($browse-members-target-instance)//METS:fptr[@FILEID = $member-PID]/*[name() = $browse-members-target-parameters]"/> -->
+                    </xforms:action>
+                </xforms:trigger>
+            </xforms:group>
+            
+        </xforms:group>
+    </xhtml:div>
+
+    <!-- -->
+    <xforms:group ref=".[not(xxforms:instance('PIDmetadata')/object[@pid = $member-PID]/access:objectProfile)]">
+        <xhtml:div class="pull-left">
+            <xhtml:img src="/apps/VuDL/images/loading-bar.gif"/>
+        </xhtml:div>
+        <xhtml:div style="clear:both"/>
+    </xforms:group>
+    
+
+    <xforms:group ref=".[xxforms:instance('PIDmetadata')/object[@pid = $member-PID]/access:objectProfile]">
+
+        <!-- ModelType icon or Control Menu (if viewable) -->
+        <xforms:group ref=".[xxforms:instance($browse-members-target-parameters)/vudl:control-menu = 'true']">
+            <xhtml:div class="browse-member-control-menu-button pull-left">
+                <xforms:trigger>
+                    <xforms:label>
+
+                        <xhtml:img src="{xxforms:instance('config-instance')/fedora/publicUrl}/objects/vudl-system:{$member-model}/datastreams/MODEL-ICON/content"/>
+                        
+                        <xhtml:img src="/apps/VuDL/images/control_menu.png" alt="Controls"  border="0"/>
+                    </xforms:label>
+                    <!-- <xforms:hint><xforms:output value="concat($member-model, ' Control Menu')"/></xforms:hint> -->
+                    <xforms:action ev:event="DOMActivate">
+                        <xforms:action ev:event="DOMActivate">
+                            <xforms:setvalue ref="xxforms:instance('control-menu-parameters')/PID" value="$member-PID"/>
+                            <xforms:setvalue ref="xxforms:instance('control-menu-parameters')/trigger-id" value="string('browse-members-control-menu')"/>
+                            <xforms:setvalue ref="xxforms:instance('control-menu-parameters')/label" value="$member-label"/>
+                            <xforms:dispatch name="launch-control-menu" target="CoreModel-helper"/>
+                        </xforms:action>
+                    </xforms:action>
+                </xforms:trigger>
+            </xhtml:div>
+        </xforms:group>
+        
+        <xforms:group ref=".[not(xxforms:instance($browse-members-target-parameters)/vudl:control-menu = 'true')]">
+            <xhtml:div class="browse-member-model-icon pull-left">
+
+                <xhtml:img src="{xxforms:instance('config-instance')/fedora/publicUrl}/objects/vudl-system:{$member-model}/datastreams/MODEL-ICON/content" title="{$member-model}"/>
+            </xhtml:div>
+        </xforms:group>
+
+        <!-- Label/Trigger and PID -->
+        <xhtml:div class="browse-member-label-link pull-left">
+            
+            <xforms:group ref=".[xxforms:instance(concat($browse-members-target, '-selected')) = $member-PID]">
+                <xhtml:img src="/apps/VuDL/images/check-mark.png"/>
+            </xforms:group>
+            
+            <xforms:trigger appearance="minimal">
+                <xforms:label>
+                    <xforms:output value="$member-label"/>
+                </xforms:label>
+                <xforms:action ev:event="DOMActivate">
+                    <xforms:dispatch name="{xxforms:instance($browse-members-target-parameters)/vudl:action}" target="CoreModel-helper">
+                        <xxforms:context name="PID" select="$member-PID"/>
+                        <xxforms:context name="browse-members-target" select="$browse-members-target"/>
+                    </xforms:dispatch>
+                </xforms:action>
+            </xforms:trigger>
+            
+            
+            <xforms:output class="browse-PID" value="concat(' - ', $member-PID)"/>
+
+        </xhtml:div>
+
+        
+    </xforms:group>
+    
+    </xhtml:div> <!-- Close .member -->
+
+    <!-- THUMBNAIL -->
+    <xforms:group ref=".[xxforms:instance($browse-members-target-parameters)/vudl:show-thumbs = 'Yes']">
+        <xhtml:div class="member-thumb pull-right">
+            <!-- THUMBNAIL datastream exists -->
+            <xforms:group ref=".[xxforms:instance('PIDmetadata')/object[@pid = $member-PID]//access:datastream[@dsid = 'THUMBNAIL']]">
+
+                <!-- If object has a MEDIUM DS, link to it -->
+                <xforms:group ref=".[xxforms:instance('PIDmetadata')/object[@pid = $member-PID]//access:datastream[@dsid = 'MEDIUM']]">
+                
+                    <xforms:trigger appearance="minimal">
+                        <xforms:label>
+                            <xhtml:img src="{xxforms:instance('config-instance')/fedora/publicUrl}/objects/{$member-PID}/datastreams/THUMBNAIL/content" alt="THUMBNAIL" title="view MEDIUM"/>
+                        </xforms:label>
+                        <xforms:action ev:event="DOMActivate">
+                            
+                            <xforms:setvalue ref="xxforms:instance('view-object-parameters')/PID" value="$member-PID"/>
+                            <xforms:setvalue ref="xxforms:instance('view-object-parameters')/dsID" value="string('MEDIUM')"/>
+                            <xforms:setvalue ref="xxforms:instance('view-object-parameters')/content" value="concat(xxforms:instance('config-instance')/fedora/publicUrl, '/objects/', xxforms:instance('view-object-parameters')/PID, '/datastreams/', xxforms:instance('view-object-parameters')/dsID, '/content?asOfDateTime=', now())"/>
+                            <xforms:setvalue ref="xxforms:instance('view-object-parameters')/mime" value="xxforms:instance('PIDmetadata')/object[@pid = $member-PID]//access:datastream[@dsid = xxforms:instance('view-object-parameters')/dsID]/@mimeType"/>
+
+                            <!-- -->
+                            <xforms:send submission="transform-submission" target="CoreModel-model"/>
+                            <xforms:dispatch name="launch-view-object" target="CoreModel-helper"/>
+                        </xforms:action>
+                    </xforms:trigger>
+                    
+                </xforms:group>
+                <!-- or, just show the THUMBNAIL -->
+                <xforms:group ref=".[not(xxforms:instance('PIDmetadata')/object[@pid = $member-PID]//access:datastream[@dsid = 'MEDIUM'])]">
+                    <xforms:output value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', $member-PID, '/datastreams/THUMBNAIL/content?asOfDateTime=', now())"
+                                   mediatype="image/*"/>
+                </xforms:group>
+                            
+            </xforms:group>
+            
+            <!-- THUMBNAIL datastream does NOT exist -->
+            <xforms:group ref=".[not(xxforms:instance('PIDmetadata')/object[@pid = $member-PID]//access:datastream[@dsid = 'THUMBNAIL'])]">
+                <xhtml:span>No Thumb</xhtml:span>
+                <xhtml:img src="/apps/VuDL/images/trigger_delete.png"/>
+            </xforms:group>
+        </xhtml:div>
+    </xforms:group>
+    
+    
+    <!-- Member Info (num members, edit datastreams -->
+    <xforms:group ref=".[xxforms:instance($browse-members-target-parameters)/vudl:control-menu = 'true']">
+        <xhtml:div class="member-info well pull-right">
+            <!-- Owner -->
+            <xhtml:div class="pull-left">
+                <xforms:output value="xxforms:instance('PIDmetadata')/object[@pid = $member-PID]/access:objectProfile/access:objOwnerId"/>
+            </xhtml:div>
+            <!-- Active State -->
+            <xhtml:div class="pull-left">
+                <!-- <xxforms:variable name="objState" value="xxforms:instance('PIDmetadata')/object[@pid = $member-PID]/access:objectProfile/access:objState"/> -->
+                <xxforms:variable name="objProfile" value="xxforms:instance('PIDmetadata')/object[@pid = $member-PID]/access:objectProfile"/>
+                <xforms:repeat nodeset="$objProfile">
+                    <xforms:group ref=".[context()/access:objState]">
+                        <xhtml:img src="/apps/VuDL/images/status-{context()/access:objState}.png" title="{context()/access:objState}"/>
+                    </xforms:group>
+                    <xforms:group ref=".[not(context()/access:objState)]">
+                        <xhtml:img src="/apps/VuDL/images/loading-spinner-sm.gif" alt="Loading Status..."/>
+                    </xforms:group>
+                </xforms:repeat>
+            </xhtml:div>
+            <!-- Immediate Members -->
+            <xhtml:div class="pull-left">
+                <xxforms:variable name="immediateMembers" value="xxforms:instance('PIDmetadata')/object[@pid = $member-PID]/sparql:sparql[@query-type = 'count-members']//sparql:k0"/>
+                <xforms:group ref=".[$immediateMembers]">
+                    <xforms:output value="$immediateMembers"/>
+                </xforms:group>
+                <xforms:group ref=".[not($immediateMembers)]">
+                    <xhtml:img src="/apps/VuDL/images/loading-spinner-sm.gif" alt="Loading Immediate Members..."/>
+                </xforms:group>
+            </xhtml:div>
+            <!-- Recursive Members -->
+            <xhtml:div class="pull-left">
+                <xxforms:variable name="recursiveMembers" value="xxforms:instance('PIDmetadata')/object[@pid = $member-PID]/sparql:sparql[@query-type = 'count-members-recursive']//sparql:k0"/>
+                <xforms:group ref=".[$recursiveMembers]">
+                    <xforms:output value="$recursiveMembers"/>
+                </xforms:group>
+                <xforms:group ref=".[not($recursiveMembers)]">
+                    <xhtml:img src="/apps/VuDL/images/loading-spinner-sm.gif" alt="Loading All Members..."/>
+                </xforms:group>
+            </xhtml:div>
+            <!-- Edit Datastreams -->
+            <xhtml:div class="pull-right">
+                <xforms:trigger>
+                    <xforms:label>
+                        <xhtml:img src="/apps/VuDL/images/attach.png"/>
+                    </xforms:label>
+                    <xforms:action ev:event="DOMActivate">
+                        <xforms:setvalue ref="xxforms:instance('edit-datastreams-dialog-parameters')/PID" value="$member-PID"/>
+                        <xforms:dispatch name="launch-edit-datastreams"
+                                         target="CoreModel-helper"
+                                         />
+                    </xforms:action>
+                </xforms:trigger>
+            </xhtml:div>
+
+        </xhtml:div>
+    </xforms:group>
+    
+    
+        
+    
+    
+    <xhtml:div style="clear:both"/>
+    
+</xhtml:div>

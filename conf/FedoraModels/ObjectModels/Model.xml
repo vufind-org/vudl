@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<foxml:digitalObject VERSION="1.1" PID="vudl-system:Model"
+xmlns:foxml="info:fedora/fedora-system:def/foxml#"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd">
+  <foxml:objectProperties>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Base Model Control Object for VuDL"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="fedoraAdmin"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#createdDate" VALUE="2012-01-06T13:32:30.811Z"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/view#lastModifiedDate" VALUE="2012-01-10T14:27:10.262Z"/>
+  </foxml:objectProperties>
+  
+  <foxml:datastream ID="DC" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+    <foxml:datastreamVersion ID="DC.1" LABEL="Dublin Core Record for this object" CREATED="2012-01-06T18:09:29.007Z" MIMETYPE="text/xml" FORMAT_URI="http://www.openarchives.org/OAI/2.0/oai_dc/" SIZE="0">
+      <foxml:xmlContent>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Base Model Control Object for VuDL</dc:title>
+          <dc:identifier>vudl-system:Model</dc:identifier>
+        </oai_dc:dc>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+  
+  <foxml:datastream ID="RELS-EXT" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+    <foxml:datastreamVersion ID="RELS-EXT.0" LABEL="RDF Statements about this object" CREATED="2012-01-06T18:16:54.216Z" MIMETYPE="application/rdf+xml" FORMAT_URI="info:fedora/fedora-system:FedoraRELSExt-1.0" SIZE="0">
+      <foxml:xmlContent>
+        <rdf:RDF xmlns:fedora-model="info:fedora/fedora-system:def/model#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+          <rdf:Description rdf:about="info:fedora/vudl-system:Model">
+            <fedora-model:hasModel rdf:resource="info:fedora/fedora-system:ContentModel-3.0"></fedora-model:hasModel>
+            <fedora-model:hasService rdf:resource="info:fedora/vudl-system:ModelService"></fedora-model:hasService>
+          </rdf:Description>
+        </rdf:RDF>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+
+  <!-- TODO: Move this to someplace more appropriate. -->
+  <!-- Maybe to the svn repo? -->
+  <!-- Model Hierarchy Query -->
+  <foxml:datastream ID="MODEL-HIERARCHY-QUERY" STATE="A" CONTROL_GROUP="M" VERSIONABLE="false">
+    <foxml:datastreamVersion ID="MODEL-HIERARCHY-QUERY.0" LABEL="Query to List the hierarchy of models from Model on down" CREATED="2012-02-01T15:42:32.167Z" MIMETYPE="text/plain" SIZE="0">
+      <foxml:contentLocation TYPE="URL" REF="http://local.fedora.server/orbeon/VuDL/images/ModelIcons/txt_files/MODEL-HIERARCHY-QUERY.txt"/>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+
+  <!-- MODEL-HIERARCHY-XSLT Datastream -->
+  
+  <foxml:datastream ID="MODEL-HIERARCHY-XSLT" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+    <foxml:datastreamVersion ID="MODEL-HIERARCHY-XSLT.0" LABEL="Tranform raw sparql result" CREATED="2012-02-02T16:04:04.683Z" MIMETYPE="text/xml" SIZE="0">
+      <foxml:xmlContent>
+      
+          <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:sparql="http://www.w3.org/2001/sw/DataAccess/rf1/result" xmlns:rel="info:fedora/fedora-system:def/relations-external#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+              <xsl:variable name="PID" select="string('vudl-system:CoreModel')"/>
+              <xsl:output method="xml" indent="yes" media-type="text/xml"/>
+              <xsl:template match="/*">
+                  <models>
+                      <model uri="info:fedora/{$PID}">
+                          <xsl:for-each select="//sparql:parent[@uri=concat('info:fedora/', $PID)]">
+                              <xsl:variable name="childURI" select="../sparql:child/@uri"/>                  
+                              <xsl:call-template name="child">
+                                  <xsl:with-param name="childURI" select="$childURI"/>
+                              </xsl:call-template>
+                          </xsl:for-each>
+                      </model>
+                  </models>
+              </xsl:template>
+              
+              <xsl:template name="child">
+                  <xsl:param name="childURI"/>
+                  <xsl:param name="childName"/>
+                  <xsl:param name="numParents"/>
+                      <model uri="{$childURI}">
+                          <xsl:for-each select="//sparql:parent[@uri=$childURI]">
+                              <xsl:variable name="new_childURI" select="../sparql:child/@uri"/>
+                              <xsl:call-template name="child">
+                                  <xsl:with-param name="childURI" select="$new_childURI"/>
+                              </xsl:call-template>
+                          </xsl:for-each>
+                      </model>
+              </xsl:template>
+          </xsl:stylesheet>
+          
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+  
+  
+  <foxml:datastream ID="DS-COMPOSITE-MODEL" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+    <foxml:datastreamVersion ID="DS-COMPOSITE-MODEL.0" LABEL="Datastream Composite Model" CREATED="2012-01-06T18:21:35.580Z" MIMETYPE="text/xml" FORMAT_URI="info:fedora/fedora-system:FedoraDSCompositeModel-1.0" SIZE="0">
+      <foxml:xmlContent>
+        <dsCompositeModel xmlns="info:fedora/fedora-system:def/dsCompositeModel#">
+          <dsTypeModel ID="MODEL-HIERARCHY-RAW">
+            <form MIME="text/xml"></form>
+          </dsTypeModel>
+          <dsTypeModel ID="MODEL-HIERARCHY">
+            <form MIME="text/xml"></form>
+          </dsTypeModel>
+        </dsCompositeModel>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+  
+</foxml:digitalObject>

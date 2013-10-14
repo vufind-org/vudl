@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xxforms:dialog id="view-object-dialog"
+                xmlns:xforms="http://www.w3.org/2002/xforms"
+                xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+                xmlns:xhtml="http://www.w3.org/1999/xhtml"
+                xmlns:ev="http://www.w3.org/2001/xml-events"
+                xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+                xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xmlns:management="http://www.fedora.info/definitions/1/0/management/"
+                appearance="full"
+                draggable="true"
+                
+                >
+    <xforms:action ev:event="xxforms-dialog-open">
+        <!-- -->
+        <xforms:setvalue ref="xxforms:instance('transform-destination-serialized')/root()/data" value="xxforms:serialize(xxforms:instance('transform-destination'), 'xml')"/>
+    </xforms:action>
+
+    <xforms:label>Quick View</xforms:label>
+    
+    <!-- <xhtml:div style="max-height:700px; max-width:600px; overflow:auto;">-->
+    <!-- XML Data -->
+    <xforms:group ref=".[contains(xxforms:instance('view-object-parameters')/mime, 'text/xml')]">
+        
+        <fr:code-mirror ref="xxforms:instance('transform-destination-serialized')"/>
+            
+    </xforms:group>
+    
+    <!-- Plain Text Data -->
+    <xforms:group ref=".[contains(xxforms:instance('view-object-parameters')/mime, 'text/plain')]">
+        <xforms:output mediatype="text/plain"
+                       value="xxforms:serialize(xxforms:instance('transform-destination'), 'text')" 
+                       style="white-space: pre-line; font-family: monospace;"
+                       />
+    </xforms:group>
+    
+    <!-- HTML Data -->
+    <xforms:group ref=".[not(contains(xxforms:instance('view-object-parameters')/mime, 'text/'))]">
+        <xforms:output mediatype="text/html"
+                       value="xxforms:serialize(xxforms:instance('transform-destination'), 'xml')" 
+                       
+                       />
+    </xforms:group>
+    
+    <!-- </xhtml:div> -->
+
+    <xhtml:br/>
+    
+    <xforms:trigger>
+        <xforms:label>Close</xforms:label>
+        <xforms:action ev:event="DOMActivate">
+            <xxforms:hide dialog="view-object-dialog"/>
+        </xforms:action>
+    </xforms:trigger>
+    
+</xxforms:dialog>

@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xhtml:div class="{if(.[$dsActive]) then 'datastream-row' else ''} well"
+           xmlns:xhtml="http://www.w3.org/1999/xhtml"
+           xmlns:xi="http://www.w3.org/2001/XInclude"
+           xmlns:xforms="http://www.w3.org/2002/xforms"
+           xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+           xmlns:ev="http://www.w3.org/2001/xml-events"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:fedora-model="info:fedora/fedora-system:def/model#"
+           xmlns:sparql="http://www.w3.org/2001/sw/DataAccess/rf1/result"
+           xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+           xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xmlns:management="http://www.fedora.info/definitions/1/0/management/"
+           xmlns:METS="http://www.loc.gov/METS/"
+           xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:access="http://www.fedora.info/definitions/1/0/access/"
+           xmlns:composite-model="info:fedora/fedora-system:def/dsCompositeModel#"
+           >
+
+    <xhtml:h6 class="pull-left">
+        <xforms:output value="xxforms:instance('Datastreams')/datastream[@dsID = $dsID]/@label"/>
+    </xhtml:h6>
+
+    <!--
+    <xhtml:div style="float:left; padding:3px;">
+        <xforms:output value="$dsID"/>
+    </xhtml:div>
+    -->
+    
+    <xhtml:div class="pull-right">
+
+        <!-- Add / Attach -->
+        <xhtml:div class="datastream-control">
+            <xforms:trigger appearance="minimal">
+                <xforms:label>
+                    <xhtml:img src="/apps/VuDL/images/upload.png"/>
+                </xforms:label>
+                <xforms:hint>Attach new File</xforms:hint>
+                <xforms:action ev:event="DOMActivate">
+                    <xforms:dispatch name="edit-DS-{$dsID}" target="CoreModel-helper">
+                        <xxforms:context name="datastreamPID" value="$datastreamPID"/>
+                        <xxforms:context name="dsID" value="$dsID"/>
+                    </xforms:dispatch>
+                </xforms:action>
+            </xforms:trigger>
+        </xhtml:div>
+
+        <!-- if the DS exists -->
+        <xforms:group ref=".[xxforms:instance('PIDmetadata')/object[@pid=$datastreamPID]//access:datastream[@dsid=$dsID]]">
+        
+            <!-- View -->
+            <xhtml:div class="datastream-control">
+                <xforms:trigger appearance="minimal">
+                    <xforms:label>
+                        <xhtml:img src="/apps/VuDL/images/eye.png"/>
+                    </xforms:label>
+                    <xforms:hint>View File</xforms:hint>
+                    <xforms:action ev:event="DOMActivate">
+                        <xforms:setvalue ref="xxforms:instance('view-object-parameters')/PID" value="$datastreamPID"/>
+                        <xforms:setvalue ref="xxforms:instance('view-object-parameters')/dsID" value="$dsID"/>
+                        <xforms:setvalue ref="xxforms:instance('view-object-parameters')/content" value="concat(xxforms:instance('config-instance')/fedora/publicUrl, '/objects/', xxforms:instance('view-object-parameters')/PID, '/datastreams/', xxforms:instance('view-object-parameters')/dsID, '/content?asOfDateTime=', now())"/>
+                        <xforms:setvalue ref="xxforms:instance('view-object-parameters')/mime" value="xxforms:instance('PIDmetadata')/object[@pid=$datastreamPID]//access:datastream[@dsid=$dsID]/@mimeType"/>
+                        <!-- -->
+                        <xforms:send submission="transform-submission" target="CoreModel-model"/>
+                        <xforms:dispatch name="launch-view-object" target="CoreModel-helper"/>
+                    </xforms:action>
+                </xforms:trigger>
+            </xhtml:div>
+            
+            <!-- view Metadata -->
+            <xhtml:div class="datastream-control">
+                <xhtml:a href="{xxforms:instance('config-instance')/fedora/publicUrl}/objects/{$datastreamPID}/methods/vudl-system:CoreModelService/generateMetadata?dsID={$dsID}"
+                         target="_blank"
+                         title="View Metadata (in new window)">
+                    <xhtml:img src="/apps/VuDL/images/xml.png"/>
+                </xhtml:a>
+            </xhtml:div>
+            
+            <!-- Download -->
+            <xhtml:div class="datastream-control">
+                <xhtml:a href="{xxforms:instance('config-instance')/fedora/publicUrl}/objects/{$datastreamPID}/datastreams/{$dsID}/content?download=true"
+                         title="Download File">
+                    <xhtml:img src="/apps/VuDL/images/download.png"/>
+                </xhtml:a>
+            </xhtml:div>
+            
+            <xhtml:div class="datastream-control">
+                <xforms:trigger appearance="minimal">
+                    <xforms:label>
+                        <xhtml:img src="/apps/VuDL/images/remove.gif"/>
+                    </xforms:label>
+                    <xforms:hint>Delete File</xforms:hint>
+                    <xforms:action ev:event="DOMActivate">
+                        <!-- Purge {DATA} Datastream -->
+                        
+                        <xforms:setvalue ref="xxforms:instance('purgeDatastream-parameters')/PID" value="$datastreamPID"/>
+                        <xforms:setvalue ref="xxforms:instance('purgeDatastream-parameters')/dsID" value="$dsID"/>
+                        <xforms:setvalue ref="xxforms:instance('purgeDatastream-parameters')/parameters/startDT" value="string('')"/>
+                        <xforms:setvalue ref="xxforms:instance('purgeDatastream-parameters')/parameters/endDT" value="string('')"/>
+                        <xforms:setvalue ref="xxforms:instance('purgeDatastream-parameters')/parameters/logMessage" value="concat('Deleting ', $dsID)"/>
+
+                        <xforms:dispatch name="launch-confirm-delete-datastream" 
+                                         target="CoreModel-helper"
+                                         />
+                        
+                    </xforms:action>
+                </xforms:trigger>
+            </xhtml:div>
+            
+        </xforms:group>
+    
+        <!-- <xforms:group ref=".[not(xxforms:instance(concat($dsID, '-datastream-instance'))/*)]"> -->
+        <xforms:group ref=".[not(xxforms:instance('PIDmetadata')/object[@pid=$datastreamPID]//access:datastream[@dsid=$dsID])]">
+            <xhtml:div class="datastream-control">
+                <xhtml:img src="/apps/VuDL/images/eye_gray.png"/>
+            </xhtml:div>
+            <xhtml:div class="datastream-control">
+                <xhtml:img src="/apps/VuDL/images/xml_gray.png"/>
+            </xhtml:div>
+            <xhtml:div class="datastream-control">
+                <xhtml:img src="/apps/VuDL/images/download_gray.png"/>
+            </xhtml:div>
+            <xhtml:div class="datastream-control">
+                <xhtml:img src="/apps/VuDL/images/remove_gray.png"/>
+            </xhtml:div>
+        </xforms:group>
+        
+
+    </xhtml:div>
+    
+    <xhtml:div style="clear:both;"/>
+    
+    
+</xhtml:div>

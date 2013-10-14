@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xxforms:dialog id="modifyObject-progress-dialog"
+                appearance="full"
+                xmlns:xforms="http://www.w3.org/2002/xforms"
+                xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+                xmlns:xhtml="http://www.w3.org/1999/xhtml"
+                xmlns:ev="http://www.w3.org/2001/xml-events"
+                xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+                xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+                xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+                xmlns:access="http://www.fedora.info/definitions/1/0/access/"
+                xmlns:METS="http://www.loc.gov/METS/"
+                xmlns:fedora-model="info:fedora/fedora-system:def/model#" 
+                xmlns:xi="http://www.w3.org/2001/XInclude"
+                xmlns:fits="http://hul.harvard.edu/ois/xml/ns/fits/fits_output"
+                xmlns:management="http://www.fedora.info/definitions/1/0/management/"
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                >
+
+    <xforms:action ev:event="xxforms-dialog-open">
+
+    </xforms:action>
+    
+    <xforms:label>modifyObject Progress</xforms:label>
+
+        <xhtml:p>
+            <xhtml:img src="/apps/VuDL/images/loading-bar.gif"/>
+            <xhtml:br/>
+            <xforms:output value="string('Modifying ')"/>
+            <xforms:output ref="xxforms:instance('modifyObjectTree-parameters')/current"/>
+            <xforms:output value="string(' of ')"/>
+            <xforms:output ref="xxforms:instance('modifyObjectTree-parameters')/total"/>
+        </xhtml:p>
+
+    
+</xxforms:dialog>

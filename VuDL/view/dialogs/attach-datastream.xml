@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+
+<xxforms:dialog id="attach-datastream-dialog"
+                xmlns:xforms="http://www.w3.org/2002/xforms"
+                xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+                xmlns:xhtml="http://www.w3.org/1999/xhtml"
+                xmlns:ev="http://www.w3.org/2001/xml-events"
+                xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+                xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xmlns:fedora-model="info:fedora/fedora-system:def/model#" 
+                xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+                xmlns:management="http://www.fedora.info/definitions/1/0/management/"
+                xmlns:access="http://www.fedora.info/definitions/1/0/access/"
+                xmlns:xi="http://www.w3.org/2001/XInclude"
+                xmlns:fits="http://hul.harvard.edu/ois/xml/ns/fits/fits_output"
+                xmlns:xxi="http://orbeon.org/oxf/xml/xinclude"
+                xmlns:METS="http://www.loc.gov/METS/"
+                xmlns:sparql="http://www.w3.org/2001/sw/DataAccess/rf1/result"
+                xmlns:vudl="http://vudl.org"
+                >
+    <!-- Clear Fields, load children -->
+    <xforms:action ev:event="xxforms-dialog-open">
+
+        <!-- -->
+        <xforms:setvalue ref="xxforms:instance('upload-DATA-parameters')/createMetadata" value="string('Yes')"/>
+        
+        <!-- clear "M" info -->
+        <xforms:setvalue ref="xxforms:instance('upload-DATA')/file/@filename" value="string('')"/>
+        <xforms:setvalue ref="xxforms:instance('upload-DATA')/file/@mediatype" value="string('')"/>
+        <xforms:setvalue ref="xxforms:instance('upload-DATA')/file/@size" value="string('')"/>
+        <xforms:setvalue ref="xxforms:instance('upload-DATA')/file" value="string('')"/>
+        
+        <!-- clear "E" info -->
+        <xforms:setvalue ref="xxforms:instance('upload-DATA-external-url')" value="string('')"/>
+        <xforms:setvalue ref="xxforms:instance('upload-DATA-external-uri')" value="string('')"/>
+        <xforms:setvalue ref="xxforms:instance('upload-DATA-selected-method')" value="string('')"/>
+        <xforms:setvalue ref="xxforms:instance('upload-DATA-selected-method-parameter')" value="string('')"/>
+        <xforms:delete nodeset="xxforms:instance('upload-DATA-methods')/*"/>
+
+        <!-- get RELS-EXT for xxforms:instance('upload-DATA-parameters')/PID -->
+        <!-- xxforms:instance('RELS-EXT-dialog-datastream-instance') -->
+        <xforms:dispatch name="performAPIRequest" 
+                         target="FedoraAPI-helper"
+                         xxforms:show-progress="true">
+            <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('upload-DATA-parameters')/PID, '/datastreams/', string('RELS-EXT'), '?format=', string('xml'), '&amp;asOfDateTime=', now(),'&amp;validateChecksum=', string('false'))"/>
+            <xxforms:context name="dsID" value="string('RELS-EXT')"/>
+            <xxforms:context name="apiMethod" value="string('getDatastream')"/>
+            <xxforms:context name="httpMethod" value="string('get')"/>
+            <xxforms:context name="mode" value="string('synchronous')"/>
+            <xxforms:context name="destination-instance" value="string('RELS-EXT-dialog-datastream-instance')"/>
+            <xxforms:context name="clear-destination-instance" value="string('true')"/>
+        </xforms:dispatch>
+        <!-- RELS-EXT: getDatastreamDissemination -->
+        <!-- xxforms:instance('RELS-EXT-dialog-instance') -->
+        <xforms:dispatch name="performAPIRequest" 
+                         target="FedoraAPI-helper"
+                         xxforms:show-progress="true">
+            <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('upload-DATA-parameters')/PID, '/datastreams/', string('RELS-EXT'), '/content?format=', string('xml'), '&amp;asOfDateTime=', now(),'&amp;validateChecksum=', string('false'))"/>
+            <xxforms:context name="dsID" value="string('RELS-EXT')"/>
+            <xxforms:context name="apiMethod" value="string('getDatastreamDissemination')"/>
+            <xxforms:context name="httpMethod" value="string('get')"/>
+            <xxforms:context name="mode" value="string('synchronous')"/>
+            <xxforms:context name="destination-instance" value="string('RELS-EXT-dialog-instance')"/>
+            <xxforms:context name="clear-destination-instance" value="string('true')"/>
+        </xforms:dispatch>
+        <!-- ~~~~~~~~~~~~~~~~ -->
+
+        <!-- Grab available methods for this object -->
+        <!-- xxforms:instance('listMethods-dialog-instance') -->
+        <xforms:dispatch name="performAPIRequest" 
+                         target="FedoraAPI-helper"
+                         xxforms:show-progress="true">
+            <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('upload-DATA-parameters')/PID, '/methods?format=', string('xml'), '&amp;asOfDateTime=', now())"/>               
+            <xxforms:context name="apiMethod" value="string('listMethods')"/>
+            <xxforms:context name="httpMethod" value="string('get')"/>
+            <xxforms:context name="mode" value="string('synchronous')"/>
+            <xxforms:context name="destination-instance" value="string('listMethods-dialog-instance')"/>
+            <xxforms:context name="clear-destination-instance" value="string('true')"/>
+        </xforms:dispatch>
+        <!-- ~~~~~~~~~~~~~~~~ -->
+
+        <!-- initialize browse-members-instance -->
+        <xforms:setvalue ref="xxforms:instance('browse-members-target')" value="string('browse-members-dialog')"/>
+
+        <xforms:delete nodeset="xxforms:instance('browse-members-dialog-instance')/root()/instance/*"/>
+        <xforms:setvalue ref="xxforms:instance('browse-members-dialog-selected')" value="string('')"/>
+        <xforms:setvalue ref="xxforms:instance('browse-members-dialog-parameters')/vudl:PID" value="xxforms:instance('upload-DATA-parameters')/PID"/>
+        <xforms:setvalue ref="xxforms:instance('browse-members-dialog-parameters')/vudl:action" value="string('browse-members-selected-methods')"/>
+        <xforms:setvalue ref="xxforms:instance('browse-members-dialog-parameters')/vudl:control-menu" value="string('false')"/>
+        <xforms:setvalue ref="xxforms:instance('browse-members-dialog-parameters')/vudl:relationship" value="string('isMemberOf')"/>
+
+        <xforms:dispatch name="browse-members"
+                         target="CoreModel-helper"
+                         delay="10"
+                         />
+        
+        
+    </xforms:action>
+    
+    <xforms:label>Datastream DATA</xforms:label>
+
+    <fr:tabview>
+        <fr:tab>
+            <fr:label>Upload</fr:label>
+            
+            <xforms:upload ref="xxforms:instance('upload-DATA')/file" model="CoreModel-model">
+                <xforms:filename ref="@filename"/>
+                <xforms:mediatype ref="@mediatype"/>
+                <xxforms:size ref="@size"/>
+                
+                <!-- TODO: research and implement the new upload-error status -->
+                <xforms:action ev:event="xxforms-upload-cancel">
+                    <xforms:message>xxforms-upload-cancel
+                        <xforms:output value="substring-before(xxforms:instance('upload-DATA')/file, '?')"/>
+                    </xforms:message>
+                </xforms:action>
+                
+                <xforms:action ev:event="xxforms-upload-done">
+                    
+                    <xforms:dispatch name="upload-attach-datastream"
+                                     target="CoreModel-helper"/>
+                    
+                </xforms:action>
+                
+            </xforms:upload>
+            
+            <!-- if xxforms:instance('addDatastream-parameters')/dsID = MASTER 
+                 add a checkbox for adding FITS
+            -->
+            
+        </fr:tab>
+
+        <fr:tab>
+            <fr:label>Linked</fr:label>
+
+            <xforms:input ref="xxforms:instance('upload-DATA-external-url')"/>
+
+            <xforms:trigger xxforms:modal="true">
+                <xforms:label>
+                    <xhtml:img src="/apps/VuDL/images/trigger_save.png"/>
+                    Save
+                </xforms:label>
+                <xforms:action ev:event="DOMActivate">
+                    <!-- Purge {DATA} Datastream -->
+                    <xforms:setvalue ref="xxforms:instance('purgeDatastream-parameters')/PID" value="xxforms:instance('upload-DATA-parameters')/PID"/>
+                    <xforms:setvalue ref="xxforms:instance('purgeDatastream-parameters')/dsID" value="xxforms:instance('upload-DATA-parameters')/dsID"/>
+                    <xforms:setvalue ref="xxforms:instance('purgeDatastream-parameters')/parameters/startDT" value="string('')"/>
+                    <xforms:setvalue ref="xxforms:instance('purgeDatastream-parameters')/parameters/endDT" value="string('')"/>
+                    <xforms:setvalue ref="xxforms:instance('purgeDatastream-parameters')/parameters/logMessage" value="concat('Replacing: ', xxforms:instance('upload-DATA-parameters')/dsID)"/>
+                    <xforms:dispatch name="performAPIRequest" 
+                                     target="FedoraAPI-helper"
+                                     xxforms:show-progress="true">
+                        <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('purgeDatastream-parameters')/PID, '/datastreams/', xxforms:instance('purgeDatastream-parameters')/dsID)"/>
+                        <xxforms:context name="dsID" value="xxforms:instance('purgeDatastream-parameters')/dsID"/>
+                        <xxforms:context name="apiMethod" value="string('purgeDatastream')"/>
+                        <xxforms:context name="httpMethod" value="string('delete')"/>
+                        <xxforms:context name="mode" value="string('')"/>
+                        <xxforms:context name="destination-instance" value="string('')"/>
+                        <xxforms:context name="clear-destination-instance" value="string('')"/>
+                        <xxforms:context name="parameters" value="string('purgeDatastream-parameters')"/>
+                    </xforms:dispatch>
+                    <!-- <xforms:send submission="purgeDatastream" model="RestAPIModel-model"/> -->
+
+                    <!-- Get FITS info -->
+                    <xforms:setvalue ref="xxforms:instance('FitsRequest-parameters')/destination-instance" value="string('upload-DATA-metadata')"/>
+                    <xforms:setvalue ref="xxforms:instance('FitsRequest-parameters')/parameters/url" value="xxforms:instance('upload-DATA-external-url')"/>
+                    <xforms:send submission="FitsRequest" model="Fits-helper"/>
+                    
+                    <!-- Prepare new parameters -->
+                    <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/PID" value="xxforms:instance('upload-DATA-parameters')/PID"/>
+                    <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/dsID" value="xxforms:instance('upload-DATA-parameters')/dsID"/>
+                    <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/post-content" value="string('empty-instance')"/>
+                    <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/controlGroup" value="xxforms:instance('upload-DATA-parameters')/controlGroup"/>
+                    <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/dsLocation" value="xxforms:instance('upload-DATA-external-url')"/>
+                    <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/altIDs" value="string('')"/>
+                    <!-- <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/dsLabel" value="concat(xxforms:instance('upload-DATA-parameters')/dsID, ' for this Collection')"/> -->
+                    <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/dsLabel" value="concat(replace(xxforms:instance('upload-DATA-parameters')/PID, ':', '_'), '_', xxforms:instance('upload-DATA-parameters')/dsID)"/>
+                    <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/versionable" value="string('false')"/>
+                    <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/dsState" value="string('A')"/>
+                    <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/formatURI" value="string('')"/>
+                    <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/checksumType" value="string('MD5')"/>
+                    <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/checksum" value="string('')"/>
+                    <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/mimeType" value="xxforms:instance('upload-DATA-metadata')//fits:identity[1]/@mimetype"/>
+                    <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/logMessage" value="concat('Modified ', xxforms:instance('addDatastream-parameters')/dsID, ' datastream')"/>
+                    <!-- Send Request -->
+                    <xforms:dispatch name="performAPIRequest" 
+                                     target="FedoraAPI-helper"
+                                     xxforms:show-progress="true"
+                                     >
+                        <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('addDatastream-parameters')/PID, '/datastreams/', xxforms:instance('addDatastream-parameters')/dsID)"/>
+                        <xxforms:context name="dsID" value="xxforms:instance('addDatastream-parameters')/dsID"/>
+                        <xxforms:context name="apiMethod" value="string('addDatastream')"/>
+                        <xxforms:context name="httpMethod" value="string('post')"/>
+                        <xxforms:context name="mode" value="string('')"/>
+                        <xxforms:context name="destination-instance" value="string('')"/>
+                        <xxforms:context name="clear-destination-instance" value="string('')"/>
+                        <xxforms:context name="parameters" value="string('addDatastream-parameters')"/>
+                    </xforms:dispatch>
+
+                    <!-- generate new MASTER-MD -->
+                    <xforms:action if="xxforms:instance('upload-DATA-parameters')/dsID = 'MASTER'">
+                        <!-- Purge {DATA} Datastream (if it exists) -->
+                        <xforms:setvalue ref="xxforms:instance('purgeDatastream-parameters')/PID" value="xxforms:instance('upload-DATA-parameters')/PID"/>
+                        <xforms:setvalue ref="xxforms:instance('purgeDatastream-parameters')/dsID" value="string('MASTER-MD')"/>
+                        <xforms:setvalue ref="xxforms:instance('purgeDatastream-parameters')/parameters/startDT" value="string('')"/>
+                        <xforms:setvalue ref="xxforms:instance('purgeDatastream-parameters')/parameters/endDT" value="string('')"/>
+                        <xforms:setvalue ref="xxforms:instance('purgeDatastream-parameters')/parameters/logMessage" value="string('Replacing MASTER-MD')"/>
+                        <xforms:dispatch name="performAPIRequest" 
+                                         target="FedoraAPI-helper"
+                                         xxforms:show-progress="true"
+                                         if="xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('purgeDatastream-parameters')/PID]//access:datastream[@dsid = 'MASTER-MD']">
+                            <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('purgeDatastream-parameters')/PID, '/datastreams/', xxforms:instance('purgeDatastream-parameters')/dsID)"/>
+                            <xxforms:context name="dsID" value="xxforms:instance('purgeDatastream-parameters')/dsID"/>
+                            <xxforms:context name="apiMethod" value="string('purgeDatastream')"/>
+                            <xxforms:context name="httpMethod" value="string('delete')"/>
+                            <xxforms:context name="mode" value="string('')"/>
+                            <xxforms:context name="destination-instance" value="string('')"/>
+                            <xxforms:context name="clear-destination-instance" value="string('')"/>
+                            <xxforms:context name="parameters" value="string('purgeDatastream-parameters')"/>
+                        </xforms:dispatch>
+                        
+                        <!-- Prepare new parameters for {DATA} -->
+                        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/PID" value="xxforms:instance('upload-DATA-parameters')/PID"/>
+                        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/dsID" value="string('MASTER-MD')"/>
+                        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/post-content" value="string('upload-DATA-metadata')"/>
+                        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/controlGroup" value="string('M')"/>
+                        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/dsLocation" value="string('')"/>
+                        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/altIDs" value="string('')"/>
+                        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/dsLabel" value="concat(replace(xxforms:instance('upload-DATA-parameters')/PID, ':', '_'), '_', 'MASTER-MD')"/>
+                        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/versionable" value="string('false')"/>
+                        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/dsState" value="string('A')"/>
+                        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/formatURI" value="string('')"/>
+                        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/checksumType" value="string('MD5')"/>
+                        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/checksum" value="string('')"/>
+                        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/mimeType" value="string('text/xml')"/>
+                        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/logMessage" value="concat('Modified ', xxforms:instance('addDatastream-parameters')/dsID, ' datastream, created new MASTER-MD')"/>
+                        <!-- Send add Request (Post new datastream file) -->
+                        <xforms:dispatch name="performAPIRequest" 
+                                         target="FedoraAPI-helper"
+                                         xxforms:show-progress="true"
+                                         >
+                            <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('addDatastream-parameters')/PID, '/datastreams/', xxforms:instance('addDatastream-parameters')/dsID)"/>
+                            <xxforms:context name="dsID" value="xxforms:instance('addDatastream-parameters')/dsID"/>
+                            <xxforms:context name="apiMethod" value="string('addDatastream')"/>
+                            <xxforms:context name="httpMethod" value="string('post')"/>
+                            <xxforms:context name="mode" value="string('')"/>
+                            <xxforms:context name="destination-instance" value="string('')"/>
+                            <xxforms:context name="clear-destination-instance" value="string('')"/>
+                            <xxforms:context name="parameters" value="string('addDatastream-parameters')"/>
+                        </xforms:dispatch>
+                    </xforms:action>
+
+                    <xforms:dispatch name="refresh-PIDmetadata"
+                                     target="CoreModel-helper"
+                                     >
+                        <xxforms:context name="PID" select="xxforms:instance('upload-DATA-parameters')/PID"/>
+                        <xxforms:context name="mode" select="string('synchronous')"/>
+                        <xxforms:context name="stats" select="string('true')"/>
+                    </xforms:dispatch>
+                    
+                    <!-- update parent ResourceCollection if one exists -->
+                    <xforms:dispatch name="update-parent-resource"
+                                     target="CoreModel-helper">
+                        <xxforms:context name="PID" value="xxforms:instance('upload-DATA-parameters')/PID"/>
+                    </xforms:dispatch>
+                    
+                    <!-- clear upload info -->
+                    <xforms:setvalue ref="xxforms:instance('upload-DATA')/file/@filename" value="string('')"/>
+                    <xforms:setvalue ref="xxforms:instance('upload-DATA')/file/@mediatype" value="string('')"/>
+                    <xforms:setvalue ref="xxforms:instance('upload-DATA')/file/@size" value="string('')"/>
+                    <xforms:setvalue ref="xxforms:instance('upload-DATA')/file" value="string('')"/>
+                    
+                    <!-- clear upload info -->
+                    <xforms:setvalue ref="xxforms:instance('upload-DATA-external-url')" value="string('')"/>
+                    <xforms:setvalue ref="xxforms:instance('upload-DATA-external-uri')" value="string('')"/>
+
+                    <!-- Close Dialog -->
+                    <xxforms:hide dialog="attach-datastream-dialog"/>
+                    
+                </xforms:action>
+            </xforms:trigger>
+            
+            
+            <xhtml:hr/>
+
+            <xforms:select1 ref="xxforms:instance('upload-DATA-parameters')/controlGroup" appearance="full">
+                <xforms:label>Select a Storage Method:</xforms:label>
+                <xforms:itemset ref="xxforms:instance('upload-controlGroup')/controlGroup">
+                    <xforms:label ref="@name"/>
+                    <xforms:value ref="@value"/>
+                </xforms:itemset>
+            </xforms:select1>
+            
+            <xforms:select1 ref="xxforms:instance('upload-DATA-parameters')/methodLevel" appearance="full">
+                <xforms:label>Select a Method Source:</xforms:label>
+                <xforms:item>
+                    <xforms:label>Internal Methods</xforms:label>
+                    <xforms:value>internal</xforms:value>
+                </xforms:item>
+                <xforms:item>
+                    <xforms:label>Child Methods</xforms:label>
+                    <xforms:value>child</xforms:value>
+                </xforms:item>
+            </xforms:select1>
+            
+            <!-- list methods -->
+            <xforms:group ref=".[not(xxforms:instance('upload-DATA-parameters')/methodLevel = 'child')]">
+                <xforms:select1 ref="xxforms:instance('upload-DATA-selected-method')" appearance="full">
+                    <xforms:label>Method</xforms:label>
+                    <xforms:itemset nodeset="xxforms:instance('listMethods-dialog-instance')//access:method[substring(../@pid, 1,13) != 'fedora-system']"> <!-- ../@pid != 'vudl-system:CoreModelService' and  -->
+                        <xforms:label ref="concat(./@name, ' (', ../@pid, ')')"/>
+                        <xforms:value ref="concat(../@pid, '/', ./@name)"/>
+                    </xforms:itemset>
+                    <xforms:action ev:event="xforms-value-changed">
+                        <xforms:setvalue ref="xxforms:instance('upload-DATA-external-url')" value="concat(xxforms:instance('config-instance')/fedora/publicUrl, '/objects/', xxforms:instance('upload-DATA-parameters')/PID, '/methods/', xxforms:instance('upload-DATA-selected-method'))"/>
+                    </xforms:action>
+                </xforms:select1>
+            </xforms:group>
+            
+            <!-- display parameters -->
+            <xforms:group ref=".[xxforms:instance('listMethods-dialog-instance')//access:method[@name = substring-after(xxforms:instance('upload-DATA-selected-method'), '/')]/access:methodParm]">
+                <xforms:select1 ref="xxforms:instance('upload-DATA-selected-method-parameter')">
+                    <xforms:label>Datastream</xforms:label>
+                    <xforms:itemset nodeset="xxforms:instance('Datastreams')//datastream">
+                        <xforms:label ref="./@dsID"/>
+                        <xforms:value ref="./@dsID"/>
+                    </xforms:itemset>
+                    <xforms:action ev:event="xforms-value-changed">
+                        <xforms:setvalue ref="xxforms:instance('upload-DATA-external-url')" value="concat(xxforms:instance('config-instance')/fedora/publicUrl, '/objects/', xxforms:instance('upload-DATA-parameters')/PID, '/methods/', xxforms:instance('upload-DATA-selected-method'), '?dsID=', xxforms:instance('upload-DATA-selected-method-parameter'))"/>
+                    </xforms:action>
+                    <!--
+                    <xforms:itemset nodeset="xxforms:instance('PIDmetadata')//object[@pid = xxforms:instance('upload-DATA-parameters')/PID]//access:datastream">
+                        <xforms:label ref="./@dsid"/>
+                        <xforms:value ref="./@dsid"/>
+                    </xforms:itemset>
+                    -->
+                </xforms:select1>
+                <!--
+                <xforms:input ref="xxforms:instance('upload-DATA-selected-method-parameter')">
+                    <xforms:label>Source Datastream</xforms:label>
+                    <xforms:action ev:event="xforms-value-changed">
+                        <xforms:setvalue ref="xxforms:instance('upload-DATA-external-url')" value="concat(xxforms:instance('config-instance')/fedora/publicUrl, '/objects/', xxforms:instance('upload-DATA-parameters')/PID, '/methods/', xxforms:instance('upload-DATA-selected-method'), '?dsID=', xxforms:instance('upload-DATA-selected-method-parameter'))"/>
+                    </xforms:action>
+                </xforms:input>
+                -->
+            </xforms:group>
+            
+            <xforms:group ref=".[xxforms:instance('upload-DATA-parameters')/methodLevel = 'child']">
+                <xforms:group ref=".[xxforms:instance('RELS-EXT-dialog-instance')//fedora-model:hasModel[@rdf:resource='info:fedora/vudl-system:CollectionModel']]">
+    
+                    <xhtml:hr/>
+
+                    <!-- Browse Members NOT initialized -->
+                    <xforms:group ref=".[not(xxforms:instance('browse-members-dialog-instance')//sparql:sparql)]">
+                        <xhtml:img src="/apps/VuDL/images/loading-bar.gif"/>
+                    </xforms:group>
+        
+                    <xxforms:variable name="browse-members-target" value="string('browse-members-dialog')"/>
+                    
+                    <!-- Browse Members initialized -->
+                    <xforms:group ref=".[xxforms:instance('browse-members-dialog-instance')//sparql:sparql]">
+                        <xi:include href="oxf:/apps/VuDL/view/elements/browseMembers.xml" xxi:omit-xml-base="true"/>
+                    </xforms:group>
+                    
+                    <xhtml:div>
+                        <!-- Methods -->
+                        <xforms:select1 ref="xxforms:instance('upload-DATA-selected-method')" appearance="full">
+                            <xforms:label>Method</xforms:label>
+                            <xforms:itemset nodeset="xxforms:instance('upload-DATA-methods')//access:method[substring(../@pid, 1,13) != 'fedora-system']"> <!-- ../@pid != 'vudl-system:CoreModelService' and  -->
+                                <xforms:label ref="concat(./@name, ' (', ../@pid, ')')"/>
+                                <xforms:value ref="concat(../@pid, '/', ./@name)"/>
+                            </xforms:itemset>
+                            <xforms:action ev:event="xforms-value-changed">
+                                <xforms:setvalue ref="xxforms:instance('upload-DATA-external-url')" value="concat(xxforms:instance('config-instance')/fedora/publicUrl, '/objects/', xxforms:instance(concat($browse-members-target, '-selected')), '/methods/', xxforms:instance('upload-DATA-selected-method'))"/>
+                            </xforms:action>
+                        </xforms:select1>
+                    </xhtml:div>
+                </xforms:group>
+            </xforms:group>
+            
+        </fr:tab>
+    </fr:tabview>
+    
+</xxforms:dialog>

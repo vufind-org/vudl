@@ -1,0 +1,918 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xforms:model id="CoreModel-model"
+              xmlns:xhtml="http://www.w3.org/1999/xhtml"
+              xmlns:xforms="http://www.w3.org/2002/xforms"
+              xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+              xmlns:ev="http://www.w3.org/2001/xml-events"
+              xmlns:xs="http://www.w3.org/2001/XMLSchema"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+              xmlns:xi="http://www.w3.org/2001/XInclude"
+              xmlns:foxml="info:fedora/fedora-system:def/foxml#"
+              xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+              xmlns:sparql="http://www.w3.org/2001/sw/DataAccess/rf1/result"
+              xmlns:fedora-model="info:fedora/fedora-system:def/model#" 
+              xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+              xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+              xmlns:dc="http://purl.org/dc/elements/1.1/"
+              xmlns:management="http://www.fedora.info/definitions/1/0/management/"
+              xmlns:access="http://www.fedora.info/definitions/1/0/access/"
+              xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+              xmlns:METS="http://www.loc.gov/METS/"
+              xmlns:composite-model="info:fedora/fedora-system:def/dsCompositeModel#"
+              xmlns:oai="http://www.openarchives.org/OAI/2.0/"
+              xmlns:DIGIPROVMD="http://www.loc.gov/PMD"
+              xmlns:vudl="http://vudl.org">
+        
+        <xforms:action ev:event="xforms-ready">
+
+        </xforms:action>
+        
+        <!-- -->
+        <xforms:instance id="listDatastreams-temp-instance">
+            <instance/>
+        </xforms:instance>
+        
+        <!-- -->
+        <xforms:instance id="listMethods-Core-instance">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="listMethods-dialog-instance">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="listMethods-temp-instance">
+            <instance/>
+        </xforms:instance>
+        
+        <!-- -->
+        <xforms:instance id="getObjectProfile-dialog-instance">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="getObjectProfile-temp-instance">
+            <instance/>
+        </xforms:instance>
+
+        <!-- -->
+        <xforms:instance id="all-children-temp-raw" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="all-required-datastreams-instance">
+            <instance/>
+        </xforms:instance>
+        
+        <!-- -->
+        <xforms:instance id="all-children-temp-formatted" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        
+        <!-- -->
+        <xforms:instance id="parent-resource-raw" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="parent-resource" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="parent-resource-template" xxforms:exclude-result-prefixes="#all">
+            <PID/>
+        </xforms:instance>
+        
+        <!-- -->
+        <xforms:instance id="DS-COMPOSITE-MODEL-temp-instance">
+            <instance/>
+        </xforms:instance>
+        
+        <!-- -->
+        <xforms:instance id="DC-temp-instance">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="DC-temp-datastream-instance">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="DC-dialog-instance">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="DC-dialog-datastream-instance">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="DC-editor">
+            <parameters>
+                <PID/>
+            </parameters>
+        </xforms:instance>
+        <xforms:instance id="DC-nodes">
+            <nodes>
+                <node name="dc:title" stem="title" label="Title" multiple="true" clone="true"/>
+                <node name="dc:creator" stem="creator" label="Creator" multiple="true" clone="true"/>
+                <node name="dc:subject" stem="subject" label="Subject" multiple="true" clone="true"/>
+                <node name="dc:description" stem="description" label="Description" multiple="false" clone="true"/>
+                <node name="dc:publisher" stem="publisher" label="Publisher" multiple="true" clone="true"/>
+                <node name="dc:contributor" stem="contributor" label="Contributor" multiple="true" clone="true"/>
+                <node name="dc:date" stem="date" label="Date" multiple="true" clone="true"/>
+                <node name="dc:type" stem="type" label="Type" multiple="true" clone="true"/>
+                <node name="dc:format" stem="format" label="Format" multiple="true" clone="true"/>
+                <node name="dc:identifier" stem="identifier" label="Identifier" multiple="false" clone="false"/>
+                <node name="dc:source" stem="source" label="Source" multiple="true" clone="true"/>
+                <node name="dc:language" stem="language" label="Language" multiple="true" clone="true"/>
+                <node name="dc:relation" stem="relation" label="Relation" multiple="true" clone="true"/>
+                <node name="dc:coverage" stem="coverage" label="Coverage" multiple="true" clone="true"/>
+                <node name="dc:rights" stem="rights" label="Rights" multiple="true" clone="true"/>
+            </nodes>
+        </xforms:instance>
+
+        <!-- <xforms:bind nodeset="xxforms:instance('DC-temp-instance')//dc:identifier" readonly="true()"/> -->
+        <xforms:bind nodeset="xxforms:instance('DC-dialog-instance')//dc:identifier" readonly="true()"/>
+        <xforms:instance id="title-template" xxforms:exclude-result-prefixes="#all">
+          <dc:title/>
+        </xforms:instance>
+        <xforms:instance id="description-template" xxforms:exclude-result-prefixes="#all">
+          <dc:description/>
+        </xforms:instance>
+        <xforms:instance id="date-template" xxforms:exclude-result-prefixes="#all">
+          <dc:date/>
+        </xforms:instance>
+        <xforms:instance id="subject-template" xxforms:exclude-result-prefixes="#all">
+          <dc:subject/>
+        </xforms:instance>
+        <xforms:instance id="creator-template" xxforms:exclude-result-prefixes="#all">
+          <dc:creator/>
+        </xforms:instance>
+        <xforms:instance id="publisher-template" xxforms:exclude-result-prefixes="#all">
+          <dc:publisher/>
+        </xforms:instance>
+        <xforms:instance id="contributor-template" xxforms:exclude-result-prefixes="#all">
+          <dc:contributor/>
+        </xforms:instance>
+        <xforms:instance id="rights-template" xxforms:exclude-result-prefixes="#all">
+          <dc:rights/>
+        </xforms:instance>
+        <xforms:instance id="identifier-template" xxforms:exclude-result-prefixes="#all">
+          <dc:identifier/>
+        </xforms:instance>
+        <xforms:instance id="language-template" xxforms:exclude-result-prefixes="#all">
+          <dc:language/>
+        </xforms:instance>
+        <xforms:instance id="source-template" xxforms:exclude-result-prefixes="#all">
+          <dc:source/>
+        </xforms:instance>
+        <xforms:instance id="relation-template" xxforms:exclude-result-prefixes="#all">
+          <dc:relation/>
+        </xforms:instance>
+        <xforms:instance id="coverage-template" xxforms:exclude-result-prefixes="#all">
+          <dc:coverage/>
+        </xforms:instance>
+        <xforms:instance id="type-template" xxforms:exclude-result-prefixes="#all">
+          <dc:type/>
+        </xforms:instance>
+        <xforms:instance id="format-template" xxforms:exclude-result-prefixes="#all">
+          <dc:format/>
+        </xforms:instance>
+        <xforms:instance id="DC-setFocus">
+            <instance xmlns="">
+                <parent/>
+                <child/>
+                <field/>
+                <position/>
+                <nodeName/>
+            </instance>
+        </xforms:instance>
+        <xforms:instance id="DC-dynamic-subjects" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="search-dynamic-subjects">
+            <instance/>
+        </xforms:instance>
+        <xforms:submission id="search-subjects"
+                           resource="{xxforms:instance('config-instance')//vufindSolrUrl}/select/?q=*:*&amp;facet=true&amp;facet.field=topic_str_mv&amp;facet.mincount=1&amp;facet.prefix={xxforms:instance('search-dynamic-subjects')}&amp;rows=0"
+                           method="get"
+                           replace="instance"
+                           instance="search-subjects-return"
+                           >
+
+        </xforms:submission>
+        <xforms:instance id="search-subjects-return">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="int-template">
+            <int name=""/>
+        </xforms:instance>
+        <xforms:instance id="autocomplete-search-results-template">
+            <result name=""/>
+        </xforms:instance>
+
+          
+        <!-- -->
+        <xforms:instance id="RELS-EXT-Core-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="RELS-EXT-Core-datastream-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="RELS-EXT-dialog-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="RELS-EXT-dialog-datastream-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="RELS-EXT-temp-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="RELS-EXT-temp-datastream-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="RELS-EXT-dialog-temp-instance" xxforms:exclude-result-prefixes="#all">
+            <instance xmlns=""/>
+        </xforms:instance>
+        <xforms:instance id="RELS-EXT-dialog-PARENT-LIST-RAW-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="RELS-EXT-isMemberOf-template" xxforms:exclude-result-prefixes="#all">
+            <rel:isMemberOf xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource=""/>
+        </xforms:instance>
+    
+        
+        <!-- -->
+        <xforms:instance id="MEMBER-LIST-RAW-Core-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="MEMBER-LIST-RAW-Core-datastream-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="MEMBER-LIST-RAW-temp-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="MEMBER-LIST-RAW-temp-datastream-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="MEMBER-LIST-RAW-dialog-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        
+        <!-- -->
+        <xforms:instance id="STRUCTMAP-temp-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="STRUCTMAP-temp-datastream-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="STRUCTMAP-dialog-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="STRUCTMAP-dialog-datastream-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="STRUCTMAP-ingest-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="STRUCTMAP-ingest-datastream-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="STRUCTMAP-ingest-add-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        
+        <xforms:instance id="STRUCTMAP-template" xxforms:exclude-result-prefixes="#all">
+            <METS:structMap TYPE="physical"/>
+        </xforms:instance>
+        <xforms:instance id="STRUCTMAP-div-template" xxforms:exclude-result-prefixes="#all">
+            <METS:div ORDER="">
+                <METS:fptr FILEID=""/>
+            </METS:div>
+        </xforms:instance>
+
+        <xforms:instance id="STRUCTMAP-dialog-datatable-jump-page" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:bind nodeset="xxforms:instance('STRUCTMAP-dialog-instance')/METS:structMap/METS:div/@ORDER" calculate="position()"/>
+        <xforms:bind nodeset="xxforms:instance('STRUCTMAP-temp-instance')/root()//METS:structMap/METS:div/@ORDER" calculate="position()"/>
+        <xforms:bind nodeset="xxforms:instance('STRUCTMAP-ingest-instance')/METS:structMap/METS:div/@ORDER" calculate="position()"/>
+        
+        <!-- -->
+        <xforms:instance id="MEMBER-TABLE-dialog-DC-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="MEMBER-TABLE-dialog-DC-datastream-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="MEMBER-TABLE-dialog-getObjectProfile-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="MEMBER-TABLE-dialog-listDatastreams-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="MEMBER-TABLE-dialog-parameters">
+            <instance>
+                <rowsPerPage>10</rowsPerPage>
+                <maxNbPagesToDisplay>18</maxNbPagesToDisplay>
+                <currentPage>1</currentPage>
+                <from>1</from>
+                <to>10</to>
+            </instance>
+        </xforms:instance>
+        
+        <xforms:instance id="MEMBER-TABLE-dialog-open" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        
+        <!-- Metadata storage -->
+        <xforms:instance id="PIDmetadata" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="PIDmetadata-template" xxforms:exclude-result-prefixes="#all">
+            <object pid=""/>
+        </xforms:instance>
+        
+        <!-- -->
+        <xforms:instance id="LICENSE-dialog-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="LICENSE-dialog-datastream-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        
+        <!-- -->
+        <xforms:instance id="AGENTS-dialog-instance" xxforms:exclude-result-prefixes="#all">
+            <instance xmlns=""/>
+        </xforms:instance>
+        <xforms:instance id="AGENTS-dialog-datastream-instance" xxforms:exclude-result-prefixes="#all">
+            <instance xmlns=""/>
+        </xforms:instance>
+        
+        <!-- -->
+        <xforms:instance id="PROCESS-MD-dialog-instance" xxforms:exclude-result-prefixes="#all">
+            <instance xmlns=""/>
+        </xforms:instance>
+        <xforms:instance id="PROCESS-MD-dialog-datastream-instance" xxforms:exclude-result-prefixes="#all">
+            <instance xmlns=""/>
+        </xforms:instance>
+        <xforms:instance id="PROCESS-MD-dialog-instance-root-hack" xxforms:exclude-result-prefixes="#all">
+            <instance xmlns=""/>
+        </xforms:instance>
+        
+        <!-- -->
+        <xforms:instance id="CurrentModel">
+            <instance/>
+        </xforms:instance>
+        
+        <!-- -->
+        <xforms:instance id="THUMBNAIL-Core-datastream-instance">
+            <instance/>
+        </xforms:instance>
+        
+        <!-- -->
+        <xforms:instance id="PARENT-LIST-RAW-Core-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="PARENT-LIST-RAW-Core-datastream-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="PARENT-LIST-RAW-dialog-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="PARENT-LIST-RAW-dialog-datastream-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="PARENT-LIST-RAW-temp-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        
+        
+        
+        <!-- -->
+        <xforms:instance id="PARENT-LIST-temp-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        
+        <!-- -->
+        <xforms:instance id="breadcrumb">
+            <instance/>
+        </xforms:instance>
+        
+        <!--  -->
+        <xforms:instance id="findObjects-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="findObjects-getObjectProfile-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="findObjects-listDatastreams-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="findObjects-PARENT-LIST-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+
+        
+        <!-- control-menu parameters -->
+        <xforms:instance id="control-menu-parameters">
+            <instance>
+                <PID/>
+                <trigger-id/>
+                <label/>
+            </instance>
+        </xforms:instance>
+        
+        <!-- XSLT Service -->
+        <xforms:submission id="transform-submission"
+                           method="post" 
+                           ref="xxforms:instance('view-object-parameters')"
+                           resource="/VuDL/service/transform"
+                           replace="instance" 
+                           instance="transform-destination"/>
+        <!-- -->
+        <xforms:instance id="transform-destination">
+            <data/>
+        </xforms:instance>
+        <xforms:instance id="transform-destination-serialized">
+            <data/>
+        </xforms:instance>
+        <!-- -->
+        <xforms:instance id="view-object-parameters">
+            <parameters>
+                <PID/>
+                <dsID/>
+                <mime/>
+                <content/>
+            </parameters>
+        </xforms:instance>
+    
+        <!-- -->
+        <xforms:instance id="upload-DATA-parameters">
+            <data>
+                <PID/>
+                <dsID/>
+                <controlGroup/>
+                <methodLevel/>
+                <createMetadata/>
+            </data>
+        </xforms:instance>
+        <xforms:instance id="upload-DATA"  xxforms:exclude-result-prefixes="#all">
+            <files xmlns="">
+                <file filename="" mediatype="" size=""/>
+            </files>
+        </xforms:instance>
+        <xforms:instance id="upload-DATA-external-url"  xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="upload-DATA-external-uri"  xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="upload-controlGroup">
+            <instance>
+                <controlGroup name="External" value="E"/>
+                <controlGroup name="Managed" value="M"/>
+            </instance>
+        </xforms:instance>
+        <xforms:instance id="upload-DATA-selected-method"  xxforms:exclude-result-prefixes="#all">
+            <data/>
+        </xforms:instance>
+        <xforms:instance id="upload-DATA-selected-method-parameter"  xxforms:exclude-result-prefixes="#all">
+            <data/>
+        </xforms:instance>
+        <xforms:instance id="upload-DATA-methods"  xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="upload-DATA-metadata"  xxforms:exclude-result-prefixes="#all">
+            <data/>
+        </xforms:instance>
+    
+        <!-- -->
+        <xforms:instance id="browse-members-target" xxforms:exclude-result-prefixes="#all">
+            <data/>
+        </xforms:instance>
+        <xforms:instance id="browse-members-parameters" xxforms:exclude-result-prefixes="#all">
+            <browse-members-parameters xmlns="http://vudl.org">
+                <PID/>
+                <parentPID/>
+                <action/>
+                <control-menu/>
+                <at-a-time>20</at-a-time>
+                <current-display>20</current-display>
+                <show-thumbs/>
+                <relationship/>
+            </browse-members-parameters>
+        </xforms:instance>
+        <xforms:instance id="browse-members-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="browse-members-selected" xxforms:exclude-result-prefixes="#all">
+            <data/>
+        </xforms:instance>
+        <xforms:instance id="browse-members-count-members" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="browse-members-count-members-recursive" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <!-- -->
+        <xforms:instance id="browse-members-dialog-parameters" xxforms:exclude-result-prefixes="#all">
+            <browse-members-dialog-parameters xmlns="http://vudl.org">
+                <PID/>
+                <parentPID/>
+                <action/>
+                <control-menu/>
+                <at-a-time>20</at-a-time>
+                <current-display>20</current-display>
+                <show-thumbs/>
+                <relationship/>
+            </browse-members-dialog-parameters>
+        </xforms:instance>
+        <xforms:instance id="browse-members-dialog-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="browse-members-dialog-selected" xxforms:exclude-result-prefixes="#all">
+            <data/>
+        </xforms:instance>
+        <xforms:instance id="browse-members-dialog-count-members" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="browse-members-dialog-count-members-recursive" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <!-- -->
+        <xforms:instance id="add-browse-member-template" xxforms:exclude-result-prefixes="#all">
+            <sparql:result xmlns:sparql="http://www.w3.org/2001/sw/DataAccess/rf1/result">
+                <sparql:member uri=""/>
+                <sparql:memberPID/>
+                <sparql:memberTitle/>
+            </sparql:result>
+        </xforms:instance>
+        
+        <!-- -->
+        <xforms:instance id="edit-license-parameters" xxforms:exclude-result-prefixes="#all">
+            <data>
+                <PID/>
+            </data>
+        </xforms:instance>
+        <xforms:instance id="LICENSE-url" xxforms:exclude-result-prefixes="#all">
+            <instance xmlns=""/>
+        </xforms:instance>
+        <xforms:instance id="LICENSE-template" xxforms:exclude-result-prefixes="#all"> 
+            <METS:rightsMD xmlns:METS="http://www.loc.gov/METS/" ID="0">
+                <METS:mdRef xmlns:xlink="http://www.w3.org/1999/xlink" LOCTYPE="URL" MDTYPE="" MIMETYPE="" xlink:href=""></METS:mdRef>
+            </METS:rightsMD>
+        </xforms:instance>
+        <xforms:instance id="LICENSE-options" xxforms:exclude-result-prefixes="#all">
+            <items>
+                <item label="Attribution" value="http://creativecommons.org/licenses/by/3.0/" mimetype="text/html" mdtype="OTHER" othermdtype="HTML"/>
+                <item label="Attribution-ShareAlike" value="http://creativecommons.org/licenses/by-sa/3.0/" mimetype="text/html" mdtype="OTHER" othermdtype="HTML"/>
+                <item label="Attribution-NoDerivs" value="http://creativecommons.org/licenses/by-nd/3.0/" mimetype="text/html" mdtype="OTHER" othermdtype="HTML"/>
+                <item label="Attribution-NonCommercial" value="http://creativecommons.org/licenses/by-nc/3.0/" mimetype="text/html" mdtype="OTHER" othermdtype="HTML"/>
+                <item label="Attribution-NonCommercial-ShareAlike" value="http://creativecommons.org/licenses/by-nc-sa/3.0/" mimetype="text/html" mdtype="OTHER" othermdtype="HTML"/>
+                <item label="Attribution-NonCommercial-NoDerivs" value="http://creativecommons.org/licenses/by-nc-nd/3.0/" mimetype="text/html" mdtype="HTML" othermdtype="HTML"/>
+            </items>
+        </xforms:instance>
+        <xforms:instance id="LICENSE-dialog-instance-root-hack">
+            <instance xmlns=""/>
+        </xforms:instance>
+        
+        <!-- -->
+        <xforms:instance id="edit-agents-parameters" xxforms:exclude-result-prefixes="#all">
+            <data>
+                <PID/>
+            </data>
+        </xforms:instance>
+        <xforms:instance id="AGENTS-template" xxforms:exclude-result-prefixes="#all"> 
+            <METS:metsHdr xmlns=""/>
+        </xforms:instance>
+        <xforms:instance id="AGENTS-agent-template" xxforms:exclude-result-prefixes="#all"> 
+            <METS:agent ROLE="" TYPE="" xmlns="">
+                <METS:name xmlns=""/>
+            </METS:agent>
+        </xforms:instance>
+        <xforms:instance id="AGENTS-dialog-instance-root-hack" xxforms:exclude-result-prefixes="#all">
+            <instance xmlns=""/>
+        </xforms:instance>
+        <xforms:instance id="AGENTS-roles" xxforms:exclude-result-prefixes="#all">
+            <itemset xmlns="">
+                <item label=""/>
+                <item label="EDITOR"/>
+                <item label="ARCHIVIST"/>
+                <item label="PRESERVATION"/>
+                <item label="DISSEMINATOR"/>
+                <item label="CUSTODIAN"/>
+                <item label="IPOWNER"/>
+                <item label="CREATOR"/>
+            </itemset>
+        </xforms:instance>
+        <xforms:instance id="AGENTS-types" xxforms:exclude-result-prefixes="#all">
+            <itemset xmlns="">
+                <item label=""/>
+                <item label="ORGANIZATION"/>
+                <item label="INDIVIDUAL"/>
+            </itemset>
+        </xforms:instance>
+        <xforms:instance id="AGENTS-note-template" xxforms:exclude-result-prefixes="#all"> 
+            <METS:note xmlns=""/>
+        </xforms:instance>
+        
+        <!-- -->
+        <xforms:instance id="edit-process-md-parameters" xxforms:exclude-result-prefixes="#all">
+            <data>
+                <PID/>
+            </data>
+        </xforms:instance>
+        <xforms:instance id="PROCESS-MD-template" xxforms:exclude-result-prefixes="#all"> 
+            <DIGIPROVMD:DIGIPROVMD xmlns="">
+                <DIGIPROVMD:process_creator/>
+                <DIGIPROVMD:process_datetime/>
+                <DIGIPROVMD:process_label/>
+                <DIGIPROVMD:process_organization/>
+            </DIGIPROVMD:DIGIPROVMD>
+        </xforms:instance>
+        <xforms:instance id="PROCESS-MD-task-template" xxforms:exclude-result-prefixes="#all">
+            <DIGIPROVMD:task ID="">
+                <DIGIPROVMD:task_label>Scan Original Item</DIGIPROVMD:task_label>
+                <DIGIPROVMD:task_description/>
+                <DIGIPROVMD:task_sequence/>
+                <DIGIPROVMD:task_individual/>
+                <DIGIPROVMD:tool>
+                    <DIGIPROVMD:tool_label/>
+                    <DIGIPROVMD:tool_description/>
+                    <DIGIPROVMD:tool_make/>
+                    <DIGIPROVMD:tool_version/>
+                    <DIGIPROVMD:tool_serial_number/>
+                </DIGIPROVMD:tool>
+            </DIGIPROVMD:task>
+        </xforms:instance>
+        <!-- TODO: move this to config -->
+        <xforms:instance id="DIGIPROVMD_tools">
+            <DIGIPROVMD_tools xmlns="">
+                <itemset xmlns="">
+                    <item>
+                        <label></label>
+                        <value></value>
+                        <serial></serial>
+                        <description></description>
+                        <make></make>
+                        <version></version>
+                    </item>
+                    <item>
+                        <label>Indus Color Book Scanner 5005</label>
+                        <value>Indus Color Book Scanner 5005</value>
+                        <serial>BE3-SCL-R1-003005997F8F</serial>
+                        <description></description>
+                        <make>ImageWare</make>
+                        <version>BE3-SCL-R1</version>
+                    </item>
+                    <item>
+                        <label>Canon EOS 20D</label>
+                        <value>Canon EOS 20D</value>
+                        <serial>1921010683</serial>
+                        <description></description>
+                        <make>Canon</make>
+                        <version>DS126061</version>
+                    </item>
+                    <item>
+                        <label>Canon PowerShot SD1200 IS</label>
+                        <value>Canon PowerShot SD1200 IS</value>
+                        <serial></serial>
+                        <description></description>
+                        <make>Canon</make>
+                        <version></version>
+                    </item>
+                    <item>
+                        <label>Bookeye 2 plus (ILL)</label>
+                        <value>Bookeye 2 plus</value>
+                        <serial>BE2-SGS-N3-00199952E75E</serial>
+                        <description></description>
+                        <make>ImageWare</make>
+                        <version>BE2-SGS-N3</version>
+                    </item>
+                    <item>
+                        <label>Bookeye 2 plus (Office)</label>
+                        <value>Bookeye 2 plus</value>
+                        <serial>BE2-SGS-N3-001999361393</serial>
+                        <description></description>
+                        <make>ImageWare</make>
+                        <version>BE2-SGS-N3</version>
+                    </item>
+                    <item>
+                        <label>Born Digital</label>
+                        <value>Born Digital</value>
+                        <serial></serial>
+                        <description></description>
+                        <make></make>
+                        <version></version>
+                    </item>
+                    <item>
+                        <label>Digital Photo Professional v1.6.1.0</label>
+                        <value>Digital Photo Professional</value>
+                        <serial></serial>
+                        <description>Used for converting the camera images from Canon's raw CR2 format to TIF</description>
+                        <make>Canon Inc.</make>
+                        <version>1.6.1.0</version>
+                    </item>
+                    <item>
+                        <label>Photoshop CS2</label>
+                        <value>Photoshop</value>
+                        <serial></serial>
+                        <description></description>
+                        <make>Adobe</make>
+                        <version>CS2</version>
+                    </item>
+                    <item>
+                        <label>Photoshop CS3</label>
+                        <value>Photoshop</value>
+                        <serial></serial>
+                        <description></description>
+                        <make>Adobe</make>
+                        <version>CS3</version>
+                    </item>
+                    <item>
+                        <label>Photoshop CS4</label>
+                        <value>Photoshop</value>
+                        <serial></serial>
+                        <description></description>
+                        <make>Adobe</make>
+                        <version>CS4</version>
+                    </item>
+                    <item>
+                        <label>Photoshop CS5</label>
+                        <value>Photoshop</value>
+                        <serial></serial>
+                        <description></description>
+                        <make>Adobe</make>
+                        <version>CS5</version>
+                    </item>
+                </itemset>
+            </DIGIPROVMD_tools>
+        </xforms:instance>
+        <!-- DIGIPROVMD-task-template -->
+        <xforms:instance id="DIGIPROVMD-task-template" xxforms:exclude-result-prefixes="#all">
+            <DIGIPROVMD:task ID="">
+              	<DIGIPROVMD:task_label/>
+              	<DIGIPROVMD:task_description/>
+              	<DIGIPROVMD:task_sequence/>
+              	<DIGIPROVMD:task_individual/>
+              	<DIGIPROVMD:tool>
+                		<DIGIPROVMD:tool_label/>
+                		<DIGIPROVMD:tool_description/>
+                		<DIGIPROVMD:tool_make/>
+                		<DIGIPROVMD:tool_version/>
+                		<DIGIPROVMD:tool_serial_number/>
+              	</DIGIPROVMD:tool>
+            </DIGIPROVMD:task>
+        </xforms:instance>
+        <xforms:bind nodeset="xxforms:instance('PROCESS-MD-dialog-instance')//DIGIPROVMD:task/@ID" calculate="position()"/>
+        <xforms:bind nodeset="xxforms:instance('PROCESS-MD-dialog-instance')//DIGIPROVMD:task/DIGIPROVMD:task_sequence" calculate="../position()"/>
+        <xforms:bind id="process-datetime-bind" 
+                   required="false()"
+                   nodeset="xxforms:instance('PROCESS-MD-dialog-instance')//DIGIPROVMD:process_datetime" 
+                   type="xs:dateTime" 
+                   />
+        
+        <!-- -->
+        <xforms:instance id="edit-coordinates-parameters" xxforms:exclude-result-prefixes="#all">
+            <data>
+                <PID/>
+            </data>
+        </xforms:instance>
+        <xforms:instance id="MASTER-MD-dialog-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="MEDIUM-MD-dialog-instance" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        <xforms:instance id="COORDINATES-master" xxforms:exclude-result-prefixes="#all">
+            <coordinates/>
+        </xforms:instance>
+        <xforms:instance id="COORDINATES-medium" xxforms:exclude-result-prefixes="#all">
+            <coordinates/>
+        </xforms:instance>
+        <xforms:instance id="COORDINATES-scale" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        
+        <!-- -->
+        <xforms:instance id="object-ingest-parameters" xxforms:exclude-result-prefixes="#all">
+            <data>
+                <PID/>
+                <parentPID/>
+                <title/>
+                <position>last</position>
+                <at>1</at>
+                <owner/>
+                <state/>
+                <objectType/>
+                <objectTypes/>
+            </data>
+        </xforms:instance>
+        <xforms:instance id="ModelType-template" xxforms:exclude-result-prefixes="#all">
+            <ModelType name="" uri="" fullname=""/>
+        </xforms:instance>
+        <xforms:instance id="object-ingest-position-options" xxforms:exclude-result-prefixes="#all">
+            <items>
+                <item label="First/Top" value="first" />
+                <item label="Last/Bottom" value="last" />
+                <item label="Specify" value="at" />
+            </items>
+        </xforms:instance>
+
+        
+        <!-- -->
+        <xforms:instance id="modifyObject-editor" xxforms:exclude-result-prefixes="#all">
+            <parameters>
+                <PID/>
+                <owner/>
+                <owner_children/>
+                <state/>
+                <state_children/>
+                <recycle/>
+            </parameters>
+        </xforms:instance>
+        <xforms:instance id="object-states" xxforms:exclude-result-prefixes="#all">
+            <instance>
+                <state label="Active" value="A"/>
+                <state label="Inactive" value="I"/>
+                <state label="Deleted" value="D"/>
+            </instance>
+        </xforms:instance>
+        <xforms:instance id="modifyObjectTree-parameters">
+            <data>
+                <PID/>
+                <processing>false</processing>
+                <total-objects/>
+                <current-object/>
+                <current>0</current>
+                <file_position>0</file_position>
+                <total>0</total>
+                <children/>
+            </data>
+        </xforms:instance>
+        <xforms:instance id="modifyObjectTree-child">
+            <child uri="" name="" numParents=""/>
+        </xforms:instance>
+        
+        <!-- -->
+        <xforms:instance id="edit-RELS-EXT-parameters">
+            <instance>
+                <PID/>
+                <ModelType/>
+            </instance>
+        </xforms:instance>
+        <xforms:instance id="edit-RELS-EXT-item-position-template" xxforms:exclude-result-prefixes="#all">
+            <instance>
+                <PID/>
+                <position>last</position>
+                <at>1</at>
+            </instance>
+        </xforms:instance>
+        <xforms:instance id="edit-RELS-EXT-item-position" xxforms:exclude-result-prefixes="#all">
+            <instance/>
+        </xforms:instance>
+        
+        <!-- -->
+        <xforms:instance id="edit-members-parameters" xxforms:exclude-result-prefixes="#all">
+            <instance>
+                <PID/>
+                <edit-in-line>false</edit-in-line>
+                <ordered>false</ordered>
+                <childPID/>
+                <memberContainer/>
+                <memberContainerNode/>
+                <relationship/>
+            </instance>
+        </xforms:instance>
+        
+        <!-- -->
+        <xforms:instance id="edit-datastreams-dialog-parameters">
+            <instance>
+                <PID/>
+            </instance>
+        </xforms:instance>
+        
+        <!-- -->
+        <xforms:instance id="purgeTree-parameters">
+            <data>
+                <PID/>
+                <parentPID/>
+                <processing>false</processing>
+                <total-objects/>
+                <current-object/>
+                <current>0</current>
+                <file_position>0</file_position>
+                <total>0</total>
+                <children/>
+            </data>
+        </xforms:instance>
+        <xforms:instance id="purge-object-child">
+            <child uri="" name="" numParents=""/>
+        </xforms:instance>
+    
+</xforms:model>

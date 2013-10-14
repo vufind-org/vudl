@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xforms:instance id="group-access"
+                 xmlns:xforms="http://www.w3.org/2002/xforms"
+                 xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+                 xmlns:ev="http://www.w3.org/2001/xml-events">
+    <instance>
+    <group id="fedoraAdmin" default-ownership="fedoraAdmin">
+        <views>
+            <view name="home"/>
+            <view name="sitemap"/>
+            <view name="search"/>
+            <!-- -->
+            <view name="audit"/>
+            <view name="visualizations"/>
+            <view name="settings"/>
+            <view name="users"/>
+            
+        </views>
+        <actions>
+            <action>admin</action>
+            <action>read</action>
+            <action>create</action>
+            <action>update</action>
+            <action>delete</action>
+        </actions>
+    </group>
+    <group id="vudlAdmin" default-ownership="vudlAdmin">
+        <views>
+            <view name="home"/>
+            <view name="sitemap"/>
+            <view name="search"/>
+            <!--
+            <view name="audit"/>
+            <view name="visualizations"/>
+            <view name="settings"/>
+            <view name="users"/>
+            -->
+        </views>
+        <actions>
+            <action>admin</action>
+            <action>read</action>
+            <action>create</action>
+            <action>update</action>
+            <action>delete</action>
+        </actions>
+    </group>
+    <group id="diglibAdmin" default-ownership="diglibAdmin">
+        <views>
+            <view name="home"/>
+            <view name="sitemap"/>
+            <view name="search"/>
+            <!--
+            <view name="audit"/>
+            <view name="visualizations"/>
+            -->
+        </views>
+        <actions>
+            <action>read</action>
+            <action>create</action>
+            <action>update</action>
+            <action>delete</action>
+        </actions>
+    </group>
+    <group id="diglibEditor" default-ownership="diglibEditor">
+        <views>
+            <view name="home"/>
+            <view name="sitemap"/>
+            <view name="search"/>
+            <!--
+            <view name="visualizations"/>
+            -->
+        </views>
+        <actions>
+            <action>read</action>
+            <action>create</action>
+            <action>update</action>
+            <action>delete</action>
+        </actions>
+    </group>
+    <group id="diglibStudent" default-ownership="diglibStudent">
+        <views>
+            <view name="home"/>
+            <view name="sitemap"/>
+            <view name="search"/>
+            <!--
+            <view name="visualizations"/>
+            -->
+        </views>
+        <actions>
+            <action>read</action>
+            <action>create</action>
+            <action>update</action>
+        </actions>
+    </group>
+    </instance>
+</xforms:instance>

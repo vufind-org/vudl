@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xhtml:div  xmlns:xforms="http://www.w3.org/2002/xforms"
+            xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+            xmlns:xhtml="http://www.w3.org/1999/xhtml"
+            xmlns:ev="http://www.w3.org/2001/xml-events"
+            xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+            xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+            xmlns:dc="http://purl.org/dc/elements/1.1/"
+            xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+            xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+            xmlns:access="http://www.fedora.info/definitions/1/0/access/"
+            xmlns:METS="http://www.loc.gov/METS/"
+            xmlns:fedora-model="info:fedora/fedora-system:def/model#" 
+            xmlns:xi="http://www.w3.org/2001/XInclude"
+            xmlns:xxi="http://orbeon.org/oxf/xml/xinclude"
+            xmlns:fits="http://hul.harvard.edu/ois/xml/ns/fits/fits_output"
+            xmlns:management="http://www.fedora.info/definitions/1/0/management/"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+            >
+<fr:datatable id="edit-ordered-members-datatable"
+              paginated="true" 
+              modal="true"
+              rowsPerPage="10" 
+              maxNbPagesToDisplay="18"
+              width="100%"
+              scrollable="vertical"
+              innerTableWidth="80%"
+              >
+    <xforms:action ev:event="fr-goto-page">
+        <!-- save current DC -->
+        <xforms:action if="xxforms:instance('edit-members-parameters')/edit-in-line = 'true'">
+            <xforms:dispatch name="save-in-line-edits" target="CoreModel-helper"/>
+        </xforms:action>
+        
+        <!-- set new page range -->
+        <xforms:setvalue ref="xxforms:instance('MEMBER-TABLE-dialog-parameters')/currentPage" value="event('fr-new-page')"/>
+        <xforms:setvalue ref="xxforms:instance('MEMBER-TABLE-dialog-parameters')/from" value="(xxforms:instance('MEMBER-TABLE-dialog-parameters')/currentPage * xxforms:instance('MEMBER-TABLE-dialog-parameters')/rowsPerPage) - (xxforms:instance('MEMBER-TABLE-dialog-parameters')/rowsPerPage - 1)"/>
+        <xforms:setvalue ref="xxforms:instance('MEMBER-TABLE-dialog-parameters')/to" value="xxforms:instance('MEMBER-TABLE-dialog-parameters')/from + xxforms:instance('MEMBER-TABLE-dialog-parameters')/rowsPerPage - 1"/>
+        
+        <xforms:dispatch name="load-dialog-MEMBER-TABLE-metadata"
+                         target="CoreModel-helper"
+                         delay="1"
+                         />
+                         
+    </xforms:action>
+    
+    <xhtml:thead>
+        <xhtml:tr>
+            <xhtml:th style="width: 10%"/> <!-- ModelType Icon -->
+            <xhtml:th style="width: 5%"/> <!-- Order -->
+            <xhtml:th style="width: 15%"/> <!-- Thumb -->
+            <xhtml:th style="width: 5%"/> <!-- up -->
+            <xhtml:th style="width: 5%"/> <!-- down -->
+            <xhtml:th style="width: 10%"/> <!-- ID -->
+            <xhtml:th style="width: 50%"/> <!-- Title -->
+        </xhtml:tr>
+    </xhtml:thead>
+    
+    <xhtml:tbody>
+        <xforms:repeat nodeset="xxforms:instance('STRUCTMAP-dialog-instance')/METS:structMap/METS:div" id="edit-ordered-members-datatable-repeat">
+            <xxforms:variable name="pid" select="./METS:fptr/@FILEID"/>
+            <xxforms:variable name="collectionPosition" select="./@ORDER"/>
+            <xxforms:variable name="prevPid" select="preceding-sibling::*[1]/METS:fptr/@FILEID"/>
+            <xxforms:variable name="nextPid" select="following-sibling::*[1]/METS:fptr/@FILEID"/>
+
+            
+            <xxforms:variable name="ModelType" select="xxforms:instance('ModelTypes')//*[@uri = xxforms:instance('PIDmetadata')//access:objectProfile[@pid = $pid]//access:model][count(ancestor::node()) = max(xxforms:instance('ModelTypes')//*[@uri = xxforms:instance('PIDmetadata')//access:objectProfile[@pid = $pid]//access:model]/count(ancestor::node()))]/@fullname"/>
+            <xxforms:variable name="objState" select="xxforms:instance('PIDmetadata')//access:objectProfile[@pid=$pid]/access:objState"/>
+            <!-- <xxforms:variable name="objLabel" select="xxforms:instance('MEMBER-TABLE-dialog-getObjectProfile-instance')//access:objectProfile[@pid=$pid]/access:objLabel"/> -->
+            <xxforms:variable name="objTitle" select="xxforms:instance('PIDmetadata')//dc:identifier[. = $pid]/parent::*/dc:title[1]"/>
+
+            
+            <xi:include href="oxf:/apps/VuDL/view/elements/member-table-row.xml" xxi:omit-xml-base="true"/>
+           
+            
+        </xforms:repeat>
+        
+    </xhtml:tbody>
+    
+</fr:datatable>
+</xhtml:div>

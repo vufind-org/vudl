@@ -1,0 +1,238 @@
+/* */
+body {
+  margin: 0px;
+}
+/* Tables */
+.collection_list_title {
+    background-color: #CCCCCC;
+    padding: 10px;
+}
+
+.collection_list_title span {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.collection_list_header{
+    background-color: #DDDDDD;
+    font-size: 10px;
+    font-weight: bold;
+}
+.collection_list_header th {
+    font-size: 10px;
+    font-weight: bold;
+    /* border: 0px none; */
+    border-style: none none none none;
+}
+
+.collection_list_row  {
+    background-color: #FFFFFF;
+    border-bottom:thin solid #999999;
+}
+.collection_list_row td {
+    font-size: 12px;
+}
+
+.collection_list {
+    border: 0px none;
+    width: 100%;
+    border-collapse:collapse;
+}
+
+.collection_list td, .collection_list th {
+    padding: 10px;
+}
+
+
+
+/* Remove yellow background from repeats. 
+.xforms-repeat-selected-item-1,
+.xforms-repeat-selected-item-2,
+.xforms-repeat-selected-item-3,
+.xforms-repeat-selected-item-4
+{
+   background-color: transparent !important;
+} 
+*/
+/* remove Blue backgroud from datatable */
+
+.yui-skin-sam .quick-select  tr.yui-dt-selected td, 
+.yui-skin-sam .quick-select tr.yui-dt-selected td.yui-dt-asc, 
+.yui-skin-sam .quick-select tr.yui-dt-selected td.yui-dt-desc {
+    background-color: #D2E9A4;
+}
+
+.yui-skin-sam tr.yui-dt-selected td, 
+.yui-skin-sam tr.yui-dt-selected td.yui-dt-asc, 
+.yui-skin-sam tr.yui-dt-selected td.yui-dt-desc {
+    /* background-color: #99CCFF; bbcc88  */
+    background-color: #D2E9A4;
+    color: #000000;
+}
+
+.member-actions-dropdown select {
+    background-color: Transparent;
+    background: url(images/upload.png) no-repeat 0 0; 
+}
+
+
+/* override yui border style */
+.yui-skin-sam .yui-dt th {
+  border-style: none;
+}
+
+/*   */
+.yui-skin-sam .yui-dt-scrollable .yui-dt-hd {
+  border: none;
+
+}
+
+#edit-members-datatable input {
+  width: 100%;
+}
+#edit-ordered-members-datatable input {
+  width: 100%;
+}
+#selectedCollectionTable .yui-dt-hd {
+  overflow: auto;
+  overflow-x: hidden;
+  max-height: 400px;
+  width:400px;
+}
+
+.yui-skin-sam .yui-dt tr.yui-dt-first td {
+    border: none;
+}
+
+.yui-skin-sam .yui-dt-scrollable .yui-dt-data tr.yui-dt-last td {
+    border: none;
+}
+
+.yui-skin-sam .yui-dt td {
+    border-style: none;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+.yui-skin-sam .yui-dt th {
+    background: none;
+}
+
+.yui-skin-sam .yui-dt th, .yui-skin-sam .yui-dt th a {
+    font-weight: bold;
+}
+
+.yui-skin-sam .yui-dt-paginator {
+    font-size:10px;
+    background-color: #DDDDDD;
+    margin: 5px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 6px;
+    -moz-border-radius: 10px 10px;
+    border-radius: 10px 10px;
+}
+
+.yui-skin-sam span.yui-pg-first, .yui-skin-sam span.yui-pg-previous, .yui-skin-sam span.yui-pg-next, .yui-skin-sam span.yui-pg-last {
+    color: #666666;
+}
+
+.yui-skin-sam .yui-pg-container {
+    /* margin: 0; */
+}
+
+/* find-objects dialog */
+#find-object-dialog_c {
+    width: 90%;
+    height: 60%;
+    /* HACK: fix for IE 6 vertical constraint */
+    _height: expression((YAHOO.util.Dom.getViewportHeight() * 0.8)+"px");
+    /*background-color: red;*/
+}
+
+#find-object-dialog {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+#find-object-dialog .xxforms-dialog-body {
+    padding: 10px;
+    height: 95%;  /* HACK: try to approximate "height of #fckDialog minus height of header", will be imprecise */
+    overflow: auto;
+    position: absolute; /* http://www.nabble.com/Re:-autocomplete-fields-within-a-yui-dialog-with-scrollbar-p17405418.html */
+}
+
+
+.yui-skin-sam .yui-panel .xxforms-dialog-head, .yui-skin-sam .yui-panel .xxforms-dialog-body {
+    width: 100%;  /* works with browsers which have box-sizing, and IE 6 which is buggy */
+    *width: 97%;  /* approx for IE 7 */
+    /*_width:  100%; 
+    box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box;
+    border-width: 1px;
+    border-style: solid;
+    */
+}
+        
+/* Radio Buttons */
+
+.xforms-select1-appearance-full span { display: block; clear: both }
+.xforms-select1-appearance-full span label { margin-left: .5em; margin-right: 1em; } 
+
+/* datatable loading */
+.fr-datatable-is-loading {
+    background-image: url(/VuDL/ops/images/xforms/processing.gif);
+    height: 50px; 
+    width: 1000px;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Override bootstrap */
+.container .xforms-layout-span {
+    float:none;
+    margin-left: 0px;
+}
+
+.container  {
+  width:100%;
+}
+
+.container hr {
+  margin: 5px;
+}
+select, textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"], input[type="color"] {
+    color: #000000;
+    margin-bottom: 0px;
+    height: 30px;
+}
+
+.uneditable-input, input[disabled="disabled"] {
+    color: #999999;
+}
+
+#DC-editor input, #DC-editor select {
+    /* width: 80%; */
+    width: 300px;
+}
+
+/* CSS Document */
+.xforms-repeat-selected-item-1, 
+.xforms-repeat-selected-item-2, 
+.xforms-repeat-selected-item-3, 
+.xforms-repeat-selected-item-4 {
+    background-color: auto;
+}
+
+/* YUI dialog */
+.yui-dialog hr {
+    height: 1px;
+    border: 0;
+    color: #999;
+    background-color: #999;
+}
+
+.yui-dialog h5 {
+    margin: 0px;
+}
+

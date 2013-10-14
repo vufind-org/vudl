@@ -1,0 +1,214 @@
+<xhtml:tr xmlns:xforms="http://www.w3.org/2002/xforms"
+          xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+          xmlns:xhtml="http://www.w3.org/1999/xhtml"
+          xmlns:ev="http://www.w3.org/2001/xml-events"
+          xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+          xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+          xmlns:dc="http://purl.org/dc/elements/1.1/"
+          xmlns:xs="http://www.w3.org/2001/XMLSchema"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+          xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+          xmlns:access="http://www.fedora.info/definitions/1/0/access/"
+          xmlns:METS="http://www.loc.gov/METS/"
+          xmlns:fedora-model="info:fedora/fedora-system:def/model#" 
+          xmlns:xi="http://www.w3.org/2001/XInclude"
+          xmlns:xxi="http://orbeon.org/oxf/xml/xinclude"
+          xmlns:fits="http://hul.harvard.edu/ois/xml/ns/fits/fits_output"
+          xmlns:management="http://www.fedora.info/definitions/1/0/management/"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          >
+    <!-- ModelType -->
+    <xhtml:td>
+    
+        <xforms:group ref=".[$objState]">
+            <xhtml:div class="pull-left">
+                <xhtml:img src="/apps/VuDL/images/status-{$objState}.png" title="{$objState}"/>
+            </xhtml:div>
+        </xforms:group>
+        
+        <xforms:group ref=".[not($objState)]">
+            <xhtml:img src="/apps/VuDL/images/loading-spinner-sm.gif" alt="Loading Status..."/>
+        </xforms:group>
+
+        <xforms:group ref=".[not($ModelType)]">
+            <xhtml:img src="/apps/VuDL/images/loading-spinner-sm.gif" alt="Loading Model..."/>
+        </xforms:group>
+        <xforms:group ref=".[$memberDialog = 'edit-members-dialog']">
+            <xforms:group ref=".[$ModelType]" style="text-align:center;">
+                <xhtml:div class="browse-member-control-menu-button pull-right">
+                    <xforms:trigger>
+                        <xforms:label>
+                            <xhtml:img src="/apps/VuDL/images/ModelIcons/{$ModelType}-icon.png" title="{$ModelType}"/>
+                            <xhtml:img src="/apps/VuDL/images/control_menu.png" alt="Controls"  border="0"/>
+                        </xforms:label>
+    
+                        <xforms:action ev:event="DOMActivate">
+                            <xforms:setvalue ref="xxforms:instance('control-menu-parameters')/PID" value="$pid"/>
+                            <xforms:setvalue ref="xxforms:instance('control-menu-parameters')/trigger-id" value="string('browse-members-control-menu')"/>
+                            <xforms:setvalue ref="xxforms:instance('control-menu-parameters')/label" value="xxforms:instance('STRUCTMAP-dialog-DC-instance')//dc:identifier[. = $pid]/parent::*/dc:title[1]"/>
+                            <xforms:dispatch name="launch-control-menu-simple" target="CoreModel-helper"/>
+                        </xforms:action>
+                    </xforms:trigger>
+                </xhtml:div>
+            </xforms:group>
+        </xforms:group>
+        
+    </xhtml:td>
+    
+    <!-- Order / Position -->
+    <xhtml:td>
+        <xforms:group ref=".[xxforms:instance('edit-members-parameters')/ordered = 'true']">
+            <xforms:output value="$collectionPosition"/>
+        </xforms:group>
+    </xhtml:td>
+    
+    <!-- THUMBNAIL -->
+    <xhtml:td>
+        <xforms:group ref=".[xxforms:instance('PIDmetadata')//access:objectDatastreams[@pid = $pid]/access:datastream[@dsid = 'THUMBNAIL']]">
+            
+            
+            <!-- If object has a MEDIUM DS, link to it -->
+            <xforms:group ref=".[xxforms:instance('PIDmetadata')//access:objectDatastreams[@pid = $pid]/access:datastream[@dsid = 'MEDIUM']]">
+            
+                <xforms:trigger appearance="minimal">
+                    <xforms:label>
+                        <xhtml:img src="{xxforms:instance('config-instance')/fedora/publicUrl}/objects/{$pid}/datastreams/THUMBNAIL/content" alt="THUMBNAIL" title="view MEDIUM"/>
+                    </xforms:label>
+                    <xforms:action ev:event="DOMActivate">
+                        
+                        <xforms:setvalue ref="xxforms:instance('view-object-parameters')/PID" value="$pid"/>
+                        <xforms:setvalue ref="xxforms:instance('view-object-parameters')/dsID" value="string('MEDIUM')"/>
+                        <xforms:setvalue ref="xxforms:instance('view-object-parameters')/content" value="concat(xxforms:instance('config-instance')/fedora/publicUrl, '/objects/', xxforms:instance('view-object-parameters')/PID, '/datastreams/', xxforms:instance('view-object-parameters')/dsID, '/content?asOfDateTime=', now())"/>
+                        <xforms:setvalue ref="xxforms:instance('view-object-parameters')/mime" value="xxforms:instance('PIDmetadata')/object[@pid = $pid]//access:datastream[@dsid = xxforms:instance('view-object-parameters')/dsID]/@mimeType"/>
+
+                        <!-- -->
+                        <xforms:send submission="transform-submission" target="CoreModel-model"/>
+                        <xforms:dispatch name="launch-view-object" target="CoreModel-helper"/>
+                    </xforms:action>
+                </xforms:trigger>
+                
+            </xforms:group>
+            <!-- or, just show the THUMBNAIL -->
+            <xforms:group ref=".[not(xxforms:instance('PIDmetadata')//access:objectDatastreams[@pid = $pid]/access:datastream[@dsid = 'MEDIUM'])]">
+                <xhtml:img src="{xxforms:instance('config-instance')/fedora/publicUrl}/objects/{$pid}/datastreams/THUMBNAIL/content" alt="THUMBNAIL"/>
+            </xforms:group>
+            
+        </xforms:group>
+    </xhtml:td>
+    
+    <!-- up -->
+    <xhtml:td>
+        <xforms:group ref=".[xxforms:instance('edit-members-parameters')/ordered = 'true']">
+        <xforms:trigger appearance="minimal" ref=".[preceding-sibling::*]" xxforms:modal="true">
+            <xforms:label>
+                <xhtml:img src="/apps/VuDL/images/arrow_up.png"/>
+            </xforms:label>
+            <xforms:action ev:event="DOMActivate">
+                <!-- Move the node's physical position in STRUCTMAP -->
+                <xforms:insert origin="context()" nodeset="preceding-sibling::*[1]" position="before"/>
+                <xforms:delete nodeset="."/>
+                <!-- -->
+                <xforms:dispatch name="moveUp"
+                                 target="CoreModel-helper"
+                                 >
+                    <xxforms:context name="pid" select="$pid"/>
+                    <xxforms:context name="prevPid" select="$prevPid"/>
+                </xforms:dispatch>
+                                 
+
+            </xforms:action>
+        </xforms:trigger>
+        </xforms:group>
+    </xhtml:td>
+    
+    <!-- down -->
+    <xhtml:td>
+        <xforms:group ref=".[xxforms:instance('edit-members-parameters')/ordered = 'true']">
+        <xforms:trigger appearance="minimal" ref=".[following-sibling::*]" xxforms:modal="true">
+            <xforms:label>
+                <xhtml:img src="/apps/VuDL/images/arrow_down.png"/>
+            </xforms:label>
+            <xforms:action ev:event="DOMActivate">
+                <!-- Move the node's physical position in STRUCTMAP -->
+                <xforms:insert origin="context()" nodeset="following-sibling::*[1]"/>
+                <xforms:delete nodeset="."/>
+                
+                <!--  -->
+                <xforms:dispatch name="moveDown"
+                                 target="CoreModel-helper"
+                                 >
+                    <xxforms:context name="pid" select="$pid"/>
+                    <xxforms:context name="nextPid" select="$nextPid"/>
+                </xforms:dispatch>
+
+         
+            </xforms:action>
+        </xforms:trigger>
+        </xforms:group>
+    </xhtml:td>
+    
+    <!-- PID -->
+    <xhtml:td>
+        <!--
+        <xforms:output value="$prevPid"/>
+        <xhtml:br/>
+        -->
+        <!--  -->
+        <xhtml:a href="{xxforms:instance('config-instance')//vudlUrl}/object/{$pid}">
+            <xforms:output value="$pid"/>
+        </xhtml:a>
+        <!--
+        <xhtml:br/>
+        <xforms:output value="$nextPid"/>
+        -->
+    </xhtml:td>
+
+    <!-- dc:title -->
+    <xhtml:td>
+        <!-- DC is not yet loaded -->
+        <xforms:group ref=".[not(xxforms:instance('PIDmetadata')//dc:identifier[. = $pid])]">
+            <xhtml:img src="/apps/VuDL/images/loading-spinner-sm.gif" alt="Loading Model..."/>
+        </xforms:group>
+        
+        <!-- DC loaded -->
+        <xforms:group ref=".[xxforms:instance('PIDmetadata')//dc:identifier[. = $pid]]">
+            <!-- title exists -->
+            <xforms:group ref=".[xxforms:instance('PIDmetadata')//dc:identifier[. = $pid]/parent::*/dc:title]">
+                <xforms:group ref=".[xxforms:instance('edit-members-parameters')/edit-in-line = 'false']">
+                    <xforms:output value="xxforms:instance('PIDmetadata')//dc:identifier[. = $pid]/parent::*/dc:title[1]"/>
+                </xforms:group>
+                <xforms:group ref=".[xxforms:instance('edit-members-parameters')/edit-in-line = 'true']">
+                    <xforms:input ref="xxforms:instance('PIDmetadata')//dc:identifier[. = $pid]/parent::*/dc:title"
+                                  navindex="1"
+                                  />
+                </xforms:group>
+            </xforms:group>
+            
+            <!-- title doesn't exist -->
+            <xforms:group ref=".[not(xxforms:instance('PIDmetadata')//dc:identifier[. = $pid]/parent::*/dc:title)]">
+                <xforms:output value="string('dc:title node does not exist!')"/>
+                <xforms:group ref=".[xxforms:instance('edit-members-parameters')/edit-in-line = 'true']">
+                    <xforms:trigger class="pull-right">
+                        <xforms:label>
+                            <xhtml:img src="/apps/VuDL/images/add.gif"/>
+                            add dc:title
+                        </xforms:label>
+                        <xforms:action ev:event="DOMActivate">
+                            <xforms:insert context="xxforms:instance('PIDmetadata')//dc:identifier[. = $pid]/parent::*"
+                                           nodeset="dc:title"
+                                           at="last()"
+                                           position="after" 
+                                           origin="xxforms:instance('title-template')"
+                                           />
+                            <xforms:setfocus ev:event="DOMActivate" control="dc-title"/>
+                        </xforms:action>
+                    </xforms:trigger>
+                </xforms:group>
+            </xforms:group>
+            
+            
+        </xforms:group>
+    </xhtml:td>
+    
+</xhtml:tr>

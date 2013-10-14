@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xxforms:dialog id="confirm-delete-datastream-dialog"
+                appearance="full"
+                xmlns:xforms="http://www.w3.org/2002/xforms"
+                xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+                xmlns:xhtml="http://www.w3.org/1999/xhtml"
+                xmlns:ev="http://www.w3.org/2001/xml-events"
+                xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+                xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+                xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+                xmlns:access="http://www.fedora.info/definitions/1/0/access/"
+                xmlns:METS="http://www.loc.gov/METS/"
+                xmlns:fedora-model="info:fedora/fedora-system:def/model#" 
+                xmlns:xi="http://www.w3.org/2001/XInclude"
+                xmlns:fits="http://hul.harvard.edu/ois/xml/ns/fits/fits_output"
+                xmlns:management="http://www.fedora.info/definitions/1/0/management/"
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                >
+
+    <xforms:action ev:event="xxforms-dialog-open">
+
+    </xforms:action>
+    
+    <xforms:label>Confirm Delete</xforms:label>
+    
+    <xhtml:p>Are you sure you want to delete this file? THIS IS NOT UNDOABLE</xhtml:p>
+    
+    
+    
+    <xforms:trigger xxforms:modal="true">
+        <xforms:label>
+            <xhtml:img src="/apps/VuDL/images/trigger_delete.png"/>
+            Delete
+        </xforms:label>
+        <xforms:action ev:event="DOMActivate">
+
+            <!-- -->
+            <xforms:dispatch name="performAPIRequest" 
+                             target="FedoraAPI-helper"
+                             xxforms:show-progress="true">
+                <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('purgeDatastream-parameters')/PID, '/datastreams/', xxforms:instance('purgeDatastream-parameters')/dsID)"/>
+                <xxforms:context name="dsID" value="xxforms:instance('purgeDatastream-parameters')/dsID"/>
+                <xxforms:context name="apiMethod" value="string('purgeDatastream')"/>
+                <xxforms:context name="httpMethod" value="string('delete')"/>
+                <xxforms:context name="mode" value="string('')"/>
+                <xxforms:context name="destination-instance" value="string('')"/>
+                <xxforms:context name="clear-destination-instance" value="string('')"/>
+                <xxforms:context name="parameters" value="string('purgeDatastream-parameters')"/>
+            </xforms:dispatch>
+
+            <xforms:dispatch name="refresh-PIDmetadata"
+                             target="CoreModel-helper"
+                             >
+                <xxforms:context name="PID" select="xxforms:instance('purgeDatastream-parameters')/PID"/>
+                <xxforms:context name="mode" select="string('synchronous')"/>
+                <xxforms:context name="stats" select="string('true')"/>
+            </xforms:dispatch>
+
+            <!-- Hide -->
+            <xxforms:hide dialog="confirm-delete-datastream-dialog"/>
+            
+        </xforms:action>
+    </xforms:trigger>
+    
+    <xforms:trigger>
+        <xforms:label>
+            <xhtml:img src="/apps/VuDL/images/trigger_cancel.png"/>
+            Cancel
+        </xforms:label>
+        <xforms:action ev:event="DOMActivate">
+            <xforms:setvalue ref="xxforms:instance('purgeDatastream-parameters')/PID" value="string('')"/>
+            <xforms:setvalue ref="xxforms:instance('purgeDatastream-parameters')/dsID" value="string('')"/>
+            <xforms:setvalue ref="xxforms:instance('purgeDatastream-parameters')/parameters/startDT" value="string('')"/>
+            <xforms:setvalue ref="xxforms:instance('purgeDatastream-parameters')/parameters/endDT" value="string('')"/>
+            <xforms:setvalue ref="xxforms:instance('purgeDatastream-parameters')/parameters/logMessage" value="string('')"/>
+            <!-- -->
+            
+            <xxforms:hide dialog="confirm-delete-datastream-dialog"/>
+        </xforms:action>
+    </xforms:trigger>
+    
+</xxforms:dialog>

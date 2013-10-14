@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+
+<xhtml:div  xmlns:xforms="http://www.w3.org/2002/xforms"
+            xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+            xmlns:xhtml="http://www.w3.org/1999/xhtml"
+            xmlns:ev="http://www.w3.org/2001/xml-events"
+            xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+            xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+            xmlns:dc="http://purl.org/dc/elements/1.1/"
+            xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+            xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+            xmlns:access="http://www.fedora.info/definitions/1/0/access/"
+            xmlns:METS="http://www.loc.gov/METS/"
+            xmlns:fedora-model="info:fedora/fedora-system:def/model#" 
+            xmlns:xi="http://www.w3.org/2001/XInclude"
+            xmlns:xxi="http://orbeon.org/oxf/xml/xinclude"
+            xmlns:fits="http://hul.harvard.edu/ois/xml/ns/fits/fits_output"
+            xmlns:management="http://www.fedora.info/definitions/1/0/management/"
+            xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <xhtml:div class="pull-left">
+        <!-- Close -->
+        <xforms:trigger xxforms:modal="true">
+            <xforms:label>Close</xforms:label>
+            <xforms:action ev:event="DOMActivate">
+                <xforms:action if="xxforms:instance('edit-members-parameters')/edit-in-line = 'true'">
+                    <xforms:dispatch name="save-in-line-edits" target="CoreModel-helper"/>
+                </xforms:action>
+                <xxforms:hide dialog="{$memberDialog}"/>
+            </xforms:action>
+        </xforms:trigger>
+    </xhtml:div>
+    
+    <!-- <xforms:group ref=".[$memberDialog = 'edit-members-dialog']"> -->
+        <xhtml:div class="pull-right">
+            <xforms:group ref=".[xxforms:instance('edit-members-parameters')/edit-in-line = 'false']">
+                <!-- Enable -->
+                <xforms:trigger>
+                    <xforms:label>
+                        <xhtml:img src="/apps/VuDL/images/inline_edit_lock.png"/>
+                    </xforms:label>
+                    <xforms:action ev:event="DOMActivate">
+                        <xforms:setvalue ref="xxforms:instance('edit-members-parameters')/edit-in-line" value="string('true')"/>
+                    </xforms:action>
+                </xforms:trigger>
+            </xforms:group>
+            
+            <xforms:group ref=".[xxforms:instance('edit-members-parameters')/edit-in-line = 'true']">
+                <!-- Save -->
+                <xforms:trigger xxforms:modal="true">
+                    <xforms:label>
+                        <xhtml:img src="/apps/VuDL/images/inline_edit_save.png"/>
+                    </xforms:label>
+                    <xforms:action ev:event="DOMActivate">
+                        <xforms:dispatch name="save-in-line-edits" target="CoreModel-helper"/>
+                    </xforms:action>
+                </xforms:trigger>
+                
+                <!-- Disable -->
+                <xforms:trigger>
+                    <xforms:label>
+                        <xhtml:img src="/apps/VuDL/images/inline_edit_unlock.png"/>
+                    </xforms:label>
+                    <xforms:action ev:event="DOMActivate">
+                        <xforms:setvalue ref="xxforms:instance('edit-members-parameters')/edit-in-line" value="string('false')"/>
+                    </xforms:action>
+                </xforms:trigger>
+                
+            </xforms:group>
+        </xhtml:div>
+        
+    <!-- </xforms:group> -->
+    
+</xhtml:div>

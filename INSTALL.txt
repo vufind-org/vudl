@@ -1,0 +1,124 @@
+--------------------
+fedora configuration
+--------------------
+use postgres
+psql -h localhost -U postgres
+
+CREATE DATABASE fedora3; (default, name it whatever)
+
+## Start catalina config ##
+## update xmx in catalina.sh (and garbage collection) (and policy cache)
+JAVA_OPTS=" -Xms4096m -Xmx4096m "
+JAVA_OPTS="$JAVA_OPTS -XX:MaxPermSize=512m"
+JAVA_OPTS="$JAVA_OPTS -XX:+UseConcMarkSweepGC"
+JAVA_OPTS="$JAVA_OPTS -XX:+CMSPermGenSweepingEnabled"
+JAVA_OPTS="$JAVA_OPTS
+            -verbose:gc
+            -XX:+PrintGCDetails
+            -XX:+PrintGCTimeStamps
+            -Xloggc:/home/dlacy/fedora_garbage/gc-`/bin/date +%F-%H-%M`.log"
+            
+## And from http://fedora.fiz-karlsruhe.de/docs/Wiki.jsp?page=Java%20Heap%20%26%20GC%20Tuning
+JAVA_OPTS="$JAVA_OPTS
+          -XX:+DisableExplicitGC 
+          -XX:SurvivorRatio=10 
+          -XX:TargetSurvivorRatio=90 
+          -XX:MaxTenuringThreshold=30"
+          
+CATALINA_OPTS="$CATALINA_OPTS -Dfedora.fesl.pep_nocache=true "
+
+## End catalina config ##
+
+## disable fesl pepfilter on /user service
+/mnt/data/digital/local/fedora/server/config/spring/web/security.xml
+
+
+ 
+	    ** BUG in the installer, you have to do this **
+            configure applicationContext.xml
+                        set hostname and port (maybe not hostname)
+
+	    fedora.fcfg
+		<param name="syncUpdates" value="true">
+
+
+
+## Add flac support
+# edit mime-to-extensions.xml
+emacs $FEDORA_HOME/server/config/mime-to-extensions.xml
+
+# Add
+<mime-mapping>
+  <mime-type>audio/x-flac</mime-type>
+  <extension>flac</extension>
+</mime-mapping>
+<mime-mapping>
+  <mime-type>audio/flac</mime-type>
+  <extension>flac</extension>
+</mime-mapping>
+<mime-mapping>
+  <mime-type>audio/ogg</mime-type>
+  <extension>ogg</extension>
+</mime-mapping>
+
+##
+## Install / Upload VuDL Now ##
+##
+
+#set $VUDL_HOME
+export VUDL_HOME="/mnt/data/digital/local/vudl"
+
+#install orbeon.war
+cp $VUDL_HOME/apps/orbeon.war $FEDORA_HOME/tomcat/webapps
+
+
+
+    Edit permit-retrieveFile-tomcat-temp
+        set location of tomcat temp directory
+    
+    # TODO: must link /var/www/FedoraContentModels to vudl/conf/contenModels
+	  # ingest models
+		$FEDORA_HOME/client/bin/fedora-batch-ingest.sh $VUDL_HOME/conf/FedoraModels/ObjectModels /home/dlacy/model-ingest-log.txt text "info:fedora/fedora-system:FOXML-1.1" localhost:8088 fedoraAdmin fedoraAdmin http fedora
+    
+    # ingest InitialObjects
+		$FEDORA_HOME/client/bin/fedora-batch-ingest.sh $VUDL_HOME/conf/FedoraModels/InitialObjects /home/dlacy/model-ingest-log.txt text "info:fedora/fedora-system:FOXML-1.1" localhost:8088 fedoraAdmin fedoraAdmin http fedora
+    
+    # ingest repo-wide FESL Policies
+    $FEDORA_HOME/client/bin/fedora-batch-ingest.sh $VUDL_HOME/conf/FedoraModels/FESLPOLICY /home/dlacy/model-ingest-log.txt text "info:fedora/fedora-system:FOXML-1.1" localhost:8088 fedoraAdmin fedoraAdmin http fedora
+
+fits.war
+            cp $VUDL_HOME/apps/fits.war $FEDORA_HOME/tomcat/webapps
+            #set $FITS_HOME env var
+            export FITS_HOME="$FEDORA_HOME/tomcat/webapps/fits"
+
+# TODO: this should be done first
+orbeon.war
+            
+            
+            Stop Tomcat
+            
+            upload VuDL_Fedora to /usr/local
+            set up VUDL_HOME
+              sudo sh -c 'echo export VUDL_HOME=\"/usr/local/vudl\" >> /etc/profile'
+              source /etc/profile
+            
+            # enable orbeon/tomcat config (allows symlinking)
+            cp $VUDL_HOME/conf/tomcat/orbeon.xml $FEDORA_HOME/tomcat/conf/Catalina/localhost
+            
+            create symbolic link to xforms app
+            ln -s $VUDL_HOME/VuDL/ $FEDORA_HOME/tomcat/webapps/orbeon/WEB-INF/resources/apps/VuDL
+            
+            xforms app:
+            configure conf.xml
+            
+            # orbeon.war:
+            Download: https://s3.amazonaws.com/orbeon-downloads/orbeon-3.9.0.201105152046-CE.zip
+            cp orbeon.war into $FEDORA_HOME/tomcat/webapps
+            
+            cp $FEDORA_HOME/tomcat/webapps/orbeon/WEB-INF/resources/config/properties-local.xml.template $FEDORA_HOME/tomcat/webapps/orbeon/WEB-INF/resources/config/properties-local.xml
+            
+            # edit properties-local.xml and add:
+            emacs $FEDORA_HOME/tomcat/webapps/orbeon/WEB-INF/resources/config/properties-local.xml
+            # add
+                        <property as="xs:integer" processor-name="oxf:request"   name="max-upload-size"          value="200000000"/>
+                        <property as="xs:integer" name="oxf.xforms.submission-poll-delay" value="1000"/>

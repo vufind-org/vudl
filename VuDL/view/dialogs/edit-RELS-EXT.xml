@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xxforms:dialog id="edit-RELS-EXT-dialog"
+                appearance="full"
+                xmlns:xforms="http://www.w3.org/2002/xforms"
+                xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+                xmlns:xhtml="http://www.w3.org/1999/xhtml"
+                xmlns:ev="http://www.w3.org/2001/xml-events"
+                xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+                xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+                xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+                xmlns:dc="http://purl.org/dc/elements/1.1/"
+                xmlns:access="http://www.fedora.info/definitions/1/0/access/"
+                xmlns:METS="http://www.loc.gov/METS/"
+                xmlns:management="http://www.fedora.info/definitions/1/0/management/"
+                xmlns:fedora-model="info:fedora/fedora-system:def/model#"
+                xmlns:sparql="http://www.w3.org/2001/sw/DataAccess/rf1/result"
+                >
+    <xforms:label>
+        <xforms:output value="concat('Edit RELS-EXT: ', xxforms:instance('edit-RELS-EXT-parameters')/PID)"/>
+    </xforms:label>
+    
+    <xforms:action ev:event="xxforms-dialog-open">
+        
+        <xforms:setfocus control="cancel-edit-RELS-EXT"/>
+        
+        <!-- -->
+        <xforms:setvalue ref="xxforms:instance('edit-RELS-EXT-parameters')/ModelType" value="string('')"/>
+        
+        <!-- Get RELS-EXT -->
+        <!-- ~~~~~~~~~~~~~~~~ -->
+        <!-- RELS-EXT: getDatastream -->
+        <!-- xxforms:instance('RELS-EXT-dialog-datastream-instance') -->
+        <xforms:dispatch name="performAPIRequest" 
+                         target="FedoraAPI-helper"
+                         xxforms:show-progress="true">
+            <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('edit-RELS-EXT-parameters')/PID, '/datastreams/', string('RELS-EXT'), '?format=', string('xml'), '&amp;asOfDateTime=', now(),'&amp;validateChecksum=', string('false'))"/>
+            <xxforms:context name="dsID" value="string('RELS-EXT')"/>
+            <xxforms:context name="apiMethod" value="string('getDatastream')"/>
+            <xxforms:context name="httpMethod" value="string('get')"/>
+            <xxforms:context name="mode" value="string('synchronous')"/>
+            <xxforms:context name="destination-instance" value="string('RELS-EXT-dialog-datastream-instance')"/>
+            <xxforms:context name="clear-destination-instance" value="string('true')"/>
+        </xforms:dispatch>
+        <!-- RELS-EXT: getDatastreamDissemination -->
+        <!-- xxforms:instance('RELS-EXT-dialog-instance') -->
+        <xforms:dispatch name="performAPIRequest" 
+                         target="FedoraAPI-helper"
+                         xxforms:show-progress="true">
+            <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('edit-RELS-EXT-parameters')/PID, '/datastreams/', string('RELS-EXT'), '/content?format=', string('xml'), '&amp;asOfDateTime=', now(),'&amp;validateChecksum=', string('false'))"/>
+            <xxforms:context name="dsID" value="string('RELS-EXT')"/>
+            <xxforms:context name="apiMethod" value="string('getDatastreamDissemination')"/>
+            <xxforms:context name="httpMethod" value="string('get')"/>
+            <xxforms:context name="mode" value="string('synchronous')"/>
+            <xxforms:context name="destination-instance" value="string('RELS-EXT-dialog-instance')"/>
+            <xxforms:context name="clear-destination-instance" value="string('true')"/>
+        </xforms:dispatch>
+        
+        <!-- use RELS-EXT-dialog-temp-instance to compare changes -->
+        <xforms:delete nodeset="xxforms:instance('RELS-EXT-dialog-temp-instance')/root()/instance/*"/>
+        <xforms:insert context="xxforms:instance('RELS-EXT-dialog-temp-instance')/root()/instance"
+                       origin="xxforms:instance('RELS-EXT-dialog-instance')/root()/instance/*"
+                       />
+
+        <!-- get metadata for each isMemberOf in RELS-EXT -->
+        <xforms:action xxforms:iterate="xxforms:instance('RELS-EXT-dialog-instance')//rel:isMemberOf">
+            <xxforms:variable name="relsPID" value="substring-after(./@rdf:resource, 'info:fedora/')"/>
+            <xforms:dispatch name="refresh-PIDmetadata"
+                             target="CoreModel-helper"
+                             >
+                <xxforms:context name="PID" select="$relsPID"/>
+                <xxforms:context name="mode" select="string('asynchronous')"/>
+                <xxforms:context name="stats" select="string('true')"/>
+            </xforms:dispatch>
+        </xforms:action>
+        
+        <!-- get PARENT-LIST-RAW metadata for each isMemberOf in RELS-EXT -->
+        <xforms:dispatch name="get-RELS-EXT-PARENT-LIST-RAW" 
+                         target="CoreModel-helper"
+                         xxforms:show-progress="true"
+                         xxforms:progress-message="Getting RELS-EXT PARENT-LIST-RAW..."
+                         >
+            <xxforms:context name="source-instance" value="string('RELS-EXT-dialog-instance')"/>
+            <xxforms:context name="destination-name" value="string('RELS-EXT-dialog-PARENT-LIST-RAW-instance')"/>
+        </xforms:dispatch>
+        
+    </xforms:action>
+    
+    <!-- -->
+    <fr:accordion id="edit-RELS-EXT-accordion"
+                  class="fr-accordion-lnf" 
+                  open-closes-others="true">
+    
+        <fr:case selected="true">
+            <fr:label>Hierarchy Location(s)</fr:label>
+
+            <!-- MemberOf -->
+            <xhtml:table border="1" cellspacing="0" cellpadding="5" width="100%">
+                <xhtml:tr>
+                    <xhtml:td>
+                        <!-- add isMemberOf -->
+                        <xforms:trigger appearance="minimal">
+                            <xforms:label><xhtml:img src="/apps/VuDL/images/add.gif"/></xforms:label>
+                            <xforms:action ev:event="DOMActivate">
+                                <xforms:dispatch name="launch-add-isMemberOf" target="CoreModel-helper"/>
+                            </xforms:action>
+                        </xforms:trigger>
+                    </xhtml:td>
+                    <xhtml:td colspan="3">
+                        <xhtml:span>Link to another Collection</xhtml:span>
+                    </xhtml:td>
+                    
+                </xhtml:tr>
+                
+                <xforms:repeat nodeset="xxforms:instance('RELS-EXT-dialog-instance')//rel:isMemberOf">
+                    <xxforms:variable name="memberPID" select="substring-after(./@rdf:resource, 'info:fedora/')"/>
+                    <xxforms:variable name="memberName" value="xxforms:instance('PIDmetadata')/object[@pid = $memberPID]/oai_dc:dc/dc:title[1]"/>
+                    <xhtml:tr>
+                    
+                        <xhtml:td>
+                            <xforms:group ref=".[count(xxforms:instance('RELS-EXT-dialog-instance')//rel:isMemberOf) gt 1]">
+                                <xforms:trigger appearance="minimal">
+                                    <xforms:label>
+                                        <xhtml:img src="/apps/VuDL/images/remove.gif"/>
+                                    </xforms:label>
+                                    <xforms:action ev:event="DOMActivate">
+                                        <xxforms:variable name="removePID" select="substring-after(./@rdf:resource, 'info:fedora/')"/>
+                                        <!-- delete the relationship from RELS-EXT -->
+                                        <xforms:delete nodeset="."/>
+                                    </xforms:action>
+                                </xforms:trigger>
+                            </xforms:group>
+                        </xhtml:td>
+                        
+                        <xhtml:td>
+                            <xforms:output value="$memberName"/>
+                        </xhtml:td>
+                        
+                        <xhtml:td>
+                            <xforms:output value="$memberPID"/>
+                        </xhtml:td>
+        
+                        <xhtml:td>
+                            <xforms:repeat nodeset="xxforms:instance('RELS-EXT-dialog-PARENT-LIST-RAW-instance')/sparql:parents[@pid = $memberPID]//sparql:parent">
+                                <xforms:output value="concat(./@name, ' -> ')"/>
+                                <xhtml:br/>
+                            </xforms:repeat>
+                        </xhtml:td>
+                        
+                        <xhtml:td>
+                            <xforms:group ref=".[xxforms:instance('PIDmetadata')/object[@pid = $memberPID]/access:objectDatastreams/access:datastream[@dsid = 'STRUCTMAP']]">
+                                <xforms:select1 ref="xxforms:instance('edit-RELS-EXT-item-position')//PID[.=$memberPID]/parent::*/position" appearance="full">
+                                    <xforms:label>Position</xforms:label>
+                                    <xforms:itemset ref="xxforms:instance('object-ingest-position-options')//item">
+                                        <xforms:label ref="@label"/>
+                                        <xforms:value ref="@value"/>
+                                    </xforms:itemset>
+                                </xforms:select1>
+                                <xforms:group ref=".[xxforms:instance('edit-RELS-EXT-item-position')//PID[.=$memberPID]/parent::*/position = 'at']">
+                                    <xforms:input ref="xxforms:instance('edit-RELS-EXT-item-position')//PID[.=$memberPID]/parent::*/at">
+                                        <xforms:label>Position</xforms:label>
+                                    </xforms:input>
+                                </xforms:group>
+                            </xforms:group>
+                        </xhtml:td>
+                        
+                    </xhtml:tr>
+                </xforms:repeat>
+            </xhtml:table>
+        </fr:case>
+
+        <fr:case>
+            <fr:label>Model Type (optional)</fr:label>
+            <!-- hasModel -->
+            <xforms:select1 ref="xxforms:instance('edit-RELS-EXT-parameters')/ModelType" appearance="xxforms:tree">
+                <xforms:label>Model Type</xforms:label>
+
+                <xforms:itemset ref="xxforms:instance('ModelTypes')//ModelType" xxforms:open="true">
+                    <xforms:label ref="@name"/>
+                    <xforms:value ref="@fullname"/>
+                </xforms:itemset>
+                
+            </xforms:select1>
+    
+        </fr:case>
+    </fr:accordion>
+    <xhtml:br/>
+    <xhtml:p>
+    <xforms:trigger xxforms:modal="true">
+        <xforms:label>
+            <xhtml:img src="/apps/VuDL/images/trigger_save.png"/>
+            Save
+        </xforms:label>
+        <xforms:action ev:event="DOMActivate">
+
+            <xforms:dispatch name="do-edit-RELS-EXT" 
+                             target="CoreModel-helper"
+                             xxforms:show-progress="true"
+                             xxforms:progress-message="Saving Membership Info..."
+                             />
+            
+            <xxforms:hide dialog="edit-RELS-EXT-dialog"/>
+            <!-- <xforms:load resource="/VuDL/object/{xxforms:instance('currentPID')}"/> -->
+            
+        </xforms:action>
+    </xforms:trigger>
+    
+    <xforms:trigger id="cancel-edit-RELS-EXT">
+        <xforms:label>
+            <xhtml:img src="/apps/VuDL/images/trigger_cancel.png"/>
+            Cancel
+        </xforms:label>
+        <xforms:action ev:event="DOMActivate">
+            <xxforms:hide dialog="edit-RELS-EXT-dialog"/>
+        </xforms:action>
+    </xforms:trigger>
+    </xhtml:p>
+    
+</xxforms:dialog>

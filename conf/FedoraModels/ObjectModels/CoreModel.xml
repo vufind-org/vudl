@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<foxml:digitalObject VERSION="1.1" PID="vudl-system:CoreModel"
+xmlns:foxml="info:fedora/fedora-system:def/foxml#"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd">
+  <foxml:objectProperties>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Content Model Object (Core) for VuDL"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="fedoraAdmin"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#createdDate" VALUE="2012-01-06T13:32:30.811Z"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/view#lastModifiedDate" VALUE="2012-01-10T14:27:10.262Z"/>
+  </foxml:objectProperties>
+  
+  <foxml:datastream ID="DC" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+    <foxml:datastreamVersion ID="DC.1" LABEL="Dublin Core Record for this object" CREATED="2012-01-06T18:09:29.007Z" MIMETYPE="text/xml" FORMAT_URI="http://www.openarchives.org/OAI/2.0/oai_dc/" SIZE="0">
+      <foxml:xmlContent>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Content Model Object (Core) for VuDL</dc:title>
+          <dc:identifier>vudl-system:CoreModel</dc:identifier>
+        </oai_dc:dc>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+  
+  <foxml:datastream ID="RELS-EXT" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+    <foxml:datastreamVersion ID="RELS-EXT.0" LABEL="RDF Statements about this object" CREATED="2012-01-06T18:16:54.216Z" MIMETYPE="application/rdf+xml" FORMAT_URI="info:fedora/fedora-system:FedoraRELSExt-1.0" SIZE="0">
+      <foxml:xmlContent>
+        <rdf:RDF xmlns:fedora-model="info:fedora/fedora-system:def/model#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+          <rdf:Description xmlns:rel="info:fedora/fedora-system:def/relations-external#"  rdf:about="info:fedora/vudl-system:CoreModel">
+            <fedora-model:hasModel rdf:resource="info:fedora/fedora-system:ContentModel-3.0"></fedora-model:hasModel>
+            <fedora-model:hasService rdf:resource="info:fedora/vudl-system:CoreModelService"></fedora-model:hasService>
+            <fedora-model:hasModel rdf:resource="info:fedora/vudl-system:Model"></fedora-model:hasModel>
+            <rel:isDependentOf rdf:resource="info:fedora/vudl-system:Model"></rel:isDependentOf>
+          </rdf:Description>
+        </rdf:RDF>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+  
+  <!-- MODEL-HIERARCHY-RAW -->
+  <foxml:datastream ID="MODEL-HIERARCHY-RAW" STATE="A" CONTROL_GROUP="E" VERSIONABLE="false">
+    <foxml:datastreamVersion ID="MODEL-HIERARCHY-RAW.0" LABEL="Unformatted Model Hierarchy" MIMETYPE="text/xml">
+      <foxml:contentLocation TYPE="URL" REF="http://local.fedora.server/fedora/objects/vudl-system:CoreModel/methods/vudl-system:ModelService/executeModelHierarchyQuery"/>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+  
+  <!-- MODEL-HIERARCHY-RAW (formatted) -->
+  <foxml:datastream ID="MODEL-HIERARCHY" STATE="A" CONTROL_GROUP="E" VERSIONABLE="false">
+    <foxml:datastreamVersion ID="MODEL-HIERARCHY.0" LABEL="Formatted Model Hierarchy" MIMETYPE="text/xml">
+      <foxml:contentLocation TYPE="URL" REF="http://local.fedora.server/fedora/objects/vudl-system:CoreModel/methods/vudl-system:ModelService/formatModelHierarchyQueryResult"/>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+
+  <!-- PARENT-QUERY-BASE -->
+  <foxml:datastream ID="PARENT-QUERY-BASE" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+    <foxml:datastreamVersion ID="PARENT-QUERY-BASE.0" LABEL="Query to List Parent(s) of the Object (without PID)" CREATED="2012-02-01T15:42:32.167Z" MIMETYPE="text/xml" SIZE="0">
+      <foxml:xmlContent>
+        <member-query>
+
+                  select $child $parent $parentTitle from &lt;#ri&gt;
+                  where 
+
+                    walk (
+  
+                        &lt;info:fedora/MyPID:XXX&gt;
+                        &lt;fedora-rels-ext:isMemberOf&gt;
+                        $parent
+  
+                      and
+                        $child
+                        &lt;fedora-rels-ext:isMemberOf&gt;
+                        $parent
+                    )
+
+                  
+                  
+                  and 
+                    $parent 
+                    &lt;fedora-model:label&gt;
+                    $parentTitle
+                    
+        </member-query>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+  <!--
+                  select $child $parent $parentTitle from &lt;#ri&gt;
+                  where 
+                  (
+                    walk (
+  
+                        &lt;info:fedora/MyPID:XXX&gt;
+                        &lt;fedora-rels-ext:isPartOf&gt;
+                        $parent
+  
+                      and
+                        $child
+                        &lt;fedora-rels-ext:isPartOf&gt;
+                        $parent
+                    )
+                    
+                    or
+                    
+                    walk (
+  
+                        &lt;info:fedora/MyPID:XXX&gt;
+                        &lt;fedora-rels-ext:isMemberOf&gt;
+                        $parent
+  
+                      and
+                        $child
+                        &lt;fedora-rels-ext:isMemberOf&gt;
+                        $parent
+                    )
+                  )
+                  
+                  
+                  and 
+                    $parent 
+                    &lt;fedora-model:label&gt;
+                    $parentTitle
+  -->
+  <!-- QUERY-XSLT Datastream -->
+  <foxml:datastream ID="QUERY-XSLT" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+    <foxml:datastreamVersion ID="QUERY-XSLT.0" LABEL="Transformation to insert the Objects PID into the XXX-QUERY-BASE" CREATED="2012-02-01T15:45:00.653Z" MIMETYPE="text/xml" SIZE="0">
+      <foxml:xmlContent>
+        <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+          <xsl:output method="text"/>
+          <xsl:param name="PID"></xsl:param>
+          <xsl:template match="/">
+            <xsl:variable name="query" select="."></xsl:variable>
+            <xsl:value-of select="replace($query, &apos;MyPID:XXX&apos;, $PID)"></xsl:value-of>
+          </xsl:template>
+        </xsl:stylesheet>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+  
+  <!-- PARENT-LIST-XSLT Datastream -->
+  <foxml:datastream ID="PARENT-LIST-XSLT" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+    <foxml:datastreamVersion ID="PARENT-LIST-XSLT.0" LABEL="Tranform ITQLs walk function into mutiple groups based on multiple parents" CREATED="2012-02-02T16:04:04.683Z" MIMETYPE="text/xml" SIZE="0">
+      <foxml:xmlContent>
+          <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:sparql="http://www.w3.org/2001/sw/DataAccess/rf1/result" xmlns:rel="info:fedora/fedora-system:def/relations-external#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+              <xsl:param name="PID"/>
+              <xsl:output method="xml" indent="yes" media-type="text/xml"/>
+              <xsl:template match="/*">
+                  <parents pid="{$PID}">
+                      <xsl:for-each select="//sparql:child[@uri=concat('info:fedora/', $PID)]">
+                          <xsl:variable name="parentURI" select="../sparql:parent/@uri"/>
+                          <xsl:variable name="parentName" select="../sparql:parentTitle"/>
+                          <xsl:call-template name="parent">
+                              <xsl:with-param name="parentURI" select="$parentURI"/>
+                              <xsl:with-param name="parentName" select="$parentName"/>
+                          </xsl:call-template>
+                      </xsl:for-each>
+                  </parents>
+              </xsl:template>
+              <xsl:template name="parent">
+                  <xsl:param name="parentURI"/>
+                  <xsl:param name="parentName"/>
+                  <parent uri="{$parentURI}" PID="{substring-after($parentURI,'/')}" name="{$parentName}">
+                      <xsl:for-each select="//sparql:child[@uri=$parentURI]">
+                          <xsl:variable name="new_parentURI" select="../sparql:parent/@uri"/>
+                          <xsl:variable name="new_parentName" select="../sparql:parentTitle"/>
+                          <xsl:call-template name="parent">
+                              <xsl:with-param name="parentURI" select="$new_parentURI"/>
+                              <xsl:with-param name="parentName" select="$new_parentName"/>
+                          </xsl:call-template>
+                      </xsl:for-each>
+                  </parent>
+              </xsl:template>
+          </xsl:stylesheet>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+  
+  <foxml:datastream ID="DS-COMPOSITE-MODEL" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+    <foxml:datastreamVersion ID="DS-COMPOSITE-MODEL.0" LABEL="Datastream Composite Model" CREATED="2012-01-06T18:21:35.580Z" MIMETYPE="text/xml" FORMAT_URI="info:fedora/fedora-system:FedoraDSCompositeModel-1.0" SIZE="0">
+      <foxml:xmlContent>
+        <dsCompositeModel xmlns="info:fedora/fedora-system:def/dsCompositeModel#">
+          <dsTypeModel ID="THUMBNAIL" optional="true">
+            <form MIME="image/jpeg"></form>
+            <form MIME="image/gif"></form>
+            <form MIME="image/png"></form>
+          </dsTypeModel>
+          <dsTypeModel ID="PARENT-QUERY">
+            <form MIME="text/plain"></form>
+          </dsTypeModel>
+          <dsTypeModel ID="PARENT-LIST-RAW">
+            <form MIME="text/xml"></form>
+          </dsTypeModel>
+          <dsTypeModel ID="PARENT-LIST">
+            <form MIME="text/xml"></form>
+          </dsTypeModel>
+          <dsTypeModel ID="FESLPOLICY">
+            <form MIME="text/xml"></form>
+          </dsTypeModel>
+          <dsTypeModel ID="LICENSE" optional="true">
+            <form MIME="text/xml"></form>
+          </dsTypeModel>
+        </dsCompositeModel>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+</foxml:digitalObject>

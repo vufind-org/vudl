@@ -1,0 +1,117 @@
+<!--
+Copyright (C) Villanova University 2011.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xhtml:html xmlns:ev="http://www.w3.org/2001/xml-events" 
+        xmlns:xhtml="http://www.w3.org/1999/xhtml" 
+        xmlns:xforms="http://www.w3.org/2002/xforms" 
+        xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+        xmlns:xi="http://www.w3.org/2001/XInclude">
+
+    <xhtml:head>
+        <xhtml:title>Admin :: Login</xhtml:title>
+        
+        <!-- -->
+        <xhtml:link href="/apps/VuDL/css/orbeon_overrides.css"   rel="stylesheet" type="text/css" media="screen" />
+        <xhtml:link href="/apps/VuDL/css/bootstrap_overrides.css"   rel="stylesheet" type="text/css" media="screen" />
+        
+        <!-- load and declare config-instance -->
+        <xi:include href="oxf:/apps/VuDL/conf/config.xml"/>
+        
+        <!-- Move this to an external Model -->
+        <xforms:model  id="Main-model"> 
+
+            <xforms:instance id="credentials">
+                <login xmlns="">
+                    <username/>
+                    <password/>
+                    <base64-encoded/>
+                </login>
+            </xforms:instance>
+            
+            <xforms:instance id="basic-auth">
+                <instance xmlns=""/>
+            </xforms:instance>
+
+            <xforms:submission id="process-login" 
+                               ref="xxforms:instance('credentials')"
+                               method="post" 
+                               resource="process-login" 
+                               replace="all"
+                               />
+
+        </xforms:model>
+    </xhtml:head>
+    <xhtml:body>
+        
+        <xhtml:div class="navbar navbar-inverse navbar-fixed-top">
+          <xhtml:div class="navbar-inner">
+            <xhtml:div class="container-fluid">
+                <xhtml:a class="brand" href="#">
+                    <xhtml:img src="/apps/VuDL/images/vudl-logo.png" alt=""/>
+                </xhtml:a>
+            </xhtml:div>
+          </xhtml:div>
+        </xhtml:div>
+
+    <xhtml:div class="container-fluid">
+        <xhtml:p>
+            <xforms:group id="login-group">
+
+                <xhtml:table border="0" cellpadding="4">
+                  <xhtml:tr>
+                    <xhtml:td>Username:</xhtml:td>
+                    <xhtml:td>
+                        <xforms:input ref="xxforms:instance('credentials')/username" id="username-control"/>
+                    </xhtml:td>
+                  </xhtml:tr>
+                  <xhtml:tr>
+                    <xhtml:td>Password:</xhtml:td>
+                    <xhtml:td>
+                    <xforms:secret ref="xxforms:instance('credentials')/password">
+                        <xforms:action ev:event="DOMActivate" if="normalize-space(xxforms:instance('credentials')/password) != ''">
+                            <xforms:setvalue ref="xxforms:instance('credentials')/base64-encoded" 
+                                             value="concat('Basic ', saxon:string-to-base64Binary(concat(normalize-space(xxforms:instance('credentials')/username), ':', normalize-space(xxforms:instance('credentials')/password)), 'UTF8'))"
+                            />
+                            <xforms:send ev:event="DOMActivate" submission="process-login"/>
+                        </xforms:action>
+                    </xforms:secret>
+                    </xhtml:td>
+                  </xhtml:tr>
+                  <xhtml:tr>
+                    <xhtml:td colspan="2" align="right">
+                      <xforms:trigger>
+                          <xforms:label>Login</xforms:label>
+                          <xforms:action ev:event="DOMActivate" if="normalize-space(xxforms:instance('credentials')/password) != ''">
+                              <xforms:setvalue ref="xxforms:instance('credentials')/base64-encoded" 
+                                               value="concat('Basic ', saxon:string-to-base64Binary(concat(normalize-space(xxforms:instance('credentials')/username), ':', normalize-space(xxforms:instance('credentials')/password)), 'UTF8'))"
+                              />
+                              <xforms:send submission="process-login"/>
+                          </xforms:action>
+                      </xforms:trigger>
+                    </xhtml:td>
+                  </xhtml:tr>
+                </xhtml:table>
+            </xforms:group>
+
+        </xhtml:p>
+    </xhtml:div>
+    
+        <xforms:group model="config-model" ref=".[xxforms:instance('config-instance')//debug-level = '1']">
+            <fr:xforms-inspector xmlns:fr="http://orbeon.org/oxf/xml/form-runner"/>
+        </xforms:group>
+
+    </xhtml:body>
+</xhtml:html>

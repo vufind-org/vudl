@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xxforms:dialog id="add-object-dialog"
+                xmlns:xforms="http://www.w3.org/2002/xforms"
+                xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+                xmlns:xhtml="http://www.w3.org/1999/xhtml"
+                xmlns:ev="http://www.w3.org/2001/xml-events"
+                xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+                xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xmlns:sparql="http://www.w3.org/2001/sw/DataAccess/rf1/result"
+                xmlns:access="http://www.fedora.info/definitions/1/0/access/"
+                xmlns:vudl="http://vudl.org"
+                >
+    <xforms:action ev:event="xxforms-dialog-open">
+        <!--
+        <xforms:setvalue ref="xxforms:instance('object-ingest-parameters')/objectType" value="string('')"/>
+        
+        <xforms:setvalue ref="xxforms:instance('object-ingest-parameters')/state" value="string('')"/>
+        <xforms:setvalue ref="xxforms:instance('object-ingest-parameters')/owner" value="string('')"/>
+        <xforms:setvalue ref="xxforms:instance('object-ingest-parameters')/parentPID" value="xxforms:instance('object-ingest-parameters')/PID"/>
+        -->
+        <xforms:setvalue ref="xxforms:instance('object-ingest-parameters')/title" value="string('')"/>
+        
+        <!-- -->
+        <xforms:delete nodeset="xxforms:instance('object-ingest-parameters')/objectTypes/*"/>
+        <xforms:action xxforms:iterate="xxforms:instance('ModelTypes')//ModelType[@fullname=xxforms:instance('object-ingest-parameters')/objectType]/ancestor-or-self::*">
+            <xforms:insert context="xxforms:instance('object-ingest-parameters')/objectTypes"
+                           nodeset="ModelType"
+                           origin="xxforms:instance('ModelType-template')"
+                           at="last()"
+                           position="after" 
+                           />
+            <xforms:setvalue ref="xxforms:instance('object-ingest-parameters')/objectTypes/ModelType[@fullname='']/@uri" value="context()/@uri"/>
+            <xforms:setvalue ref="xxforms:instance('object-ingest-parameters')/objectTypes/ModelType[@fullname='']/@name" value="context()/@name"/>
+            <xforms:setvalue ref="xxforms:instance('object-ingest-parameters')/objectTypes/ModelType[@fullname='']/@fullname" value="context()/@fullname"/>
+        </xforms:action>
+            
+        <xxforms:variable name="parentSTRUCTMAPexists" value="xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('object-ingest-parameters')/parentPID]/access:objectDatastreams/access:datastream[@dsid = 'STRUCTMAP']"/>
+        
+        <!-- Get parentPID's STRUCTMAP if necessary -->
+        <xforms:action if="xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('object-ingest-parameters')/parentPID]/access:objectDatastreams/access:datastream[@dsid = 'STRUCTMAP']">
+
+            <!-- ~~~~~~~~~~~~~~~~ -->
+            <!-- STRUCTMAP: getDatastream -->
+            <!-- xxforms:instance('STRUCTMAP-ingest-datastream-instance') -->
+            <xforms:dispatch name="performAPIRequest" 
+                             target="FedoraAPI-helper"
+                             xxforms:show-progress="true">
+                <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('object-ingest-parameters')/parentPID, '/datastreams/', string('STRUCTMAP'), '?format=', string('xml'), '&amp;asOfDateTime=', now(),'&amp;validateChecksum=', string('false'))"/>
+                <xxforms:context name="dsID" value="string('STRUCTMAP')"/>
+                <xxforms:context name="apiMethod" value="string('getDatastream')"/>
+                <xxforms:context name="httpMethod" value="string('get')"/>
+                <xxforms:context name="mode" value="string('synchronous')"/>
+                <xxforms:context name="destination-instance" value="string('STRUCTMAP-ingest-datastream-instance')"/>
+                <xxforms:context name="clear-destination-instance" value="string('true')"/>
+            </xforms:dispatch>
+            
+            <!-- STRUCTMAP: getDatastreamDissemination -->
+            <!-- xxforms:instance('STRUCTMAP-ingest-instance') -->
+            <xforms:dispatch name="performAPIRequest" 
+                             target="FedoraAPI-helper"
+                             xxforms:show-progress="true">
+                <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('object-ingest-parameters')/parentPID, '/datastreams/', string('STRUCTMAP'), '/content?format=', string('xml'), '&amp;asOfDateTime=', now(),'&amp;validateChecksum=', string('false'))"/>
+                <xxforms:context name="dsID" value="string('STRUCTMAP')"/>
+                <xxforms:context name="apiMethod" value="string('getDatastreamDissemination')"/>
+                <xxforms:context name="httpMethod" value="string('get')"/>
+                <xxforms:context name="mode" value="string('synchronous')"/>
+                <xxforms:context name="destination-instance" value="string('STRUCTMAP-ingest-instance')"/>
+                <xxforms:context name="clear-destination-instance" value="string('true')"/>
+            </xforms:dispatch>
+            <!-- ~~~~~~~~~~~~~~~~ -->
+            
+            
+                
+        </xforms:action>
+        
+    </xforms:action>
+    
+    <xforms:label>
+        <xforms:output value="concat('Add Object: ', xxforms:instance('object-ingest-parameters')/PID)"/>
+    </xforms:label>
+    
+    <fr:accordion id="add-object-accordion"
+                  class="fr-accordion-lnf" 
+                  open-closes-others="true">
+                  
+        <fr:case selected="true">
+            <fr:label>Title<xhtml:span style="color:#FF0000;">*</xhtml:span></fr:label>
+            <xforms:input ref="xxforms:instance('object-ingest-parameters')/title">
+                <xforms:label>Title</xforms:label>
+            </xforms:input>
+        </fr:case>
+        
+        <xforms:group ref=".[xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('object-ingest-parameters')/parentPID]/access:objectDatastreams/access:datastream[@dsid = 'STRUCTMAP']]">
+            <fr:case>
+                <fr:label>Position<xhtml:span style="color:#FF0000;">*</xhtml:span></fr:label>
+                <xforms:select1 ref="xxforms:instance('object-ingest-parameters')/position" appearance="full">
+                    <xforms:label>Position</xforms:label>
+                    <xforms:itemset ref="xxforms:instance('object-ingest-position-options')//item">
+                        <xforms:label ref="@label"/>
+                        <xforms:value ref="@value"/>
+                    </xforms:itemset>
+                </xforms:select1>
+                <xforms:group ref=".[xxforms:instance('object-ingest-parameters')/position = 'at']">
+                    <xforms:input ref="xxforms:instance('object-ingest-parameters')/at">
+                        <xforms:label>Position</xforms:label>
+                    </xforms:input>
+                </xforms:group>
+            </fr:case>
+        </xforms:group>
+        
+        <fr:case>
+            <fr:label>State<xhtml:span style="color:#FF0000;">*</xhtml:span></fr:label>
+            <xforms:select1 ref="xxforms:instance('object-ingest-parameters')/state" appearance="full">
+                <xforms:label>State</xforms:label>
+                <xforms:itemset ref="xxforms:instance('object-states')//state">
+                    <xforms:label ref="@label"/>
+                    <xforms:value ref="@value"/>
+                </xforms:itemset>
+            </xforms:select1>
+        </fr:case>
+        
+        <fr:case>
+            <fr:label>Owner<xhtml:span style="color:#FF0000;">*</xhtml:span></fr:label>
+            <xforms:select1 ref="xxforms:instance('object-ingest-parameters')/owner" appearance="full">
+                <xforms:label>Owner</xforms:label>
+                <xforms:itemset ref="xxforms:instance('group-access')//group">
+                    <xforms:label ref="./@id"/>
+                    <xforms:value ref="./@id"/>
+                </xforms:itemset>
+            </xforms:select1>
+        </fr:case>
+        
+        <fr:case>
+            <fr:label>Model Type<xhtml:span style="color:#FF0000;">*</xhtml:span></fr:label>
+            <xforms:select1 ref="xxforms:instance('object-ingest-parameters')/objectType" appearance="xxforms:tree">
+                <xforms:label>Model Type</xforms:label>
+                
+                <xforms:action ev:event="xforms-value-changed">
+                    <xforms:delete nodeset="xxforms:instance('object-ingest-parameters')/objectTypes/*"/>
+                    <xforms:action xxforms:iterate="xxforms:instance('ModelTypes')//ModelType[@fullname=xxforms:instance('object-ingest-parameters')/objectType]/ancestor-or-self::*">
+                    
+                        <xforms:insert context="xxforms:instance('object-ingest-parameters')/objectTypes"
+                                       nodeset="ModelType"
+                                       origin="xxforms:instance('ModelType-template')"
+                                       at="last()"
+                                       position="after" 
+                                       />
+                        <xforms:setvalue ref="xxforms:instance('object-ingest-parameters')/objectTypes/ModelType[@fullname='']/@uri" value="context()/@uri"/>
+                        <xforms:setvalue ref="xxforms:instance('object-ingest-parameters')/objectTypes/ModelType[@fullname='']/@name" value="context()/@name"/>
+                        <xforms:setvalue ref="xxforms:instance('object-ingest-parameters')/objectTypes/ModelType[@fullname='']/@fullname" value="context()/@fullname"/>
+                    </xforms:action>
+        
+                </xforms:action>
+                
+                <xforms:itemset ref="xxforms:instance('ModelTypes')//ModelType" xxforms:open="true">
+                    <xforms:label ref="@name"/>
+                    <xforms:value ref="@fullname"/>
+                </xforms:itemset>
+            </xforms:select1>
+        </fr:case>
+        
+    </fr:accordion>
+    
+    <xforms:trigger xxforms:modal="true">
+        <xforms:label>
+            <xhtml:img src="/apps/VuDL/images/trigger_add.png"/>
+            Add
+        </xforms:label>
+        <xforms:action ev:event="DOMActivate">
+            <xforms:action if=".[not(string-length(xxforms:instance('object-ingest-parameters')/title))]">
+                <xforms:message>A Title is Required</xforms:message>
+            </xforms:action>
+            <xforms:action if=".[not(string-length(xxforms:instance('object-ingest-parameters')/owner))]">
+                <xforms:message>An Owner is Required</xforms:message>
+            </xforms:action>
+            <xforms:action if=".[not(string-length(xxforms:instance('object-ingest-parameters')/state)) and xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('object-ingest-parameters')/parentPID]/access:objectDatastreams/access:datastream[@dsid = 'STRUCTMAP']]">
+                <xforms:message>An State is Required</xforms:message>
+            </xforms:action>
+            <xforms:action if=".[not(string-length(xxforms:instance('object-ingest-parameters')/objectType))]">
+                <xforms:message>A Type is Required</xforms:message>
+            </xforms:action>
+            
+            <xforms:action if=".[string-length(xxforms:instance('object-ingest-parameters')/title) and string-length(xxforms:instance('object-ingest-parameters')/owner) and string-length(xxforms:instance('object-ingest-parameters')/state) and string-length(xxforms:instance('object-ingest-parameters')/objectType)]">
+                <!-- if the parent isn't expanded, load it's members first -->
+                <xforms:action if="not(xxforms:instance('browse-members-instance')//sparql:sparql[@PID = xxforms:instance('object-ingest-parameters')/parentPID])">
+                    
+                    <xforms:setvalue ref="xxforms:instance('browse-members-parameters')/vudl:PID" value="xxforms:instance('object-ingest-parameters')/parentPID"/>
+                    <xforms:setvalue ref="xxforms:instance('browse-members-parameters')/vudl:relationship" value="string('isMemberOf')"/>
+                    <xforms:dispatch name="browse-members" target="CoreModel-helper">
+                        <xxforms:context name="browse-members-target" select="string('browse-members')"/>
+                    </xforms:dispatch>
+                    
+                </xforms:action>
+                
+                <!-- main ingest dispatch -->
+                <xforms:dispatch name="object-ingest" target="CoreModel-helper"/>
+
+                <!--  Add new object to member list, then grab metadata -->
+                <xforms:setvalue ref="xxforms:instance('add-browse-member-template')/sparql:memberPID" value="xxforms:instance('newPID')"/>
+                <xforms:setvalue ref="xxforms:instance('add-browse-member-template')/sparql:memberTitle" value="xxforms:instance('object-ingest-parameters')/title"/>
+                <xforms:insert context="xxforms:instance('browse-members-instance')//sparql:sparql[@PID = xxforms:instance('object-ingest-parameters')/parentPID]/sparql:results"
+                               origin="xxforms:instance('add-browse-member-template')"
+                               at="1"
+                               position="before"
+                               />
+                <xforms:setvalue ref="xxforms:instance('browse-members-parameters')/vudl:PID" value="xxforms:instance('object-ingest-parameters')/parentPID"/>
+                <xforms:dispatch name="browse-load-parameters"
+                                 target="CoreModel-helper"
+                                 >
+                    <xxforms:context name="container-PID" select="xxforms:instance('object-ingest-parameters')/parentPID"/>
+                    <xxforms:context name="browse-members-target" select="string('browse-members')"/>
+                </xforms:dispatch>
+
+                <!-- get metadata -->
+                <xforms:dispatch name="refresh-PIDmetadata"
+                                 target="CoreModel-helper"
+                                 >
+                    <xxforms:context name="PID" select="xxforms:instance('newPID')"/>
+                    <xxforms:context name="mode" select="string('asynchronous')"/>
+                    <xxforms:context name="stats" select="string('true')"/>
+                </xforms:dispatch>
+                
+                <!-- refresh metadata for parent -->
+                <xforms:dispatch name="refresh-PIDmetadata"
+                                 target="CoreModel-helper"
+                                 >
+                    <xxforms:context name="PID" select="xxforms:instance('object-ingest-parameters')/parentPID"/>
+                    <xxforms:context name="mode" select="string('asynchronous')"/>
+                    <xxforms:context name="stats" select="string('true')"/>
+                </xforms:dispatch>
+                
+                <xxforms:hide dialog="add-object-dialog"/>
+                
+                
+            </xforms:action>
+        </xforms:action>
+    </xforms:trigger>
+    
+    <xforms:trigger>
+        <xforms:label>
+            <xhtml:img src="/apps/VuDL/images/trigger_cancel.png"/>
+            Cancel
+        </xforms:label>
+        <xforms:action ev:event="DOMActivate">
+            <xforms:setvalue ref="xxforms:instance('object-ingest-parameters')/title" value="string('')"/>
+            <xxforms:hide dialog="add-object-dialog"/>
+        </xforms:action>
+    </xforms:trigger>
+    
+</xxforms:dialog>

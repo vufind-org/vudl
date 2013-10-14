@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xhtml:div xmlns:xhtml="http://www.w3.org/1999/xhtml"
+           xmlns:xi="http://www.w3.org/2001/XInclude"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:xforms="http://www.w3.org/2002/xforms"
+           xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+           xmlns:ev="http://www.w3.org/2001/xml-events"
+           xmlns:sparql="http://www.w3.org/2001/sw/DataAccess/rf1/result"
+           xmlns:fedora-model="info:fedora/fedora-system:def/model#" 
+           xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+           xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xmlns:management="http://www.fedora.info/definitions/1/0/management/"
+           xmlns:access="http://www.fedora.info/definitions/1/0/access/"
+           xmlns:composite-model="info:fedora/fedora-system:def/dsCompositeModel#"
+           xmlns:xxi="http://orbeon.org/oxf/xml/xinclude">
+    
+    <xforms:repeat nodeset="xxforms:instance('ModelTypes')/root()//ModelType[@uri = xxforms:instance($RELS-EXT-SRC)//fedora-model:hasModel/@rdf:resource]">
+        <xxforms:variable name="modelTypeURI" value="substring-after(./@uri, 'info:fedora/')"/>
+        <xxforms:variable name="modelFullName" value="./@fullname"/>
+        <xxforms:variable name="availableDatastreams" value="xxforms:instance('all-required-datastreams-instance')/root()//management:datastreamProfile[@pid = $modelTypeURI]/composite-model:dsCompositeModel/composite-model:dsTypeModel[@optional='true']"/>
+
+        <!-- Model Header -->
+        <xforms:group class="row pull-right" ref=".[$availableDatastreams and not($modelFullName = 'CoreModel')]">
+            <xhtml:div class="datastream-model">
+                <xforms:output value="$modelFullName"
+                               class="datastream-model-text"/>
+                <xhtml:img src="/apps/VuDL/images/ModelIcons/{$modelFullName}-icon.png"/>
+            </xhtml:div>
+        </xforms:group>
+
+        <!-- Datastream Row -->
+        <xhtml:div style="clear:both;"/>
+        <xforms:repeat nodeset="$availableDatastreams">
+            
+            <xxforms:variable name="dsID" value="./@ID"/>
+
+            <xxforms:variable name="dsActive" value="xxforms:instance('PIDmetadata')/object[@pid=$datastreamPID]//access:datastream[@dsid=$dsID]"/>
+            <xi:include href="oxf:/apps/VuDL/view/elements/modifyDatastreamRow.xml" xxi:omit-xml-base="true"/> 
+        </xforms:repeat>
+    </xforms:repeat>
+
+</xhtml:div>

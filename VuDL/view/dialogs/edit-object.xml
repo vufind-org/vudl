@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xxforms:dialog id="edit-object-dialog"
+                xmlns:xforms="http://www.w3.org/2002/xforms"
+                xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+                xmlns:xhtml="http://www.w3.org/1999/xhtml"
+                xmlns:ev="http://www.w3.org/2001/xml-events"
+                xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+                xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xmlns:access="http://www.fedora.info/definitions/1/0/access/"
+                >
+
+    <xforms:label>
+        <xforms:output value="concat('Edit Object: ', xxforms:instance('modifyObject-editor')/PID)"/>
+    </xforms:label>
+
+    <xforms:action ev:event="xxforms-dialog-open">
+
+        <xforms:setfocus control="cancel-edit-object"/>
+
+        <xforms:setvalue ref="xxforms:instance('modifyObject-editor')/owner" value="xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('modifyObject-editor')/PID]//access:objOwnerId"/>
+        <xforms:setvalue ref="xxforms:instance('modifyObject-editor')/owner_children" value="string('')"/>
+        <xforms:setvalue ref="xxforms:instance('modifyObject-editor')/state" value="xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('modifyObject-editor')/PID]//access:objState"/>
+        <xforms:setvalue ref="xxforms:instance('modifyObject-editor')/state_children" value="string('')"/>
+        <xforms:setvalue ref="xxforms:instance('modifyObject-editor')/recycle" value="string('')"/>
+        
+    </xforms:action>
+    
+    <xforms:select1 ref="xxforms:instance('modifyObject-editor')/state" appearance="full">
+        <xforms:label>Object State</xforms:label>
+        <xforms:itemset ref="xxforms:instance('object-states')//state">
+            <xforms:label ref="@label"/>
+            <xforms:value ref="@value"/>
+        </xforms:itemset>
+    </xforms:select1>
+
+    
+    <xforms:select ref="xxforms:instance('modifyObject-editor')/state_children" appearance="full">
+        <xforms:item>
+            <xforms:label>Apply to children</xforms:label>
+            <xforms:value>Yes</xforms:value>
+        </xforms:item>
+    </xforms:select>
+    
+    <xhtml:p/>
+    
+    <xforms:select1 ref="xxforms:instance('modifyObject-editor')/owner" appearance="full">
+        <xforms:label>Object Owner</xforms:label>
+        <xforms:itemset ref="xxforms:instance('group-access')//group">
+            <xforms:label ref="./@id"/>
+            <xforms:value ref="./@id"/>
+        </xforms:itemset>
+    </xforms:select1>
+    
+    <xforms:select ref="xxforms:instance('modifyObject-editor')/owner_children" appearance="full">
+        <xforms:item>
+            <xforms:label>Apply to children</xforms:label>
+            <xforms:value>Yes</xforms:value>
+        </xforms:item>
+    </xforms:select>
+    
+    <xhtml:p/>
+    
+    <xforms:trigger xxforms:modal="true">
+        <xforms:label>
+            <xhtml:img src="/apps/VuDL/images/trigger_save.png"/>
+            Save
+        </xforms:label>
+        <xforms:action ev:event="DOMActivate">
+            
+            
+            <!-- <xforms:action if=".[xxforms:instance('modifyObject-editor')/state_children = 'Yes' or xxforms:instance('modifyObject-editor')/owner_children = 'Yes']"> -->
+            <xxforms:show dialog="modifyObject-count-dialog"/>
+            <!-- </xforms:action> -->
+
+            
+            
+            
+            
+            <!-- <xxforms:hide dialog="edit-object-dialog"/> -->
+            
+            <!-- <xforms:load resource="/VuDL/object/{xxforms:instance('currentPID')}"/> -->
+            
+        </xforms:action>
+    </xforms:trigger>
+    
+    <xforms:trigger id="cancel-edit-object">
+        <xforms:label>
+            <xhtml:img src="/apps/VuDL/images/trigger_cancel.png"/>
+            Cancel
+        </xforms:label>
+        <xforms:action ev:event="DOMActivate">
+            <xxforms:hide dialog="edit-object-dialog"/>
+        </xforms:action>
+    </xforms:trigger>
+    
+</xxforms:dialog>

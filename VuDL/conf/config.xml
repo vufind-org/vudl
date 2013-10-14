@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xforms:model id="config-model"
+              xmlns:xforms="http://www.w3.org/2002/xforms"
+              xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+              xmlns:ev="http://www.w3.org/2001/xml-events"
+              xmlns:xi="http://www.w3.org/2001/XInclude"
+              xmlns:xxi="http://orbeon.org/oxf/xml/xinclude">
+            
+    <xforms:instance id="config-instance">
+        <config>
+        
+            <fedora>
+                <!-- Fedora User Account -->
+                <username>fedoraAdmin</username>
+                <password>fedoraAdmin</password>
+                
+                <!-- API URL -->
+                <APIurl>http://localhost</APIurl>
+                
+                <!-- API Port -->
+                <APIport>8088</APIport>
+                
+                <!-- Fedora public URL -->
+                <publicUrl>http://localhost:8080/fedora</publicUrl>
+            </fedora>
+            
+            <VuDL>
+                <!-- VuDL URL -->
+                <vudlUrl>http://localhost:8080/orbeon/VuDL</vudlUrl>
+            </VuDL>
+            
+            <VuFind>
+                <vufindUrl>http://localhost/vufind</vufindUrl>
+                <vufindSolrUrl>http://localhost:8081/solr/biblio</vufindSolrUrl>
+            </VuFind>
+            
+            <!-- Debug Level 
+            0 -> Display Nothing
+            1 -> Displays the xml output navigator from orbeon (fr:xforms-inspector) 
+            -->
+            <debug-level>1</debug-level>
+        </config>     
+    </xforms:instance>
+
+    <xforms:instance id="recycle-bin">
+        <instance>vudl:4</instance>
+    </xforms:instance>
+    
+    <!-- -->
+    <xi:include href="oxf:/apps/VuDL/conf/ModelTypes.xml"/>
+    <xi:include href="oxf:/apps/VuDL/conf/Datastreams.xml"/>
+    <xi:include href="oxf:/apps/VuDL/conf/group-access.xml"/>
+    <xi:include href="oxf:/apps/VuDL/conf/languages.xml"/>
+    <xi:include href="oxf:/apps/VuDL/conf/formats.xml"/>
+    
+    <!-- User Access -->
+    <xforms:instance id="user-access">
+        <instance>
+            <user name="" group=""/>
+        </instance>
+    </xforms:instance>
+
+</xforms:model>

@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xxforms:dialog id="edit-coordinates-dialog"
+                appearance="full"
+                xmlns:xforms="http://www.w3.org/2002/xforms"
+                xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+                xmlns:xhtml="http://www.w3.org/1999/xhtml"
+                xmlns:ev="http://www.w3.org/2001/xml-events"
+                xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+                xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+                xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+                xmlns:access="http://www.fedora.info/definitions/1/0/access/"
+                xmlns:METS="http://www.loc.gov/METS/"
+                xmlns:fedora-model="info:fedora/fedora-system:def/model#" 
+                xmlns:xi="http://www.w3.org/2001/XInclude"
+                xmlns:fits="http://hul.harvard.edu/ois/xml/ns/fits/fits_output"
+                xmlns:management="http://www.fedora.info/definitions/1/0/management/"
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                xmlns:xxi="http://orbeon.org/oxf/xml/xinclude"
+                >
+
+    <xforms:action ev:event="xxforms-dialog-open">
+
+        <!-- Get RELS-EXT -->
+        <!-- ~~~~~~~~~~~~~~~~ -->
+        <!-- RELS-EXT: getDatastream -->
+        <!-- xxforms:instance('RELS-EXT-dialog-datastream-instance') -->
+        <xforms:dispatch name="performAPIRequest" 
+                         target="FedoraAPI-helper"
+                         xxforms:show-progress="true">
+            <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('edit-coordinates-parameters')/PID, '/datastreams/', string('RELS-EXT'), '?format=', string('xml'), '&amp;asOfDateTime=', now(),'&amp;validateChecksum=', string('false'))"/>
+            <xxforms:context name="dsID" value="string('RELS-EXT')"/>
+            <xxforms:context name="apiMethod" value="string('getDatastream')"/>
+            <xxforms:context name="httpMethod" value="string('get')"/>
+            <xxforms:context name="mode" value="string('synchronous')"/>
+            <xxforms:context name="destination-instance" value="string('RELS-EXT-dialog-datastream-instance')"/>
+            <xxforms:context name="clear-destination-instance" value="string('true')"/>
+        </xforms:dispatch>
+        <!-- RELS-EXT: getDatastreamDissemination -->
+        <!-- xxforms:instance('RELS-EXT-dialog-instance') -->
+        <xforms:dispatch name="performAPIRequest" 
+                         target="FedoraAPI-helper"
+                         xxforms:show-progress="true">
+            <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('edit-coordinates-parameters')/PID, '/datastreams/', string('RELS-EXT'), '/content?format=', string('xml'), '&amp;asOfDateTime=', now(),'&amp;validateChecksum=', string('false'))"/>
+            <xxforms:context name="dsID" value="string('RELS-EXT')"/>
+            <xxforms:context name="apiMethod" value="string('getDatastreamDissemination')"/>
+            <xxforms:context name="httpMethod" value="string('get')"/>
+            <xxforms:context name="mode" value="string('synchronous')"/>
+            <xxforms:context name="destination-instance" value="string('RELS-EXT-dialog-instance')"/>
+            <xxforms:context name="clear-destination-instance" value="string('true')"/>
+        </xforms:dispatch>
+        
+        <xxforms:variable name="parentPID" value="substring-after(xxforms:instance('RELS-EXT-dialog-instance')//rel:isPartOf[1]/@rdf:resource, 'info:fedora/')"/>
+        
+        <!-- parent's MASTER-MD: getDatastreamDissemination -->
+        <!-- xxforms:instance('MASTER-MD-dialog-instance') -->
+        <xforms:dispatch name="performAPIRequest" 
+                         target="FedoraAPI-helper"
+                         xxforms:show-progress="true">
+            <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', $parentPID, '/datastreams/', string('MASTER-MD'), '/content?format=', string('xml'), '&amp;asOfDateTime=', now(),'&amp;validateChecksum=', string('false'))"/>
+            <xxforms:context name="dsID" value="string('MASTER-MD')"/>
+            <xxforms:context name="apiMethod" value="string('getDatastreamDissemination')"/>
+            <xxforms:context name="httpMethod" value="string('get')"/>
+            <xxforms:context name="mode" value="string('synchronous')"/>
+            <xxforms:context name="destination-instance" value="string('MASTER-MD-dialog-instance')"/>
+            <xxforms:context name="clear-destination-instance" value="string('true')"/>
+        </xforms:dispatch>
+        
+        <!-- parent's MEDIUM-MD -->
+        <xforms:setvalue ref="xxforms:instance('FitsRequest-parameters')/destination-instance" value="string('MEDIUM-MD-dialog-instance')"/>
+        <xforms:setvalue ref="xxforms:instance('FitsRequest-parameters')/parameters/url" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', $parentPID, '/datastreams/', string('MEDIUM'), '/content')"/>
+        <xforms:send submission="FitsRequest" model="Fits-helper"/>
+        
+        <!-- -->
+        <xforms:setvalue ref="xxforms:instance('COORDINATES-scale')" value="xxforms:instance('MASTER-MD-dialog-instance')//fits:imageWidth[1] div xxforms:instance('MEDIUM-MD-dialog-instance')//fits:imageWidth[1]"/>
+        
+    </xforms:action>
+    
+    <xforms:label>Edit Coordinates</xforms:label>
+
+    <xxforms:variable name="parentPID" value="substring-after(xxforms:instance('RELS-EXT-dialog-instance')//rel:isPartOf[1]/@rdf:resource, 'info:fedora/')"/>
+    
+    <xforms:group ref=".[string-length($parentPID) > 0]">
+    
+        <xhtml:script>
+
+            window.onload = function () {
+                // Set up some objects on a Raphael drawing surface
+                var draw = Raphael("canvas", 640, 640);
+                var path = draw.path();
+                path.attr({stroke: 'black', 'stroke-width': 3, fill: '#147EDB', 'fill-opacity': .5});
+                
+                // This function sets the path from the input text
+                function redraw() {
+                  path.attr({path: $('.coordinates_medium :input').val()});
+                }
+                
+                // Event handlers: do things on keyup, click, double-click
+                $('.coordinates_medium :input').keyup(function() {
+                  redraw();
+                });
+                
+                $('#coordinates_wrapper').click(function(event) {
+                  //var x = event.pageX;
+                  //var y = event.pageY;
+                  var x = event.pageX - $('#canvas').offset().left;
+                  var y = event.pageY - $('#canvas').offset().top;
+                  var coordinates_scale = ORBEON.xforms.Document.getValue("coordinates_scale_id");
+                  var s_x = Math.round(x * coordinates_scale);
+                  var s_y = Math.round(y * coordinates_scale);
+                  
+                  var oldpath = $('.coordinates_medium :input').val();
+                  var s_oldpath = $('.coordinates_master :input').val();
+                  
+                  if (!oldpath.match(/M/) || oldpath.match(/Z/)) {
+                    $('.coordinates_medium :input').val('M ' + x + ' ' + y);
+                    $('.coordinates_master :input').val('M ' + s_x + ' ' + s_y);
+                    ORBEON.xforms.Document.setValue("coordinates_medium_id", 'M ' + x + ' ' + y);
+                    ORBEON.xforms.Document.setValue("coordinates_master_id", 'M ' + s_x + ' ' + s_y);
+                  } else {
+                    $('.coordinates_medium :input').val(oldpath + ' ' + x + ' ' + y);
+                    $('.coordinates_master :input').val(s_oldpath + ' ' + s_x + ' ' + s_y);
+                    ORBEON.xforms.Document.setValue("coordinates_medium_id", oldpath + ' ' + x + ' ' + y);
+                    ORBEON.xforms.Document.setValue("coordinates_master_id", s_oldpath + ' ' + s_x + ' ' + s_y);
+                  }
+                  redraw();
+                });
+                
+                $('#coordinates_wrapper').dblclick(function(event) {
+                  var oldpath = $('.coordinates_medium :input').val();
+                  var s_oldpath = $('.coordinates_master :input').val();
+                  $('.coordinates_medium :input').val(oldpath + ' Z');
+                  $('.coordinates_master :input').val(s_oldpath + ' Z');
+                  ORBEON.xforms.Document.setValue("coordinates_medium_id", oldpath + ' Z');
+                  ORBEON.xforms.Document.setValue("coordinates_master_id", s_oldpath + ' Z');
+                  redraw();
+                });
+                
+                // stopPropagation keeps clicks on text from propagating up to &lt;body>
+                //$('.coordinates_medium :input').click(function(event) { event.stopPropagation(); });
+                //$('.coordinates_medium :input').dblclick(function(event) { event.stopPropagation(); });
+            
+            }
+
+        </xhtml:script>
+        
+        <xhtml:div id="coordinates_wrapper" style="position: relative;">
+            <xhtml:img src="{xxforms:instance('config-instance')//publicUrl}/objects/{$parentPID}/datastreams/MEDIUM/content"
+                       style="position: absolute;"/>
+            
+            <xhtml:div id="canvas"
+                       style="position: relative; top:0; left:0; "/>
+        </xhtml:div>
+        
+        <xhtml:div style="clear:both;"/>
+        
+        <xhtml:div style="float:left;">
+            <xforms:input ref="xxforms:instance('COORDINATES-medium')" id="coordinates_medium_id" class="coordinates_medium"/>
+            <xhtml:br/>
+            <xforms:input ref="xxforms:instance('COORDINATES-master')" id="coordinates_master_id" class="coordinates_master"/>
+            <xhtml:br/>
+            <xforms:input ref="xxforms:instance('COORDINATES-scale')" id="coordinates_scale_id" class="coordinates_scale"/>
+        </xhtml:div>
+        
+        <xhtml:div style="clear:both;"/>
+        
+        <xhtml:br/>
+        
+        <xforms:trigger>
+            <xforms:label>
+                <xhtml:img src="/apps/VuDL/images/trigger_save.png"/>
+                Save
+            </xforms:label>
+            <xforms:action ev:event="DOMActivate">
+
+                <!-- addDatastream -->
+                <xforms:action if=".[not(xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('edit-coordinates-parameters')/PID]/access:objectDatastreams/access:datastream[@dsid = 'COORDINATES'])]">
+
+                    <!-- Prepare new COORDINATES -->
+                    <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/PID" value="xxforms:instance('edit-coordinates-parameters')/PID"/>
+                    <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/dsID" value="string('COORDINATES')"/>
+                    <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/post-content" value="string('COORDINATES-master')"/>
+                    <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/controlGroup" value="string('M')"/>
+                    <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/dsLocation" value="string('')"/>
+                    <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/altIDs" value="string('')"/>
+                    <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/dsLabel" value="string('COORDINATES for this Segment')"/>
+                    <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/versionable" value="string('false')"/>
+                    <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/dsState" value="string('A')"/>
+                    <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/formatURI" value="string('')"/>
+                    <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/checksumType" value="string('DISABLED')"/>
+                    <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/checksum" value="string('')"/>
+                    <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/mimeType" value="string('text/xml')"/>
+                    <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/logMessage" value="string('Added COORDINATES datastream')"/>
+                    <!-- send submission -->
+                    <xforms:dispatch name="performAPIRequest" 
+                                     target="FedoraAPI-helper"
+                                     xxforms:show-progress="true"
+                                     >
+                        <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('addDatastream-parameters')/PID, '/datastreams/', xxforms:instance('addDatastream-parameters')/dsID)"/>
+                        <xxforms:context name="dsID" value="xxforms:instance('addDatastream-parameters')/dsID"/>
+                        <xxforms:context name="apiMethod" value="string('addDatastream')"/>
+                        <xxforms:context name="httpMethod" value="string('post')"/>
+                        <xxforms:context name="mode" value="string('')"/>
+                        <xxforms:context name="destination-instance" value="string('')"/>
+                        <xxforms:context name="clear-destination-instance" value="string('')"/>
+                        <xxforms:context name="parameters" value="string('addDatastream-parameters')"/>
+                    </xforms:dispatch>
+    
+                </xforms:action>
+                
+                <!-- -->
+                <xforms:dispatch name="refresh-PIDmetadata"
+                                 target="CoreModel-helper"
+                                 >
+                    <xxforms:context name="PID" select="xxforms:instance('edit-coordinates-parameters')/PID"/>
+                    <xxforms:context name="mode" select="string('synchronous')"/>
+                    <xxforms:context name="stats" select="string('true')"/>
+                </xforms:dispatch>
+                
+                <!-- -->
+                <xxforms:hide dialog="edit-coordinates-dialog"/>
+            </xforms:action>
+        </xforms:trigger>
+    
+    </xforms:group>
+    
+    <xforms:trigger>
+        <xforms:label>
+            <xhtml:img src="/apps/VuDL/images/trigger_cancel.png"/>
+            Cancel
+        </xforms:label>
+        <xforms:action ev:event="DOMActivate">
+            <xxforms:hide dialog="edit-coordinates-dialog"/>
+        </xforms:action>
+    </xforms:trigger>
+    
+</xxforms:dialog>

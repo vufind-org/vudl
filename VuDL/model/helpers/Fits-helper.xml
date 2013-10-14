@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xforms:model id="Fits-helper"
+              xmlns:xforms="http://www.w3.org/2002/xforms"
+              xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+              xmlns:ev="http://www.w3.org/2001/xml-events"
+              xmlns:xs="http://www.w3.org/2001/XMLSchema"
+              xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+              xmlns:xi="http://www.w3.org/2001/XInclude"
+              xmlns:foxml="info:fedora/fedora-system:def/foxml#"
+              xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+              xmlns:sparql="http://www.w3.org/2001/sw/DataAccess/rf1/result"
+              xmlns:fedora-model="info:fedora/fedora-system:def/model#" 
+              xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+              xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+              xmlns:dc="http://purl.org/dc/elements/1.1/"
+              xmlns:management="http://www.fedora.info/definitions/1/0/management/">
+
+    <xforms:submission id="FitsRequest"
+                       method="get"
+                       ref="xxforms:instance('empty-instance')"
+                       resource="{xxforms:instance('config-instance')/fedora/APIurl}:{xxforms:instance('config-instance')/fedora/APIport}/fits/fits?resultFormat={xxforms:instance('FitsRequest-parameters')/parameters/resultFormat}&amp;url={xxforms:instance('FitsRequest-parameters')/parameters/url}"
+                       instance="FitsRequest-return"
+                       replace="instance"
+                       xxforms:username="{xxforms:instance('user-credentials')//login/username}"
+                       xxforms:password="{xxforms:instance('user-credentials')//login/password}"
+                       >
+        <xforms:message ev:event="xforms-submit-error" level="modal">FitsRequest: An error occurred.</xforms:message>
+        <xforms:action ev:event="xforms-submit-done">
+            <!-- -->
+            <xforms:delete nodeset="xxforms:instance('empty-instance')"/>
+            <xforms:setvalue ref="xxforms:instance('empty-instance')" value="string('')"/>
+            <!-- -->
+            <xforms:delete nodeset="xxforms:instance(xxforms:instance('FitsRequest-parameters')/destination-instance)/*"/>
+            <xforms:insert nodeset="xxforms:instance(xxforms:instance('FitsRequest-parameters')/destination-instance)" 
+                           origin="xxforms:instance('FitsRequest-return')"
+                           />
+            <xforms:delete nodeset="xxforms:instance('FitsRequest-return')/*"/>
+        </xforms:action>
+    </xforms:submission>
+    <!-- -->
+    <xforms:instance id="FitsRequest-return">
+        <instance/>
+    </xforms:instance>
+    <!-- -->
+    <xforms:instance id="FitsRequest-parameters">
+        <data>
+            <destination-instance/>
+            <parameters>
+                <url/>
+                <resultFormat/>
+            </parameters>
+        </data>
+    </xforms:instance>
+
+</xforms:model>

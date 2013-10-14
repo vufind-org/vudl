@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xhtml:div class="row-fluid"
+           xmlns:xhtml="http://www.w3.org/1999/xhtml"
+           xmlns:xi="http://www.w3.org/2001/XInclude"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:xforms="http://www.w3.org/2002/xforms"
+           xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+           xmlns:ev="http://www.w3.org/2001/xml-events"
+           xmlns:sparql="http://www.w3.org/2001/sw/DataAccess/rf1/result"
+           xmlns:fedora-model="info:fedora/fedora-system:def/model#" 
+           xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+           xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xmlns:management="http://www.fedora.info/definitions/1/0/management/"
+           xmlns:METS="http://www.loc.gov/METS/"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:access="http://www.fedora.info/definitions/1/0/access/"
+           xmlns:composite-model="info:fedora/fedora-system:def/dsCompositeModel#"
+           xmlns:xxi="http://orbeon.org/oxf/xml/xinclude"
+           xmlns:vudl="http://vudl.org">
+
+    <!-- -->
+    <xi:include href="oxf:/apps/VuDL/model/CoreModel-model.xml" xxi:omit-xml-base="true"/>
+    <xi:include href="oxf:/apps/VuDL/model/helpers/CoreModel-helper.xml" xxi:omit-xml-base="true"/>
+
+    <xi:include href="oxf:/apps/VuDL/model/helpers/CollectionModel-helper.xml" xxi:omit-xml-base="true"/>
+        <xi:include href="oxf:/apps/VuDL/model/helpers/FolderCollection-helper.xml" xxi:omit-xml-base="true"/>
+        <xi:include href="oxf:/apps/VuDL/model/helpers/ResourceCollection-helper.xml" xxi:omit-xml-base="true"/>
+        <xi:include href="oxf:/apps/VuDL/model/helpers/ListCollection-helper.xml" xxi:omit-xml-base="true"/>
+        
+    <xi:include href="oxf:/apps/VuDL/model/helpers/DataModel-helper.xml" xxi:omit-xml-base="true"/>
+        <xi:include href="oxf:/apps/VuDL/model/helpers/ImageData-helper.xml" xxi:omit-xml-base="true"/>
+            <xi:include href="oxf:/apps/VuDL/model/helpers/SegmentImage-helper.xml" xxi:omit-xml-base="true"/>
+        <xi:include href="oxf:/apps/VuDL/model/helpers/TextData-helper.xml" xxi:omit-xml-base="true"/>
+        <xi:include href="oxf:/apps/VuDL/model/helpers/HTMLData-helper.xml" xxi:omit-xml-base="true"/>
+        <xi:include href="oxf:/apps/VuDL/model/helpers/PDFData-helper.xml" xxi:omit-xml-base="true"/>
+        <xi:include href="oxf:/apps/VuDL/model/helpers/DOCData-helper.xml" xxi:omit-xml-base="true"/>
+        <xi:include href="oxf:/apps/VuDL/model/helpers/XLSData-helper.xml" xxi:omit-xml-base="true"/>
+        <xi:include href="oxf:/apps/VuDL/model/helpers/MP3Data-helper.xml" xxi:omit-xml-base="true"/>
+        <xi:include href="oxf:/apps/VuDL/model/helpers/WAVData-helper.xml" xxi:omit-xml-base="true"/>
+    
+    
+    <!-- Main Body -->
+    <xhtml:div class="span12 hero-unit well">
+        <xhtml:h3>Sitemap</xhtml:h3>
+            <!-- Browse Members initialized -->
+            <xforms:group ref=".[xxforms:instance('browse-members-instance')/root()/instance/sparql:sparql]">
+                <xxforms:variable name="browse-members-target" value="string('browse-members')"/>
+                <xi:include href="oxf:/apps/VuDL/view/elements/browseMembers.xml" xxi:omit-xml-base="true"/>
+            </xforms:group>
+            
+    </xhtml:div>
+
+    
+    <!-- Control Menu Dialogs -->
+    <xi:include href="oxf:/apps/VuDL/view/dialogs/control-menu.xml" xxi:omit-xml-base="true"/>
+        <xi:include href="oxf:/apps/VuDL/view/dialogs/control-menu-simple.xml" xxi:omit-xml-base="true"/>
+    <xi:include href="oxf:/apps/VuDL/view/dialogs/add-object.xml" xxi:omit-xml-base="true"/>
+    <xi:include href="oxf:/apps/VuDL/view/dialogs/edit-DC.xml" xxi:omit-xml-base="true"/>
+        <xi:include href="oxf:/apps/VuDL/view/dialogs/edit-DC-description.xml" xxi:omit-xml-base="true"/>
+        <xi:include href="oxf:/apps/VuDL/view/dialogs/edit-DC-clone.xml" xxi:omit-xml-base="true"/>
+    <xi:include href="oxf:/apps/VuDL/view/dialogs/edit-RELS-EXT.xml" xxi:omit-xml-base="true"/>
+        <xi:include href="oxf:/apps/VuDL/view/dialogs/add-isMemberOf.xml" xxi:omit-xml-base="true"/>
+    <xi:include href="oxf:/apps/VuDL/view/dialogs/edit-object.xml" xxi:omit-xml-base="true"/>
+        <xi:include href="oxf:/apps/VuDL/view/dialogs/modifyObject-progress.xml" xxi:omit-xml-base="true"/>
+        <xi:include href="oxf:/apps/VuDL/view/dialogs/modifyObject-count.xml" xxi:omit-xml-base="true"/>
+    <xi:include href="oxf:/apps/VuDL/view/dialogs/edit-members.xml" xxi:omit-xml-base="true"/>
+    <xi:include href="oxf:/apps/VuDL/view/dialogs/purge-object.xml" xxi:omit-xml-base="true"/>
+        <xi:include href="oxf:/apps/VuDL/view/dialogs/purge-progress.xml" xxi:omit-xml-base="true"/>
+    <xi:include href="oxf:/apps/VuDL/view/dialogs/edit-datastreams.xml" xxi:omit-xml-base="true"/>
+    
+    <!-- datastream control dialogs -->
+    <xi:include href="oxf:/apps/VuDL/view/dialogs/attach-datastream.xml" xxi:omit-xml-base="true"/>
+    <xi:include href="oxf:/apps/VuDL/view/dialogs/view-object.xml" xxi:omit-xml-base="true"/>
+    <xi:include href="oxf:/apps/VuDL/view/dialogs/confirm-delete-datastream.xml" xxi:omit-xml-base="true"/>
+    <xi:include href="oxf:/apps/VuDL/view/dialogs/edit-license.xml" xxi:omit-xml-base="true"/>
+    <xi:include href="oxf:/apps/VuDL/view/dialogs/edit-agents.xml" xxi:omit-xml-base="true"/>
+    <xi:include href="oxf:/apps/VuDL/view/dialogs/edit-process-md.xml" xxi:omit-xml-base="true"/>
+    <xi:include href="oxf:/apps/VuDL/view/dialogs/edit-ordered-members.xml" xxi:omit-xml-base="true"/>
+    <xi:include href="oxf:/apps/VuDL/view/dialogs/edit-coordinates.xml" xxi:omit-xml-base="true"/>
+    
+</xhtml:div>

@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xxforms:dialog id="edit-ordered-members-dialog"
+                class="STRUCTMAP-datatable-dialog"
+                appearance="full"
+                close="false"
+                xmlns:xforms="http://www.w3.org/2002/xforms"
+                xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+                xmlns:xhtml="http://www.w3.org/1999/xhtml"
+                xmlns:ev="http://www.w3.org/2001/xml-events"
+                xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+                xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+                xmlns:dc="http://purl.org/dc/elements/1.1/"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+                xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+                xmlns:access="http://www.fedora.info/definitions/1/0/access/"
+                xmlns:METS="http://www.loc.gov/METS/"
+                xmlns:fedora-model="info:fedora/fedora-system:def/model#" 
+                xmlns:xi="http://www.w3.org/2001/XInclude"
+                xmlns:xxi="http://orbeon.org/oxf/xml/xinclude"
+                xmlns:fits="http://hul.harvard.edu/ois/xml/ns/fits/fits_output"
+                xmlns:management="http://www.fedora.info/definitions/1/0/management/"
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                xmlns:sparql="http://www.w3.org/2001/sw/DataAccess/rf1/result"
+                >
+
+    
+    <xforms:action ev:event="xxforms-dialog-open">
+
+        <!-- TODO: are these necessary anymore? -->
+        <xforms:delete nodeset="xxforms:instance('STRUCTMAP-dialog-datastream-instance')/root()/instance/*"/>
+        <xforms:delete nodeset="xxforms:instance('STRUCTMAP-dialog-instance')/root()/instance/*"/>
+        
+        <xforms:setvalue ref="xxforms:instance('MEMBER-TABLE-dialog-open')" value="string('STRUCTMAP')"/>
+        
+        <xforms:dispatch name="load-dialog-STRUCTMAP"
+                         target="CoreModel-helper"
+                         delay="1"
+                         if="xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('edit-members-parameters')/PID]//access:datastream[@dsid = 'STRUCTMAP']"
+                         />
+
+    </xforms:action>
+    <xforms:action ev:event="xxforms-dialog-close">
+        <xforms:setvalue ref="xxforms:instance('MEMBER-TABLE-dialog-open')" value="string('')"/>
+    </xforms:action>
+    
+    <xforms:label>
+        <xforms:output value="concat('Sort Members: ', xxforms:instance('edit-members-parameters')/PID)"/>
+    </xforms:label>
+
+    
+    
+    <xforms:group ref=".[not(xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('edit-members-parameters')/PID]//access:datastream[@dsid = 'STRUCTMAP'])]">
+        <xforms:trigger>
+            <xforms:label>
+                <xhtml:img src="/apps/VuDL/images/trigger_add.png"/>
+                Create new custom order
+            </xforms:label>
+            <xforms:action ev:event="DOMActivate">
+                
+                <xforms:delete nodeset="xxforms:instance('STRUCTMAP-ingest-add-instance')/*"/>
+                <xforms:insert nodeset="xxforms:instance('STRUCTMAP-ingest-add-instance')"
+                               origin="xxforms:instance('STRUCTMAP-template')"
+                               at="last()"
+                               position="after"
+                               />
+                <xforms:setvalue ref="xxforms:instance('risearchQuery-parameters')/PID" value="xxforms:instance('edit-members-parameters')/PID"/>
+                <xforms:setvalue ref="xxforms:instance('risearchQuery-parameters')/destination-instance" value="string('MEMBER-LIST-RAW-temp-instance')"/>
+                <xforms:setvalue ref="xxforms:instance('risearchQuery-parameters')/clear-destination-instance" value="string('true')"/>
+                <xforms:setvalue ref="xxforms:instance('risearchQuery-parameters')/relationship" value="string('isMemberOf')"/>
+                <xforms:setvalue ref="xxforms:instance('risearchQuery-parameters')/parameters/flush" value="string('false')"/>
+                <xforms:setvalue ref="xxforms:instance('risearchQuery-parameters')/parameters/lang" value="string('itql')"/>
+                <xforms:setvalue ref="xxforms:instance('risearchQuery-parameters')/parameters/format" value="string('Sparql')"/>
+                <xforms:setvalue ref="xxforms:instance('risearchQuery-parameters')/parameters/limit" value="string('')"/>
+                <xforms:setvalue ref="xxforms:instance('risearchQuery-parameters')/parameters/distinct" value="string('off')"/>
+                <xforms:setvalue ref="xxforms:instance('risearchQuery-parameters')/parameters/stream" value="string('off')"/>
+                <xforms:setvalue ref="xxforms:instance('risearchQuery-parameters')/parameters/query" value="replace(replace(xxforms:instance('getMembers-query'), 'VUDL_RELATIONSHIP', xxforms:instance('risearchQuery-parameters')/relationship), 'XXX:XXX', xxforms:instance('risearchQuery-parameters')/PID)"/>
+        
+                <xforms:dispatch name="risearchQuery-prep-query" target="FedoraAPI-helper"/>
+
+                <xforms:dispatch name="performAPIRequest"
+                                 target="FedoraAPI-helper"
+                                 xxforms:show-progress="true"
+                                 >
+                    <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/risearch?asOfDataTime=', now())"/>
+                    <xxforms:context name="dsID" value="string('')"/>
+                    <xxforms:context name="apiMethod" value="string('risearchQuery')"/>
+                    <xxforms:context name="httpMethod" value="string('post')"/>
+                    <xxforms:context name="mode" value="string('synchronous')"/>
+                    <xxforms:context name="destination-instance" value="xxforms:instance('risearchQuery-parameters')/destination-instance"/>
+                    <xxforms:context name="clear-destination-instance" value="xxforms:instance('risearchQuery-parameters')/clear-destination-instance"/>
+                </xforms:dispatch>
+                <!-- -->
+                <xforms:action xxforms:iterate="xxforms:instance('MEMBER-LIST-RAW-temp-instance')//sparql:result">
+                    <xxforms:variable name="memberPID" value="./sparql:memberPID"/>
+                    <xforms:insert context="xxforms:instance('STRUCTMAP-ingest-add-instance')"
+                                   nodeset="METS:div"
+                                   origin="xxforms:instance('STRUCTMAP-div-template')"
+                                   at="last()"
+                                   position="after"
+                                   />
+                    <!-- <xforms:setvalue ref="xxforms:instance('STRUCTMAP-ingest-add-instance')//METS:div[@ORDER = '']/@ORDER" select="position()"/> -->
+                    <xforms:setvalue ref="xxforms:instance('STRUCTMAP-ingest-add-instance')//METS:fptr[@FILEID = '']/@FILEID" value="$memberPID"/>
+                </xforms:action>
+                
+                <!-- Add new Object's STRUCTMAP  -->
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/PID" value="xxforms:instance('edit-members-parameters')/PID"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/dsID" value="string('STRUCTMAP')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/post-content" value="string('STRUCTMAP-ingest-add-instance')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/controlGroup" value="string('X')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/dsLocation" value="string('')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/altIDs" value="string('')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/dsLabel" value="string('Ordered list of Members for this Object')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/versionable" value="string('false')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/dsState" value="string('A')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/formatURI" value="string('')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/checksumType" value="string('DISABLED')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/checksum" value="string('')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/mimeType" value="string('text/xml')"/>
+                <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/logMessage" value="concat('Initial ', xxforms:instance('addDatastream-parameters')/dsID, ' datastream')"/>
+                <xforms:dispatch name="performAPIRequest" 
+                                 target="FedoraAPI-helper"
+                                 xxforms:show-progress="true"
+                                 >
+                    <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('addDatastream-parameters')/PID, '/datastreams/', xxforms:instance('addDatastream-parameters')/dsID)"/>
+                    <xxforms:context name="dsID" value="xxforms:instance('addDatastream-parameters')/dsID"/>
+                    <xxforms:context name="apiMethod" value="string('addDatastream')"/>
+                    <xxforms:context name="httpMethod" value="string('post')"/>
+                    <xxforms:context name="mode" value="string('')"/>
+                    <xxforms:context name="destination-instance" value="string('')"/>
+                    <xxforms:context name="clear-destination-instance" value="string('')"/>
+                    <xxforms:context name="parameters" value="string('addDatastream-parameters')"/>
+                </xforms:dispatch>
+                
+                <xforms:dispatch name="refresh-PIDmetadata"
+                                 target="CoreModel-helper"
+                                 >
+                    <xxforms:context name="PID" select="xxforms:instance('edit-members-parameters')/PID"/>
+                    <xxforms:context name="mode" select="string('synchronous')"/>
+                    <xxforms:context name="stats" select="string('true')"/>
+                </xforms:dispatch>
+                
+                <!-- -->
+                <xforms:dispatch name="load-dialog-STRUCTMAP"
+                                 target="CoreModel-helper"
+                                 delay="1"
+                                 if="xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('edit-members-parameters')/PID]//access:datastream[@dsid = 'STRUCTMAP']"
+                                 /> <!--  -->
+
+            </xforms:action>
+        </xforms:trigger>
+
+        <!-- Cancel -->
+        <xforms:trigger>
+            <xforms:label>
+                <xhtml:img src="/apps/VuDL/images/trigger_cancel.png"/>
+                Cancel
+            </xforms:label>
+            <xforms:action ev:event="DOMActivate">
+                <xxforms:hide dialog="edit-ordered-members-dialog"/>
+            </xforms:action>
+        </xforms:trigger>
+
+    </xforms:group>
+    
+    <xforms:group ref=".[xxforms:instance('PIDmetadata')/object[@pid = xxforms:instance('edit-members-parameters')/PID]//access:datastream[@dsid = 'STRUCTMAP']]">
+        <xxforms:variable name="memberDialog" value="string('edit-ordered-members-dialog')"/>
+        
+
+        
+        <xi:include href="oxf:/apps/VuDL/view/elements/member-table-controls.xml" xxi:omit-xml-base="true"/>
+        
+        <xhtml:div style="clear:both"/>
+        
+        <xi:include href="oxf:/apps/VuDL/view/elements/ordered-member-table.xml" xxi:omit-xml-base="true"/>
+    
+        <xi:include href="oxf:/apps/VuDL/view/elements/member-table-controls.xml" xxi:omit-xml-base="true"/>
+        
+        <xhtml:div style="clear:both"/>
+        
+        <!-- Purge STRUCTMAP -->
+        <xhtml:div style="float:right;">
+            <xforms:trigger>
+                <xforms:label>
+                    <xhtml:img src="/apps/VuDL/images/trigger_delete.png"/>
+                    Delete custom order
+                </xforms:label>
+                <xforms:action ev:event="DOMActivate">
+                    <xforms:setvalue ref="xxforms:instance('purgeDatastream-parameters')/PID" value="xxforms:instance('edit-members-parameters')/PID"/>
+                    <xforms:setvalue ref="xxforms:instance('purgeDatastream-parameters')/dsID" value="string('STRUCTMAP')"/>
+                    <xforms:setvalue ref="xxforms:instance('purgeDatastream-parameters')/parameters/startDT" value="string('')"/>
+                    <xforms:setvalue ref="xxforms:instance('purgeDatastream-parameters')/parameters/endDT" value="string('')"/>
+                    <xforms:setvalue ref="xxforms:instance('purgeDatastream-parameters')/parameters/logMessage" value="string('Deleting STRUCTMAP')"/>
+
+                    <xforms:dispatch name="launch-confirm-delete-datastream" 
+                                     target="CoreModel-helper"
+                                     />
+
+                </xforms:action>
+            </xforms:trigger>
+        </xhtml:div>
+        
+    </xforms:group>
+    
+</xxforms:dialog>

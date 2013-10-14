@@ -1,0 +1,192 @@
+/* CSS Document */
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+      .navbar .brand {
+        padding: 0px;
+      }
+      .navbar .nav-search {
+        margin-left:10px;
+      }
+      .navbar-inverse .navbar-inner {
+        background-color: #000000;
+        background-image: none;
+        background: #000000;
+      }
+      .breadcrumb {
+          margin-bottom:3px;
+          margin-left: 0px;
+      }
+      .main-object-pane hr {
+          height: 1px;
+          border: 0;
+          color: #999;
+          background-color: #999;
+      }
+      .hero-unit {
+        padding: 20px;
+        margin-bottom: 15px;
+      }
+      
+      .browse-members-object {
+        width:100%;
+      }
+      
+      .datastream-sidebar .row {
+        margin-left: -15px;
+      }
+      .datastream-sidebar {
+        margin-left: 0px;
+      }
+      .datastream-sidebar .well {
+        margin-bottom: 5px;
+        padding: 0px;
+      }
+      .datastream-sidebar .datastream-row {
+        background-color: #d2e9a4;
+      }
+      
+      .datastream-sidebar h6 {
+        margin: 5px 0;
+        padding: 5px;
+        line-height: 10px;
+      }
+      .datastream-model {
+        margin-bottom: 5px;
+      }
+      .datastream-model-text {
+        /*
+        border-top: 1px solid #999;
+        border-bottom: 1px solid #999;
+        */
+        padding: 2px;
+        color: #999;
+      }
+      .datastream-sidebar .datastream-control {
+        padding:4px; 
+        margin-left:10px; 
+        float:left;
+      }
+
+      .browse-member-row {
+        padding-top:8px;
+        padding-bottom:8px;
+        border-bottom:thin solid #DDD;
+      }
+      .browse-member-row .browse-PID span {
+        color: #BBB;
+      }
+      .browse-member-row div {
+        padding-left:5px;
+        padding-right:10px;
+      }
+      .browse-member-row div.member-info.well{
+        padding: 5px;
+        margin-bottom: 0px;
+        background-color: #DDD;
+        font-size:10px;
+      }
+
+      .member-info {
+        width:200px;
+      }
+      
+      .member-thumb {
+        width:120px;
+        min-width:120px;
+        text-align: center
+      }
+      
+      .browse-member-toggle-button {
+        padding-top:5px;
+      }
+      .browse-member-label-link {
+        padding-top:7px;
+        max-width:300px;
+      }
+      .browse-member-control-menu-button .btn {
+        padding: 4px;
+      }
+      .browse-member-control-menu-button img {
+        width: 20px;
+        height: 20px;
+      }
+      .browse-member-model-icon img {
+        width: 20px;
+        height: 20px;
+        padding-top:7px;
+      }
+      .browse-member-row .member-info .btn {
+          padding: 4px;
+      }
+      
+      #view-object-dialog_c {
+        
+        width: 90%;
+        height: 80%;
+        
+      }
+      #view-object-dialog {
+        
+        width: 100%;
+        height: 100%;
+        
+        border: none;
+      }
+      #view-object-dialog .xxforms-dialog-body {
+          padding: 10px;
+          height: 95%; /* HACK: try to approximate "height of #fckDialog minus height of header", will be imprecise */
+          overflow: auto;
+          position: absolute; /* http://www.nabble.com/Re:-autocomplete-fields-within-a-yui-dialog-with-scrollbar-p17405418.html */
+      }
+      
+      #edit-members-dialog_c {
+        width: 90%;
+        height: 80%;
+      }
+      #edit-members-dialog {
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+      #edit-members-dialog .xxforms-dialog-body {
+          padding: 10px;
+          height: 95%; /* HACK: try to approximate "height of #fckDialog minus height of header", will be imprecise */
+          overflow: auto;
+          position: absolute; /* http://www.nabble.com/Re:-autocomplete-fields-within-a-yui-dialog-with-scrollbar-p17405418.html */
+      }
+      #edit-members-datatable {
+          width:98%;
+      }
+      
+      #edit-ordered-members-dialog_c {
+        width: 90%;
+        height: 80%;
+      }
+      #edit-ordered-members-dialog {
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+      #edit-ordered-members-dialog .xxforms-dialog-body {
+          padding: 10px;
+          height: 95%; /* HACK: try to approximate "height of #fckDialog minus height of header", will be imprecise */
+          overflow: auto;
+          position: absolute; /* http://www.nabble.com/Re:-autocomplete-fields-within-a-yui-dialog-with-scrollbar-p17405418.html */
+      }
+      #edit-ordered-members-datatable {
+          width:98%;
+      }
+      
+      .CodeMirror {
+        border: 1px solid #eee;
+        height: auto;
+      }
+      .CodeMirror-scroll {
+        overflow-y: hidden;
+        overflow-x: auto;
+      }

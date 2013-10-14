@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xhtml:div class="hero-unit well"
+           xmlns:xhtml="http://www.w3.org/1999/xhtml"
+           xmlns:xforms="http://www.w3.org/2002/xforms"
+           xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+           xmlns:ev="http://www.w3.org/2001/xml-events"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:sparql="http://www.w3.org/2001/sw/DataAccess/rf1/result"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xmlns:xi="http://www.w3.org/2001/XInclude"
+           xmlns:xxi="http://orbeon.org/oxf/xml/xinclude"
+           xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+           xmlns:METS="http://www.loc.gov/METS/"
+           xmlns:access="http://www.fedora.info/definitions/1/0/access/"
+           xmlns:vudl="http://vudl.org"
+           >
+        
+        
+        <xxforms:variable name="browse-members-target-instance" value="concat($browse-members-target, '-instance')"/>
+        <xxforms:variable name="browse-members-target-parameters" value="concat($browse-members-target, '-parameters')"/>
+        
+        <xhtml:div class="pull-left">
+        <!-- Re-initialize Browse - TOP -->
+        <xforms:group ref=".[not(xxforms:instance($browse-members-target-instance)/root()/instance/sparql:sparql[@PID = 'vudl:1']) and not($browse-members-target = 'browse-members')]">
+            
+                <xforms:trigger>
+                    <xforms:label>Top</xforms:label>
+                    <xforms:action ev:event="DOMActivate">
+
+                        <xforms:delete nodeset="xxforms:instance('browse-members-dialog-instance')/root()/instance/*"/>
+                        <xforms:setvalue ref="xxforms:instance('browse-members-dialog-selected')" value="string('')"/>
+                        <xforms:setvalue ref="xxforms:instance($browse-members-target-parameters)/vudl:PID" value="string('vudl:1')"/>
+                        <xforms:setvalue ref="xxforms:instance($browse-members-target-parameters)/vudl:relationship" value="string('isMemberOf')"/>
+                        <!-- -->
+                        <xforms:dispatch name="browse-members"
+                                         target="CoreModel-helper"
+                                         delay="10"
+                                         />
+                    </xforms:action>
+                </xforms:trigger>
+            
+        </xforms:group>
+        
+        <!-- Re-initialize Browse - PARENT -->
+        <xforms:group ref=".[string-length(xxforms:instance($browse-members-target-parameters)/vudl:parentPID) > 0 and not($browse-members-target = 'browse-members')]">
+
+                <xforms:trigger>
+                    <xforms:label>Up</xforms:label>
+                    <xforms:action ev:event="DOMActivate">
+
+                        <xforms:delete nodeset="xxforms:instance('browse-members-dialog-instance')/root()/instance/*"/>
+                        <xforms:setvalue ref="xxforms:instance('browse-members-dialog-selected')" value="string('')"/>
+                        <xforms:setvalue ref="xxforms:instance($browse-members-target-parameters)/vudl:PID" value="xxforms:instance($browse-members-target-parameters)/vudl:parentPID"/>
+                        <xforms:setvalue ref="xxforms:instance($browse-members-target-parameters)/vudl:relationship" value="string('isMemberOf')"/>
+                        <!-- -->
+                        <xforms:dispatch name="browse-members"
+                                         target="CoreModel-helper"
+                                         delay="10"
+                                         />
+                    </xforms:action>
+                </xforms:trigger>
+
+        </xforms:group>
+        
+        </xhtml:div>
+        <xhtml:div style="clear:both;"/>
+            
+        
+        <!-- browse controls -->
+        <xhtml:div class="pull-right">
+            <xforms:select ref="xxforms:instance($browse-members-target-parameters)/vudl:show-thumbs" appearance="full">
+                <xforms:item>
+                    <xforms:label>Show Thumbs</xforms:label>
+                    <xforms:value>Yes</xforms:value>
+                </xforms:item>
+            </xforms:select>
+        </xhtml:div>
+        
+
+        <xforms:group ref=".[string-length(xxforms:instance(concat($browse-members-target, '-selected'))) > 0]"
+                      class="pull-left">
+            <xhtml:span>Selected: </xhtml:span>
+            <xforms:output value="xxforms:instance(concat($browse-members-target, '-selected'))"/>
+        </xforms:group>
+
+        <xhtml:div style="clear:both;"/>
+
+        <!-- Root Add More / Load All trigger -->
+        <xxforms:variable name="root-container" value="xxforms:instance($browse-members-target-instance)/root()/instance"/>
+        <xxforms:variable name="container-PID" value="$root-container/sparql:sparql/@PID"/>
+
+        <xforms:group ref=".[$root-container/sparql:sparql/sparql:results/sparql:result]">
+
+            <xxforms:variable name="root-container-members" value="count($root-container/sparql:sparql/sparql:results/sparql:result)"/>
+
+            <xforms:group ref=".[number($root-container/*[name() = $browse-members-target-parameters]/vudl:current-display) lt $root-container-members]">
+                <xhtml:div class="browse-member-row" style="padding-left:1em;">
+                
+                    <xforms:trigger xxforms:modal="true">
+                      <xforms:label>
+                          <xforms:output value="concat('Load ', $root-container/*[name() = $browse-members-target-parameters]/vudl:at-a-time, ' more')"/>
+                      </xforms:label>
+                      <xforms:action ev:event="DOMActivate">
+                          <xforms:setvalue ref="$root-container/*[name() = $browse-members-target-parameters]/vudl:current-display" value="$root-container/*[name() = $browse-members-target-parameters]/vudl:current-display + $root-container/*[name() = $browse-members-target-parameters]/vudl:at-a-time"/>
+
+                          <!-- -->
+                          <xforms:dispatch name="browse-load-parameters"
+                                           target="CoreModel-helper"
+                                           >
+                              <xxforms:context name="container-PID" select="xxforms:instance($browse-members-target-parameters)/vudl:PID"/>
+                              <xxforms:context name="browse-members-target" select="$browse-members-target"/>
+                          </xforms:dispatch>
+                                           
+                          <!-- -->
+                          <xforms:dispatch name="{$browse-members-target}-load-metadata"
+                                           target="CoreModel-helper"
+                                           delay="10"
+                                           />
+                      </xforms:action>
+                    </xforms:trigger>
+                    
+                    <xforms:trigger xxforms:modal="true">
+                      <xforms:label>
+                          <xforms:output value="concat('Load All (', $root-container-members, ')')"/>
+                      </xforms:label>
+                      <xforms:action ev:event="DOMActivate">
+                          <xforms:setvalue ref="$root-container/*[name() = $browse-members-target-parameters]/vudl:current-display" 
+                                           value="$root-container-members"/>
+                          
+                          <xforms:dispatch name="browse-load-parameters"
+                                           target="CoreModel-helper"
+                                           >
+                              <xxforms:context name="container-PID" select="$container-PID"/>
+                              <xxforms:context name="browse-members-target" select="$browse-members-target"/>
+                          </xforms:dispatch>
+        
+                          <xforms:dispatch name="{$browse-members-target}-load-metadata"
+                                           target="CoreModel-helper"
+                                           delay="10"
+                                           />
+                          
+                      </xforms:action>
+                    </xforms:trigger>
+                    
+                </xhtml:div>
+            </xforms:group>
+            
+        </xforms:group>
+        <!-- END: Root Add More / Load All trigger -->
+        
+        <!-- Loop throughh all members -->
+        <!-- have the parameters been inserted? -->
+        <xforms:repeat nodeset="xxforms:instance($browse-members-target-instance)/root()/instance//sparql:result/*[name() = $browse-members-target-parameters]/parent::*">
+
+            <xxforms:variable name="member-PID" value="./sparql:memberPID"/>
+            <xxforms:variable name="member-label" value="xxforms:instance('PIDmetadata')/object[@pid = $member-PID]//dc:title[1]"/>
+            <xxforms:variable name="member-depth" value="count(ancestor::*)"/>
+            <xxforms:variable name="member-model" select="xxforms:instance('ModelTypes')//*[@uri = xxforms:instance('PIDmetadata')//access:objectProfile[@pid = $member-PID]//access:model][count(ancestor::node()) = max(xxforms:instance('ModelTypes')//*[@uri = xxforms:instance('PIDmetadata')//access:objectProfile[@pid = $member-PID]//access:model]/count(ancestor::node()))]/@fullname"/>
+
+            <xxforms:variable name="parent-container-PID" value="./parent::*/parent::*/parent::*/@PID"/>
+            <xxforms:variable name="parent-container" select="xxforms:instance($browse-members-target-instance)//sparql:sparql[@PID = $parent-container-PID]"/>
+            <xxforms:variable name="member-container" select="xxforms:instance($browse-members-target-instance)//sparql:sparql[@PID = $member-PID]/parent::*"/>
+            
+             
+            <xforms:output value="$parent-container-PID"/>
+            <!--
+            <xforms:output value="number($parent-container/*[name() = $browse-members-target-parameters]/current-display)"/>
+            <xhtml:br/>
+            -->
+
+            <xi:include href="oxf:/apps/VuDL/view/elements/browseMembersRow.xml" xxi:omit-xml-base="true"/>
+            
+            <!-- Load More -->
+            <xforms:group ref=".[./sparql:sparql]">
+
+                <xxforms:variable name="container-members" value="count(./sparql:sparql/sparql:results/sparql:result)"/>
+                <!--
+                <xforms:output value="number($member-container/*[name() = $browse-members-target-parameters]/current-display)"/>
+                <xforms:output value="$container-members"/>
+                -->
+                <xforms:group ref=".[number($member-container/*[name() = $browse-members-target-parameters]/vudl:current-display) lt $container-members]">
+                    <xhtml:div class="browse-member-row" style="padding-left:{$member-depth - 1}em;">
+                        
+                        <xforms:trigger xxforms:modal="true">
+                          <xforms:label>
+                              <xforms:output value="concat('Load ', $member-container/*[name() = $browse-members-target-parameters]/vudl:at-a-time, ' more')"/>
+                          </xforms:label>
+                          <xforms:action ev:event="DOMActivate">
+                              <xforms:setvalue ref="$member-container/*[name() = $browse-members-target-parameters]/vudl:current-display" 
+                                               value="$member-container/*[name() = $browse-members-target-parameters]/vudl:current-display + $member-container/*[name() = $browse-members-target-parameters]/vudl:at-a-time"/>
+
+                              <xforms:dispatch name="browse-load-parameters"
+                                               target="CoreModel-helper"
+                                               >
+                                  <xxforms:context name="container-PID" select="$member-container/*[name() = $browse-members-target-parameters]/vudl:PID"/>
+                                  <xxforms:context name="browse-members-target" select="$browse-members-target"/>
+                              </xforms:dispatch>
+                                               
+                              <!-- -->
+                              <xforms:dispatch name="{$browse-members-target}-load-metadata"
+                                               target="CoreModel-helper"
+                                               delay="10"
+                                               />
+                          </xforms:action>
+                        </xforms:trigger>
+                        
+                        
+                        <xforms:trigger xxforms:modal="true">
+                          <xforms:label>
+                              <xforms:output value="concat('Load All (', $container-members, ')')"/>
+                          </xforms:label>
+                          <xforms:action ev:event="DOMActivate">
+                              <xforms:setvalue ref="$member-container/*[name() = $browse-members-target-parameters]/vudl:current-display" 
+                                               value="$container-members"/>
+                                               
+                              <xforms:dispatch name="browse-load-parameters"
+                                               target="CoreModel-helper"
+                                               >
+                                  <xxforms:context name="container-PID" select="$member-container/*[name() = $browse-members-target-parameters]/vudl:PID"/>
+                                  <xxforms:context name="browse-members-target" select="$browse-members-target"/>
+                              </xforms:dispatch>
+                                               
+                              <!-- -->
+                              <xforms:dispatch name="{$browse-members-target}-load-metadata"
+                                               target="CoreModel-helper"
+                                               delay="10"
+                                               />
+                          </xforms:action>
+                        </xforms:trigger>
+                        
+                    </xhtml:div>
+                </xforms:group>
+            </xforms:group>
+
+        </xforms:repeat>
+
+        <xhtml:p/>
+        
+        <xforms:group ref=".[string-length(xxforms:instance(concat($browse-members-target, '-selected'))) > 0]">
+            <xhtml:span>Selected: </xhtml:span>
+            <xforms:output value="xxforms:instance(concat($browse-members-target, '-selected'))"/>
+        </xforms:group>
+        
+</xhtml:div>

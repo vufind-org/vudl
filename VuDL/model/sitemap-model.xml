@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xforms:model id="Sitemap-model"
+              xmlns:xhtml="http://www.w3.org/1999/xhtml"
+              xmlns:xforms="http://www.w3.org/2002/xforms"
+              xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+              xmlns:ev="http://www.w3.org/2001/xml-events"
+              xmlns:xs="http://www.w3.org/2001/XMLSchema"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+              xmlns:xi="http://www.w3.org/2001/XInclude"
+              xmlns:foxml="info:fedora/fedora-system:def/foxml#"
+              xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+              xmlns:sparql="http://www.w3.org/2001/sw/DataAccess/rf1/result"
+              xmlns:fedora-model="info:fedora/fedora-system:def/model#" 
+              xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+              xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+              xmlns:dc="http://purl.org/dc/elements/1.1/"
+              xmlns:management="http://www.fedora.info/definitions/1/0/management/"
+              xmlns:access="http://www.fedora.info/definitions/1/0/access/"
+              xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+              xmlns:METS="http://www.loc.gov/METS/"
+              xmlns:composite-model="info:fedora/fedora-system:def/dsCompositeModel#"
+              xmlns:oai="http://www.openarchives.org/OAI/2.0/"
+              xmlns:xxi="http://orbeon.org/oxf/xml/xinclude"
+              xmlns:vudl="http://vudl.org">
+
+    <xforms:action ev:event="xforms-ready">
+        <!-- Gather all required Datastreams -->
+        <xforms:dispatch name="get-all-required-datastreams" 
+                         target="CoreModel-helper"
+                         delay="1"
+                         />
+
+        <!-- initialize browse-members-instance -->
+        <xforms:setvalue ref="xxforms:instance('browse-members-target')" value="string('browse-members')"/>
+        <!-- 
+        <xforms:delete nodeset="xxforms:instance('browse-members-instance')/root()/METS:div/METS:fptr/*"/>
+        <xforms:setvalue ref="xxforms:instance('browse-members-selected')" value="string('')"/>
+        <xforms:setvalue ref="xxforms:instance('browse-members-parameters')/PID" value="string('vudl:1')"/>
+        <xforms:setvalue ref="xxforms:instance('browse-members-parameters')/action" value="string('browse-members-goto-object')"/>
+        <xforms:setvalue ref="xxforms:instance('browse-members-parameters')/control-menu" value="string('true')"/>
+        -->
+        <xforms:delete nodeset="xxforms:instance('browse-members-instance')/root()/instance/*"/>
+        <xforms:setvalue ref="xxforms:instance('browse-members-selected')" value="string('')"/>
+        <xforms:setvalue ref="xxforms:instance('browse-members-parameters')/vudl:PID" value="string('vudl:1')"/>
+        <xforms:setvalue ref="xxforms:instance('browse-members-parameters')/vudl:action" value="string('browse-members-goto-object')"/>
+        <xforms:setvalue ref="xxforms:instance('browse-members-parameters')/vudl:control-menu" value="string('true')"/>
+        <xforms:setvalue ref="xxforms:instance('browse-members-parameters')/vudl:relationship" value="string('isMemberOf')"/>
+        
+        <!-- -->
+        <xforms:dispatch name="browse-members"
+                         target="CoreModel-helper"
+                         delay="10"
+                         /> <!--  -->
+        <!-- 
+        <xforms:dispatch name="browse-members-load-metadata"
+                         target="CoreModel-helper"
+                         >
+            <xxforms:context name="container-PID" select="xxforms:instance('browse-members-parameters')/vudl:PID"/>
+            <xxforms:context name="browse-members-target" select="string('browse-members')"/>
+        </xforms:dispatch>
+        -->
+
+    </xforms:action>
+    
+</xforms:model>

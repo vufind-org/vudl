@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<foxml:digitalObject VERSION="1.1" PID="vudl-system:ImageDataServiceDeployment"
+xmlns:foxml="info:fedora/fedora-system:def/foxml#"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd">
+
+  <foxml:objectProperties>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Service Deployment Object (ImageData) for VuDL"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="fedoraAdmin"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#createdDate" VALUE="2012-01-05T21:06:58.121Z"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/view#lastModifiedDate" VALUE="2012-01-10T18:24:22.334Z"/>
+  </foxml:objectProperties>
+
+  <foxml:datastream ID="DC" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+    <foxml:datastreamVersion ID="DC.1" LABEL="Dublin Core Record for this object" CREATED="2012-01-05T21:06:58.121Z" MIMETYPE="text/xml" FORMAT_URI="http://www.openarchives.org/OAI/2.0/oai_dc/" SIZE="0">
+      <foxml:xmlContent>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Service Deployment Object (ImageData) for VuDL</dc:title>
+          <dc:identifier>vudl-system:ImageDataServiceDeployment</dc:identifier>
+        </oai_dc:dc>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+
+  <foxml:datastream ID="RELS-EXT" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+    <foxml:datastreamVersion ID="RELS-EXT.0" LABEL="RDF Statements about this object" CREATED="2012-01-05T21:08:33.615Z" MIMETYPE="application/rdf+xml" FORMAT_URI="info:fedora/fedora-system:FedoraRELSExt-1.0" SIZE="0">
+      <foxml:xmlContent>
+        <rdf:RDF xmlns:fedora-model="info:fedora/fedora-system:def/model#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+          <rdf:Description rdf:about="info:fedora/vudl-system:ImageDataServiceDeployment">
+            <fedora-model:hasModel rdf:resource="info:fedora/fedora-system:ServiceDeployment-3.0"></fedora-model:hasModel>
+            <fedora-model:isDeploymentOf rdf:resource="info:fedora/vudl-system:ImageDataService"></fedora-model:isDeploymentOf>
+            <fedora-model:isContractorOf rdf:resource="info:fedora/vudl-system:ImageData"></fedora-model:isContractorOf>
+          </rdf:Description>
+        </rdf:RDF>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+
+  <foxml:datastream ID="METHODMAP" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+    <foxml:datastreamVersion ID="METHODMAP.0" LABEL="Deployment Method Map" CREATED="2012-01-05T21:09:57.478Z" MIMETYPE="text/xml" FORMAT_URI="info:fedora/fedora-system:FedoraSDepMethodMap-1.1" SIZE="0">
+      <foxml:xmlContent>
+        <fmm:MethodMap xmlns:fmm="http://fedora.comm.nsdlib.org/service/methodmap" name="MethodMap - Item Collection">
+          
+          <fmm:Method operationName="generateImageDerivative" wsdlMsgName="generateImageDerivativeRequest" wsdlMsgOutput="dissemResponse" operationLabel="Generates a Derivative">
+            <fmm:UserInputParm defaultValue="MASTER" parmName="dsID" passBy="VALUE" required="true"></fmm:UserInputParm>
+            <fmm:DefaultInputParm parmName="PID" defaultValue="$PID" label="fedora object PID"  passBy="VALUE" required="true"></fmm:DefaultInputParm>
+            <fmm:MethodReturnType wsdlMsgName="dissemResponse" wsdlMsgTOMIME="N/A"></fmm:MethodReturnType>
+          </fmm:Method>
+
+          <fmm:Method operationName="generateOCR" wsdlMsgName="generateOCRRequest" wsdlMsgOutput="dissemResponse" operationLabel="Generates OCR from LARGE ds">
+            <fmm:DefaultInputParm parmName="PID" defaultValue="$PID" label="fedora object PID"  passBy="VALUE" required="true"></fmm:DefaultInputParm>
+            <fmm:MethodReturnType wsdlMsgName="dissemResponse" wsdlMsgTOMIME="N/A"></fmm:MethodReturnType>
+          </fmm:Method>
+          
+        </fmm:MethodMap>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+
+  <foxml:datastream ID="DSINPUTSPEC" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+    <foxml:datastreamVersion ID="DSINPUTSPEC.0" LABEL="Datastream Input Specification" CREATED="2012-01-05T21:11:45.291Z" MIMETYPE="text/xml" FORMAT_URI="info:fedora/fedora-system:FedoraDSInputSpec-1.1" SIZE="0">
+      <foxml:xmlContent>
+        <fbs:DSInputSpec xmlns:fbs="http://fedora.comm.nsdlib.org/service/bindspec" label="Datastream Input Specification for VuDL Collection Model">
+
+          <!-- This may not be necessary -->
+          <fbs:DSInput DSMax="1" DSMin="1" DSOrdinality="false" wsdlMsgPartName="RELS-EXT">
+            <fbs:DSInputLabel>RELS-EXT Binding</fbs:DSInputLabel>
+            <fbs:DSMIME>application/rdf+xml</fbs:DSMIME>
+            <fbs:DSInputInstruction></fbs:DSInputInstruction>
+          </fbs:DSInput>
+          
+          <!-- This may not be necessary -->
+          <fbs:DSInput DSMax="1" DSMin="1" DSOrdinality="false" wsdlMsgPartName="DC">
+             <fbs:DSInputLabel>DC Binding</fbs:DSInputLabel>
+             <fbs:DSMIME>text/xml</fbs:DSMIME>
+             <fbs:DSInputInstruction/>
+           </fbs:DSInput>
+
+          
+        </fbs:DSInputSpec>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+
+<foxml:datastream ID="WSDL" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+<foxml:datastreamVersion ID="WSDL.0" LABEL="WSDL Bindings" CREATED="2012-01-05T21:15:06.551Z" MIMETYPE="text/xml" FORMAT_URI="http://schemas.xmlsoap.org/wsdl/" SIZE="0">
+<foxml:xmlContent>
+<wsdl:definitions xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap" xmlns:soapenc="http://schemas.xmlsoap.org/wsdl/soap/encoding" xmlns:this="bmech" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="ImageDataService" targetNamespace="bmech">
+  <wsdl:types>
+    <xsd:schema targetNamespace="bmech">
+
+      <!-- This may not be necessary -->
+      <xsd:simpleType name="RELS-EXTType">
+        <xsd:restriction base="xsd:string"></xsd:restriction>
+      </xsd:simpleType>
+      
+      <xsd:simpleType name="PIDType">
+        <xsd:restriction base="xsd:string"/>
+      </xsd:simpleType>
+
+      <!--
+      <xsd:simpleType name="SRC_URIType">
+        <xsd:restriction base="xsd:string"></xsd:restriction>
+      </xsd:simpleType>
+      -->
+      
+      <xsd:simpleType name="dsIDType">
+        <xsd:restriction base="xsd:string"></xsd:restriction>
+      </xsd:simpleType>
+      
+    </xsd:schema>
+  </wsdl:types>
+
+  <wsdl:message name="generateImageDerivativeRequest">
+    <wsdl:part name="PID" type="this:PIDType"></wsdl:part>
+    <wsdl:part name="dsID" type="this:dsIDType"></wsdl:part>
+  </wsdl:message>
+  
+  <wsdl:message name="generateOCRRequest">
+    <wsdl:part name="PID" type="this:PIDType"></wsdl:part>
+  </wsdl:message>
+  
+  <wsdl:message name="dissemResponse">
+    <wsdl:part name="dissem" type="xsd:base64Binary"></wsdl:part>
+  </wsdl:message>
+  
+  <wsdl:portType name="ImageDataServicePortType">
+
+    <wsdl:operation name="generateImageDerivative">
+      <wsdl:input message="this:generateImageDerivativeRequest"></wsdl:input>
+      <wsdl:output message="this:dissemResponse"></wsdl:output>
+    </wsdl:operation>
+    
+    <wsdl:operation name="generateOCR">
+      <wsdl:input message="this:generateOCRRequest"></wsdl:input>
+      <wsdl:output message="this:dissemResponse"></wsdl:output>
+    </wsdl:operation>
+    
+  </wsdl:portType>
+  <wsdl:service name="ImageDataService">
+    <wsdl:port binding="this:ImageDataService_http" name="ImageDataService_port">
+      <http:address location="LOCAL"></http:address>
+    </wsdl:port>
+  </wsdl:service>
+  <wsdl:binding name="ImageDataService_http" type="this:ImageDataServicePortType">
+    <http:binding verb="GET"></http:binding>
+
+    <wsdl:operation name="generateImageDerivative">
+      <http:operation location="http://localhost/services/genImageDerivative.php?PID=(PID)&amp;dsID=(dsID)"></http:operation>
+      <wsdl:input>
+        <http:urlReplacement></http:urlReplacement>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content type="text/xml"></mime:content>
+      </wsdl:output>
+    </wsdl:operation>
+    
+    <wsdl:operation name="generateOCR">
+      <http:operation location="http://localhost/services/genOcr.php?PID=(PID)"></http:operation>
+      <wsdl:input>
+        <http:urlReplacement></http:urlReplacement>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content type="text/xml"></mime:content>
+      </wsdl:output>
+    </wsdl:operation>
+    
+  </wsdl:binding>
+</wsdl:definitions>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+</foxml:digitalObject>

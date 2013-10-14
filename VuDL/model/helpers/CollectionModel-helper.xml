@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xforms:model id="CollectionModel-helper"
+              xxforms:external-events="load-everything get-STRUCTMAP getAllChildren"
+              xmlns:xforms="http://www.w3.org/2002/xforms"
+              xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+              xmlns:ev="http://www.w3.org/2001/xml-events"
+              xmlns:xs="http://www.w3.org/2001/XMLSchema"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+              xmlns:xi="http://www.w3.org/2001/XInclude"
+              xmlns:foxml="info:fedora/fedora-system:def/foxml#"
+              xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+              xmlns:sparql="http://www.w3.org/2001/sw/DataAccess/rf1/result"
+              xmlns:fedora-model="info:fedora/fedora-system:def/model#" 
+              xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+              xmlns:rel="info:fedora/fedora-system:def/relations-external#"
+              xmlns:dc="http://purl.org/dc/elements/1.1/"
+              xmlns:management="http://www.fedora.info/definitions/1/0/management/"
+              xmlns:METS="http://www.loc.gov/METS/"
+              xmlns:access="http://www.fedora.info/definitions/1/0/access/"
+              xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+              xmlns:composite-model="info:fedora/fedora-system:def/dsCompositeModel#">
+
+    <xforms:action ev:event="CollectionModel-ingest">
+        
+        <!-- Add MEMBER-QUERY -->
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/PID" value="xxforms:instance('newPID')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/dsID" value="string('MEMBER-QUERY')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/post-content" value="string('empty-instance')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/controlGroup" value="string('E')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/dsLocation" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('newPID'), '/methods/vudl-system:CollectionModelService/generateMemberQuery')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/altIDs" value="string('')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/dsLabel" value="concat(replace(xxforms:instance('newPID'), ':', '_'), '_', 'MEMBER-QUERY')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/versionable" value="string('false')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/dsState" value="string('A')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/formatURI" value="string('')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/checksumType" value="string('DISABLED')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/checksum" value="string('')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/mimeType" value="string('text/plain')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/logMessage" value="concat('Initial ', xxforms:instance('addDatastream-parameters')/dsID, ' datastream')"/>
+        <xforms:dispatch name="performAPIRequest" 
+                         target="FedoraAPI-helper"
+                         xxforms:show-progress="true"
+                         >
+            <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('addDatastream-parameters')/PID, '/datastreams/', xxforms:instance('addDatastream-parameters')/dsID)"/>
+            <xxforms:context name="dsID" value="xxforms:instance('addDatastream-parameters')/dsID"/>
+            <xxforms:context name="apiMethod" value="string('addDatastream')"/>
+            <xxforms:context name="httpMethod" value="string('post')"/>
+            <xxforms:context name="mode" value="string('')"/>
+            <xxforms:context name="destination-instance" value="string('')"/>
+            <xxforms:context name="clear-destination-instance" value="string('')"/>
+            <xxforms:context name="parameters" value="string('addDatastream-parameters')"/>
+        </xforms:dispatch>
+        <!-- <xforms:send submission="addDatastream" model="RestAPIModel-model"/> -->
+        
+        <!-- Add MEMBER-LIST-RAW -->
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/PID" value="xxforms:instance('newPID')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/dsID" value="string('MEMBER-LIST-RAW')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/post-content" value="string('empty-instance')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/controlGroup" value="string('E')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/dsLocation" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('newPID'), '/methods/vudl-system:CollectionModelService/executeMemberQuery')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/altIDs" value="string('')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/dsLabel" value="concat(replace(xxforms:instance('newPID'), ':', '_'), '_', 'PARENT-QUERY')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/versionable" value="string('false')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/dsState" value="string('A')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/formatURI" value="string('')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/checksumType" value="string('DISABLED')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/checksum" value="string('')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/mimeType" value="string('text/xml')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/logMessage" value="concat('Initial ', xxforms:instance('addDatastream-parameters')/dsID, ' datastream')"/>
+        <xforms:dispatch name="performAPIRequest" 
+                         target="FedoraAPI-helper"
+                         xxforms:show-progress="true"
+                         >
+            <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('addDatastream-parameters')/PID, '/datastreams/', xxforms:instance('addDatastream-parameters')/dsID)"/>
+            <xxforms:context name="dsID" value="xxforms:instance('addDatastream-parameters')/dsID"/>
+            <xxforms:context name="apiMethod" value="string('addDatastream')"/>
+            <xxforms:context name="httpMethod" value="string('post')"/>
+            <xxforms:context name="mode" value="string('')"/>
+            <xxforms:context name="destination-instance" value="string('')"/>
+            <xxforms:context name="clear-destination-instance" value="string('')"/>
+            <xxforms:context name="parameters" value="string('addDatastream-parameters')"/>
+        </xforms:dispatch>
+        <!-- <xforms:send submission="addDatastream" model="RestAPIModel-model"/> -->
+
+        <!-- prepare new Object's STRUCTMAP -->
+        <!-- TODO: use STRUCTMAP-temp-instance for this -->
+        <xforms:delete nodeset="xxforms:instance('STRUCTMAP-ingest-add-instance')/*"/>
+        <xforms:insert nodeset="xxforms:instance('STRUCTMAP-ingest-add-instance')"
+                       origin="xxforms:instance('STRUCTMAP-template')"
+                       at="last()"
+                       position="after"
+                       />
+        
+        <!-- Add new Object's STRUCTMAP  -->
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/PID" value="xxforms:instance('newPID')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/dsID" value="string('STRUCTMAP')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/post-content" value="string('STRUCTMAP-ingest-add-instance')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/controlGroup" value="string('X')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/dsLocation" value="string('')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/altIDs" value="string('')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/dsLabel" value="string('Ordered list of Members for this Object')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/versionable" value="string('false')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/dsState" value="string('A')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/formatURI" value="string('')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/checksumType" value="string('DISABLED')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/checksum" value="string('')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/mimeType" value="string('text/xml')"/>
+        <xforms:setvalue ref="xxforms:instance('addDatastream-parameters')/parameters/logMessage" value="concat('Initial ', xxforms:instance('addDatastream-parameters')/dsID, ' datastream')"/>
+        <xforms:dispatch name="performAPIRequest" 
+                         target="FedoraAPI-helper"
+                         xxforms:show-progress="true"
+                         >
+            <xxforms:context name="resourceURL" value="concat(xxforms:instance('config-instance')/fedora/APIurl, ':', xxforms:instance('config-instance')/fedora/APIport, '/fedora/objects/', xxforms:instance('addDatastream-parameters')/PID, '/datastreams/', xxforms:instance('addDatastream-parameters')/dsID)"/>
+            <xxforms:context name="dsID" value="xxforms:instance('addDatastream-parameters')/dsID"/>
+            <xxforms:context name="apiMethod" value="string('addDatastream')"/>
+            <xxforms:context name="httpMethod" value="string('post')"/>
+            <xxforms:context name="mode" value="string('')"/>
+            <xxforms:context name="destination-instance" value="string('')"/>
+            <xxforms:context name="clear-destination-instance" value="string('')"/>
+            <xxforms:context name="parameters" value="string('addDatastream-parameters')"/>
+        </xforms:dispatch>
+        
+        
+    </xforms:action>
+    
+    <!-- -->
+    <xforms:action ev:event="CollectionModel-ingest-update">
+        <!-- -->
+    </xforms:action>
+    
+</xforms:model>

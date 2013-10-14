@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<xforms:instance id="formats"
+                 xmlns:xforms="http://www.w3.org/2002/xforms"
+                 xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+                 xmlns:ev="http://www.w3.org/2001/xml-events">
+    <itemset>
+        <item>
+          <label>Book</label>
+          <value>Book</value>
+        </item>
+        <item>
+          <label>Thesis</label>
+          <value>Thesis</value>
+        </item>
+        <item>
+          <label>Map</label>
+          <value>Map</value>
+        </item>
+        <item>
+          <label>Newspaper</label>
+          <value>Newspaper</value>
+        </item>
+        <item>
+          <label>Image</label>
+          <value>Image</value>
+        </item>
+        <item>
+          <label>Scrapbook</label>
+          <value>Scrapbook</value>
+        </item>
+        <item>
+          <label>Article</label>
+          <value>Article</value>
+        </item>
+        <item>
+          <label>Journal</label>
+          <value>Journal</value>
+        </item>
+        <item>
+          <label>Manuscript</label>
+          <value>Manuscript</value>
+        </item>
+        <item>
+          <label>Letter</label>
+          <value>Letter</value>
+        </item>
+        <item>
+          <label>Diary</label>
+          <value>Diary</value>
+        </item>
+        <item>
+          <label>Receipt</label>
+          <value>Receipt</value>
+        </item>
+        <item>
+          <label>Realia</label>
+          <value>Realia</value>
+        </item>
+    </itemset>
+</xforms:instance>

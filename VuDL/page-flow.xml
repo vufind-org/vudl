@@ -1,0 +1,64 @@
+<!--
+Copyright (C) Villanova University 2012.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<c:controller xmlns:c="http://www.orbeon.com/oxf/controller"
+          xmlns:oxf="http://www.orbeon.com/oxf/processors"
+           >
+    <!-- -->
+    <c:page path="/VuDL/service/transform" view="view/xsl/view-object.xsl"/>
+    
+    <!-- -->
+    <c:page path="/VuDL/load-models" view="xpl/load-models.xpl"/>
+    
+    <!-- breadcrumb -->
+    <c:page path="/VuDL/breadcrumb" view="xpl/breadcrumb.xpl"/>
+
+    <!-- Login -->
+    <c:page path="/VuDL/login" view="view/login.xhtml"/>
+    <c:page path="/VuDL/process-login" model="login/process-login.xpl"/>
+
+    <!-- Session Management -->
+    <c:page path="/VuDL/verify-login" model="login/verify-login.xpl"/>
+    <c:page path="/VuDL/view-session" view="login/verify-login.xpl"/>
+
+    <!-- -->
+    <c:page path="/VuDL/(.+)/(.+)" matcher="regexp" default-submission="model/PageModel-model.xml" model="xpl/load-models.xpl">
+    	  <c:setvalue ref="//currentPage" matcher-group="1"/>
+    	  <c:setvalue ref="//currentPID" matcher-group="2"/>
+        <c:action action="login/verify-login.xpl"/> 
+    </c:page>
+    
+    <c:page path="/VuDL/(.+)" matcher="regexp" default-submission="model/PageModel-model.xml" model="xpl/load-models.xpl">
+    	  <c:setvalue ref="//currentPage" matcher-group="1"/>
+        <c:action action="login/verify-login.xpl"/> 
+    </c:page>
+    
+    <!-- Catch-All / 404 
+    <c:page path="*" view="views/view.xhtml" default-submission="models/PIDModel-model.xml">
+        <c:action action="login/verify-login.xpl"/>
+    </c:page>
+    -->
+    <c:page id="not-found" path="/fr/not-found" view="not-found.xpl"/>
+    <c:page id="unauthorized" path="/fr/unauthorized" view="unauthorized.xhtml"/>
+    <c:page id="error" path="/fr/error" model="/config/error.xpl"/>
+
+    <c:not-found-handler page="not-found"/>
+    <c:unauthorized-handler page="unauthorized"/>
+    <c:error-handler page="error"/>
+    
+    <c:epilogue url="oxf:/config/epilogue.xpl"/>
+
+</c:controller>

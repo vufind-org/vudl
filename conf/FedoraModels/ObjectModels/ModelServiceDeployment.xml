@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<foxml:digitalObject VERSION="1.1" PID="vudl-system:ModelServiceDeployment"
+xmlns:foxml="info:fedora/fedora-system:def/foxml#"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd">
+
+  <foxml:objectProperties>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Service Deployment: Base Model Control Object for VuDL"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="fedoraAdmin"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#createdDate" VALUE="2012-01-06T18:27:22.659Z"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/view#lastModifiedDate" VALUE="2012-01-10T14:27:21.094Z"/>
+  </foxml:objectProperties>
+
+  <foxml:datastream ID="DC" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+    <foxml:datastreamVersion ID="DC.1" LABEL="Dublin Core Record for this object" CREATED="2012-01-06T18:27:22.659Z" MIMETYPE="text/xml" FORMAT_URI="http://www.openarchives.org/OAI/2.0/oai_dc/" SIZE="0">
+      <foxml:xmlContent>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Service Deployment: Base Model Control Object for VuDL</dc:title>
+          <dc:identifier>vudl-system:ModelServiceDeployment</dc:identifier>
+        </oai_dc:dc>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+
+  <foxml:datastream ID="RELS-EXT" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+    <foxml:datastreamVersion ID="RELS-EXT.0" LABEL="RDF Statements about this object" CREATED="2012-01-06T18:29:54.029Z" MIMETYPE="application/rdf+xml" FORMAT_URI="info:fedora/fedora-system:FedoraRELSExt-1.0" SIZE="0">
+      <foxml:xmlContent>
+        <rdf:RDF xmlns:fedora-model="info:fedora/fedora-system:def/model#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+          <rdf:Description rdf:about="info:fedora/vudl-system:ModelServiceDeployment">
+            <fedora-model:hasModel rdf:resource="info:fedora/fedora-system:ServiceDeployment-3.0"></fedora-model:hasModel>
+            <fedora-model:isDeploymentOf rdf:resource="info:fedora/vudl-system:ModelService"></fedora-model:isDeploymentOf>
+            <fedora-model:isContractorOf rdf:resource="info:fedora/vudl-system:Model"></fedora-model:isContractorOf>
+          </rdf:Description>
+        </rdf:RDF>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+
+  <foxml:datastream ID="METHODMAP" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+    <foxml:datastreamVersion ID="METHODMAP.0" LABEL="Deployment Method Map" CREATED="2012-01-06T18:33:05.438Z" MIMETYPE="text/xml" FORMAT_URI="info:fedora/fedora-system:FedoraSDepMethodMap-1.1" SIZE="0">
+      <foxml:xmlContent>
+        <fmm:MethodMap xmlns:fmm="http://fedora.comm.nsdlib.org/service/methodmap" name="MethodMap - Core Service Deployment">
+
+          <fmm:Method operationName="executeModelHierarchyQuery" operationLabel="An xml list of parents of this Collection" wsdlMsgName="executeModelHierarchyQueryRequest" wsdlMsgOutput="dissemResponse">
+            <fmm:DatastreamInputParm defaultValue="" label="" parmName="MODEL-HIERARCHY-QUERY" passBy="URL_REF" required="true"></fmm:DatastreamInputParm>
+            <fmm:DefaultInputParm defaultValue="tuples" label="" parmName="TYPE" passBy="VALUE" required="true"></fmm:DefaultInputParm>
+            <fmm:DefaultInputParm defaultValue="itql" label="" parmName="LANG" passBy="VALUE" required="true"></fmm:DefaultInputParm>
+            <fmm:DefaultInputParm defaultValue="Sparql" label="" parmName="FORMAT" passBy="VALUE" required="true"></fmm:DefaultInputParm>
+            <fmm:MethodReturnType wsdlMsgName="dissemResponse" wsdlMsgTOMIME="text/xml"></fmm:MethodReturnType>
+          </fmm:Method>
+          
+
+          <fmm:Method operationName="formatModelHierarchyQueryResult" operationLabel="Format raw hieracry info into nested nodes" wsdlMsgName="formatModelHierarchyQueryResultRequest" wsdlMsgOutput="dissemResponse">
+            <fmm:DatastreamInputParm defaultValue="" label="" parmName="MODEL-HIERARCHY-XSLT" passBy="URL_REF" required="true"></fmm:DatastreamInputParm>
+            <fmm:DatastreamInputParm defaultValue="" label="" parmName="MODEL-HIERARCHY-RAW" passBy="URL_REF" required="true"></fmm:DatastreamInputParm>
+            <fmm:DefaultInputParm defaultValue="yes" label="" parmName="CLEAR_CACHE" passBy="VALUE" required="true"/>
+            <fmm:MethodReturnType wsdlMsgName="dissemResponse" wsdlMsgTOMIME="text/xml"></fmm:MethodReturnType>
+          </fmm:Method>
+
+          
+        </fmm:MethodMap>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+  
+  <foxml:datastream ID="DSINPUTSPEC" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+    <foxml:datastreamVersion ID="DSINPUTSPEC.0" LABEL="Datastream Input Specification" CREATED="2012-01-06T18:33:56.342Z" MIMETYPE="text/xml" FORMAT_URI="info:fedora/fedora-system:FedoraDSInputSpec-1.1" SIZE="0">
+      <foxml:xmlContent>
+        <fbs:DSInputSpec xmlns:fbs="http://fedora.comm.nsdlib.org/service/bindspec" label="Datastream Input Specification for Core Service Deployment">
+
+          <fbs:DSInput DSMax="1" DSMin="1" DSOrdinality="false" wsdlMsgPartName="MODEL-HIERARCHY-QUERY" pid="vudl-system:Model">
+            <fbs:DSInputLabel>MODEL-HIERARCHY-QUERY Binding</fbs:DSInputLabel>
+            <fbs:DSMIME>text/plain</fbs:DSMIME>
+            <fbs:DSInputInstruction></fbs:DSInputInstruction>
+          </fbs:DSInput>
+
+          <fbs:DSInput DSMax="1" DSMin="1" DSOrdinality="false" wsdlMsgPartName="MODEL-HIERARCHY-RAW" pid="vudl-system:CoreModel"> 
+            <fbs:DSInputLabel>MODEL-HIERARCHY-RAW Binding</fbs:DSInputLabel>
+            <fbs:DSMIME>text/xml</fbs:DSMIME>
+            <fbs:DSInputInstruction></fbs:DSInputInstruction>
+          </fbs:DSInput>
+          
+          <fbs:DSInput DSMax="1" DSMin="1" DSOrdinality="false" wsdlMsgPartName="MODEL-HIERARCHY-XSLT" pid="vudl-system:Model">
+            <fbs:DSInputLabel>MODEL-HIERARCHY-XSLT Binding</fbs:DSInputLabel>
+            <fbs:DSMIME>text/xml</fbs:DSMIME>
+            <fbs:DSInputInstruction></fbs:DSInputInstruction>
+          </fbs:DSInput>
+
+          
+        </fbs:DSInputSpec>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+
+<foxml:datastream ID="WSDL" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+<foxml:datastreamVersion ID="WSDL.0" LABEL="WSDL Bindings" CREATED="2012-01-06T18:40:54.831Z" MIMETYPE="text/xml" FORMAT_URI="http://schemas.xmlsoap.org/wsdl/" SIZE="0">
+<foxml:xmlContent>
+<wsdl:definitions xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap" xmlns:soapenc="http://schemas.xmlsoap.org/wsdl/soap/encoding" xmlns:this="bmech" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="ModelServiceDeployment" targetNamespace="bmech">
+  <wsdl:types>
+    <xsd:schema targetNamespace="bmech">
+
+      <xsd:simpleType name="CLEAR_CACHEType">
+        <xsd:restriction base="xsd:string"></xsd:restriction>
+      </xsd:simpleType>
+      
+      <xsd:simpleType name="TYPEType">
+        <xsd:restriction base="xsd:string"></xsd:restriction>
+      </xsd:simpleType>
+      
+      <xsd:simpleType name="LANGType">
+        <xsd:restriction base="xsd:string"></xsd:restriction>
+      </xsd:simpleType>
+      
+      <xsd:simpleType name="FORMATType">
+        <xsd:restriction base="xsd:string"></xsd:restriction>
+      </xsd:simpleType>
+
+      <xsd:simpleType name="MODEL-HIERARCHY-QUERYType">
+        <xsd:restriction base="xsd:string"></xsd:restriction>
+      </xsd:simpleType>
+
+
+      <xsd:simpleType name="MODEL-HIERARCHY-RAWType">
+        <xsd:restriction base="xsd:string"></xsd:restriction>
+      </xsd:simpleType>
+      
+      <xsd:simpleType name="MODEL-HIERARCHY-XSLTType">
+        <xsd:restriction base="xsd:string"/>
+      </xsd:simpleType>
+
+      
+    </xsd:schema>
+  </wsdl:types>
+
+  <wsdl:message name="executeModelHierarchyQueryRequest">
+    <wsdl:part name="TYPE" type="this:TYPEType"></wsdl:part>
+    <wsdl:part name="MODEL-HIERARCHY-QUERY" type="this:MODEL-HIERARCHY-QUERYType"></wsdl:part>
+    <wsdl:part name="LANG" type="this:LANGType"></wsdl:part>
+    <wsdl:part name="FORMAT" type="this:FORMATType"></wsdl:part>
+  </wsdl:message>
+
+
+  <wsdl:message name="formatModelHierarchyQueryResultRequest">
+    <wsdl:part name="MODEL-HIERARCHY-XSLT" type="this:MODEL-HIERARCHY-XSLTType"></wsdl:part>
+    <wsdl:part name="MODEL-HIERARCHY-RAW" type="this:MODEL-HIERARCHY-RAWType"></wsdl:part>
+    <wsdl:part name="CLEAR_CACHE" type="this:CLEAR_CACHEType"/>
+  </wsdl:message>
+
+
+  <wsdl:message name="dissemResponse">
+    <wsdl:part name="dissem" type="xsd:base64Binary"></wsdl:part>
+  </wsdl:message>
+  
+  <wsdl:portType name="ModelServiceDeploymentPortType">
+
+    <wsdl:operation name="executeModelHierarchyQuery">
+      <wsdl:input message="this:executeModelHierarchyQueryRequest"></wsdl:input>
+      <wsdl:output message="this:dissemResponse"></wsdl:output>
+    </wsdl:operation>
+
+
+    <wsdl:operation name="formatModelHierarchyQueryResult">
+      <wsdl:input message="this:formatModelHierarchyQueryResultRequest"></wsdl:input>
+      <wsdl:output message="this:dissemResponse"></wsdl:output>
+    </wsdl:operation>
+
+
+  </wsdl:portType>
+  
+  <wsdl:service name="ModelServiceDeployment">
+    <wsdl:port binding="this:ModelServiceDeployment_http" name="ModelServiceDeployment_port">
+      <http:address location="LOCAL"></http:address>
+    </wsdl:port>
+  </wsdl:service>
+  
+  <wsdl:binding name="ModelServiceDeployment_http" type="this:ModelServiceDeploymentPortType">
+  
+    <http:binding verb="GET"></http:binding>   
+
+    <wsdl:operation name="executeModelHierarchyQuery">
+      <http:operation location="http://local.fedora.server/fedora/risearch?type=(TYPE)&amp;lang=(LANG)&amp;format=(FORMAT)&amp;query=(MODEL-HIERARCHY-QUERY)"></http:operation>
+      <wsdl:input>
+        <http:urlReplacement></http:urlReplacement>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content type="text/xml"></mime:content>
+      </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name="formatModelHierarchyQueryResult">
+      <http:operation location="http://local.fedora.server/saxon/SaxonServlet?source=(MODEL-HIERARCHY-RAW)&amp;style=(MODEL-HIERARCHY-XSLT)&amp;clear-stylesheet-cache=(CLEAR_CACHE)"></http:operation>
+      <wsdl:input>
+        <http:urlReplacement></http:urlReplacement>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content type="text/xml"></mime:content>
+      </wsdl:output>
+    </wsdl:operation>
+
+
+  </wsdl:binding>
+</wsdl:definitions>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+</foxml:digitalObject>
